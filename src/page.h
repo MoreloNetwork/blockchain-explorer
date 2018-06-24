@@ -4311,6 +4311,13 @@ public:
         // get block size in bytes
         uint64_t blk_size = core_storage->get_db().get_block_size(block_height);
 
+        uint64_t blk_diff;
+        if (!mcore->get_diff_at_height(block_height, blk_diff))
+        {
+            j_data["title"] = fmt::format("Cant get block diff {:d}!", block_height);
+            return j_response;
+        }
+
         // miner reward tx
         transaction coinbase_tx = blk.miner_tx;
 
@@ -4357,6 +4364,7 @@ public:
 
         j_data = json {
                 {"block_height"  , block_height},
+                {"diff"          , blk_diff},
                 {"hash"          , pod_to_hex(blk_hash)},
                 {"timestamp"     , blk.timestamp},
                 {"timestamp_utc" , xmreg::timestamp_to_str_gm(blk.timestamp)},
