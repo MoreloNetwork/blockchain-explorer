@@ -45,7 +45,7 @@ main(int ac, const char* av[])
 
     auto port_opt                      = opts.get_option<string>("port");
     auto bc_path_opt                   = opts.get_option<string>("bc-path");
-    auto deamon_url_opt                = opts.get_option<string>("deamon-url");
+    auto deamon_url_opt                = opts.get_option<string>("daemon-url");
     auto ssl_crt_file_opt              = opts.get_option<string>("ssl-crt-file");
     auto ssl_key_file_opt              = opts.get_option<string>("ssl-key-file");
     auto no_blocks_on_index_opt        = opts.get_option<string>("no-blocks-on-index");
@@ -166,10 +166,10 @@ main(int ac, const char* av[])
 
     string deamon_url {*deamon_url_opt};
 
-    if (testnet && deamon_url == "http:://127.0.0.1:18081")
-        deamon_url = "http:://127.0.0.1:28081";
-    if (stagenet && deamon_url == "http:://127.0.0.1:18081")
-        deamon_url = "http:://127.0.0.1:38081";
+    if (testnet && deamon_url == "http:://127.0.0.1:19994")
+        deamon_url = "http:://127.0.0.1:29994";
+    if (stagenet && deamon_url == "http:://127.0.0.1:19994")
+        deamon_url = "http:://127.0.0.1:39994";
 
     uint64_t mempool_info_timeout {5000};
 
@@ -323,7 +323,7 @@ main(int ac, const char* av[])
             || post_body.count("viewkey") == 0
             || post_body.count("tx_hash") == 0)
         {
-            return string("xmr address, viewkey or tx hash not provided");
+            return string("ARQ address, viewkey or tx hash not provided");
         }
 
         string tx_hash     = remove_bad_chars(post_body["tx_hash"]);
@@ -365,7 +365,7 @@ main(int ac, const char* av[])
                 || post_body.count("txprvkey") == 0
                 || post_body.count("txhash") == 0)
             {
-                return string("xmr address, tx private key or "
+                return string("ARQ address, tx private key or "
                                       "tx hash not provided");
             }
 
