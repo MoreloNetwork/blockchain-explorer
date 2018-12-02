@@ -13,17 +13,17 @@ if (WIN32)
 endif()
 
 
-if (NOT MONERO_DIR)
-    set(MONERO_DIR ~/arqma)
+if (NOT ARQMA_DIR)
+    set(ARQMA_DIR ~/arqma)
 endif()
 
-message(STATUS MONERO_DIR ": ${MONERO_DIR}")
+message(STATUS ARQMA_DIR ": ${ARQMA_DIR}")
 
-set(MONERO_SOURCE_DIR ${MONERO_DIR}
-        CACHE PATH "Path to the root directory for Monero")
+set(ARQMA_SOURCE_DIR ${ARQMA_DIR}
+        CACHE PATH "Path to the root directory for Arqma")
 
-# set location of monero build tree
-set(MONERO_BUILD_DIR ${MONERO_SOURCE_DIR}/build/release/
+# set location of arqma build tree
+set(ARQMA_BUILD_DIR ${ARQMA_SOURCE_DIR}/build/release/
         CACHE PATH "Path to the build directory for Monero")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
@@ -31,12 +31,12 @@ set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
 
 list(APPEND CMAKE_MODULE_PATH "${MY_CMAKE_DIR}")
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${MONERO_BUILD_DIR}"
-        CACHE PATH "Add Monero directory for library searching")
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${ARQMA_BUILD_DIR}"
+        CACHE PATH "Add Arqma directory for library searching")
 
 include(MyUtils)
 
-find_package(Monero)
+find_package(Arqma)
 
 # find boost
 find_package(Boost COMPONENTS
@@ -62,7 +62,7 @@ endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR WIN32)
     add_library(unbound STATIC IMPORTED)
-    set_property(TARGET unbound PROPERTY IMPORTED_LOCATION ${MONERO_BUILD_DIR}/external/unbound/libunbound.a)
+    set_property(TARGET unbound PROPERTY IMPORTED_LOCATION ${ARQMA_BUILD_DIR}/external/unbound/libunbound.a)
 endif()
 
 # include boost headers
@@ -125,9 +125,9 @@ set(LIBRARIES
         ssl)
 
 if(APPLE)
-    set(LIBRARIES ${LIBRARIES} "-framework IOKit -framework PCSC")
+    set(LIBRARIES ${LIBRARIES} "-framework IOKit -framework Foundation")
 else()
-    set(LIBRARIES ${LIBRARIES} atomic pcsclite)
+    set(LIBRARIES ${LIBRARIES} atomic)
 endif()
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT WIN32)
@@ -144,5 +144,8 @@ if (WIN32)
 else()
     set(LIBRARIES ${LIBRARIES} dl)
 endif()
+
+find_package(HIDAPI)
+set(LIBRARIES ${LIBRARIES} ${HIDAPI_LIBRARIES})
 
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})

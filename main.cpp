@@ -662,7 +662,7 @@ main(int ac, const char* av[])
                           req.url_params.get("page") : "0";
 
             string limit = regex_search(req.raw_url, regex {"limit=\\d+"}) ?
-                           req.url_params.get("limit") : "25";
+                           req.url_params.get("limit") : "100";
 
             myxmr::jsonresponse r{xmrblocks.json_transactions(
                     remove_bad_chars(page), remove_bad_chars(limit))};

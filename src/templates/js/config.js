@@ -2,7 +2,7 @@ var config = {
     testnet: false, // this is adjusted page.h if needed. dont need to change manually
     stagenet: true, // this is adjusted page.h if needed. dont need to change manually
     coinUnitPlaces: 9,
-    txMinConfirms: 6,         // corresponds to CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE in Monero
+    txMinConfirms: 4, // corresponds to CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE in Monero
     txCoinbaseMinConfirms: 18, // corresponds to CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW in Monero
     coinSymbol: 'ARQ',
     openAliasPrefix: "arq",

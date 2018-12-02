@@ -68,6 +68,8 @@ var cnUtil = (function(initConfig) {
     var OLD_TX_VERSION = 1;
     var RCTTypeFull = 1;
     var RCTTypeSimple = 2;
+    var RCTTypeFullBulletproof = 3;
+    var RCTTypeSimpleBulletproof = 4;
     var TX_EXTRA_NONCE_MAX_COUNT = 255;
     var TX_EXTRA_TAGS = {
         PADDING: '00',
