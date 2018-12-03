@@ -33,12 +33,12 @@
 
     {{^tx_prove}}
         <h3>Checking which outputs belong to the given address and viewkey</h3>
-        <h5>address: {{xmr_address}}</h5>
+        <h5>address: {{arq_address}}</h5>
         <h5>viewkey: {{viewkey}}</h5>
     {{/tx_prove}}
     {{#tx_prove}}
         <h3>Prove that you send this tx to the given address</h3>
-        <h5>address: {{xmr_address}}</h5>
+        <h5>address: {{arq_address}}</h5>
         <h5>Tx private key: {{viewkey}}</h5>
     {{/tx_prove}}
 
@@ -71,7 +71,7 @@
         <h3>
             Sum ARQ from matched outputs (i.e., incoming ARQ):
             {{#found_our_outputs}}
-                {{sum_xmr}}
+                {{sum_arq}}
             {{/found_our_outputs}}
             {{^found_our_outputs}}
                 0.00000000
@@ -142,7 +142,7 @@
 
         </div>
         <h3>
-            Sum ARQ from matched and marked by * ring member's outputs: {{sum_mixin_xmr}}
+            Sum ARQ from matched and marked by * ring member's outputs: {{sum_mixin_arq}}
             <br/>
             <span style="font-size: 16px"> Possible spending is:
                 {{possible_spending}} (tx fee included)

@@ -56,7 +56,7 @@
     </table>
 
 
-  <h3>{{outputs_no}} output(s) for total of {{outputs_xmr_sum}} ARQ</h3>
+  <h3>{{outputs_no}} output(s) for total of {{outputs_arq_sum}} ARQ</h3>
   <div class="center">
       <table class="center">
           <tr>
@@ -95,7 +95,7 @@
                     </h5>
                     <form action="/myoutputs" method="post" style="width:100%; margin-top:2px" class="style-1">
                         <input type="hidden" name="tx_hash" value="{{tx_hash}}"><br/>
-                        <input type="text" name="xmr_address" size="110" placeholder="Arqma address/subaddress"><br/>
+                        <input type="text" name="arq_address" size="110" placeholder="Arqma address/subaddress"><br/>
                         <input type="text" name="viewkey" size="110" placeholder="Private viewkey" style="margin-top:5px"><br/>
                         <input type="hidden" name="raw_tx_data" value="{{raw_tx_data}}">
 							<!--above raw_tx_data field only used when checking raw tx data through tx pusher-->
@@ -134,7 +134,7 @@
                        <input type="text" name="txprvkey" size="120" placeholder="Tx private key"><br/>
                         <input type="hidden" name="raw_tx_data" value="{{raw_tx_data}}">
                         <!--above raw_tx_data field only used when checking raw tx data through tx pusher-->
-                       <input type="text" name="xmraddress" size="120" placeholder="Recipient's Arqma address/subaddress" style="margin-top:5px"><br/>
+                       <input type="text" name="arqaddress" size="120" placeholder="Recipient's Arqma address/subaddress" style="margin-top:5px"><br/>
 
                         {{#enable_js}}
                             <!-- if have js, DONOT submit the form to server.
@@ -184,7 +184,7 @@
 
                 $("#decode_btn").click(function() {
 
-                    var address = $("input[name=xmr_address]").val().trim();
+                    var address = $("input[name=arq_address]").val().trim();
                     var viewkey = $("input[name=viewkey]").val().trim();
 
                     if (!address || !viewkey) {
@@ -209,7 +209,7 @@
 
                 $("#prove_btn").click(function() {
 
-                    var address    = $("input[name=xmraddress]").val().trim();
+                    var address    = $("input[name=arqaddress]").val().trim();
                     var tx_prv_key = $("input[name=txprvkey]").val().trim();
 
                     if (!address || !tx_prv_key) {
@@ -396,17 +396,17 @@
       </div>
     {{/enable_mixins_details}}
 
-    {{^inputs_xmr_sum_not_zero}}
-        <h3>{{inputs_no}} input(s) for total of {{inputs_xmr_sum}} ARQ</h3>
-    {{/inputs_xmr_sum_not_zero}}
-    {{#inputs_xmr_sum_not_zero}}
+    {{^inputs_arq_sum_not_zero}}
+        <h3>{{inputs_no}} input(s) for total of {{inputs_arq_sum}} ARQ</h3>
+    {{/inputs_arq_sum_not_zero}}
+    {{#inputs_arq_sum_not_zero}}
         {{^have_any_unknown_amount}}
-            <h3>{{inputs_no}} inputs(s) for total of {{inputs_xmr_sum}} ARQ</h3>
+            <h3>{{inputs_no}} inputs(s) for total of {{inputs_arq_sum}} ARQ</h3>
         {{/have_any_unknown_amount}}
         {{#have_any_unknown_amount}}
-            <h3>{{inputs_no}} inputs(s) for total of at least {{inputs_xmr_sum}} ARQ</h3>
+            <h3>{{inputs_no}} inputs(s) for total of at least {{inputs_arq_sum}} ARQ</h3>
         {{/have_any_unknown_amount}}
-    {{/inputs_xmr_sum_not_zero}}
+    {{/inputs_arq_sum_not_zero}}
 
     {{#show_part_of_inputs}}
         <h5 style="margin-top: 2px">
