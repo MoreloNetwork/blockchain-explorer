@@ -285,12 +285,15 @@ main(int ac, const char* av[])
 
     // get domian url based on the request
     auto get_domain = [&use_ssl](crow::request const& req) {
-        return (use_ssl ? "https://" : "http://")
-               + req.get_header_value("Host");
+        auto frontend_host = req.get_header_value("X-Forwarded-Host");
+        auto frontend_ssl = req.get_header_value("X-Forwarded-Proto");
+
+        return ((use_ssl || frontend_ssl == "https") ? "https://" : "http://")
+               + (frontend_host.empty() ? req.get_header_value("Host") : frontend_host);
     };
 
     CROW_ROUTE(app, "/")
-    ([&]() {
+    ([&](const crow::request& req) {
         return crow::response(xmrblocks.index2());
     });
 
@@ -300,12 +303,12 @@ main(int ac, const char* av[])
     });
 
     CROW_ROUTE(app, "/block/<uint>")
-    ([&](size_t block_height) {
+    ([&](const crow::request& req, size_t block_height) {
         return crow::response(xmrblocks.show_block(block_height));
     });
 
     CROW_ROUTE(app, "/block/<string>")
-    ([&](string block_hash) {
+    ([&](const crow::request& req, string block_hash) {
         return crow::response(xmrblocks.show_block(remove_bad_chars(block_hash)));
     });
 
@@ -354,7 +357,7 @@ main(int ac, const char* av[])
             || post_body.count("viewkey") == 0
             || post_body.count("tx_hash") == 0)
         {
-            return string("xmr address, viewkey or tx hash not provided");
+            return string("ARQ address, viewkey or tx hash not provided");
         }
 
         string tx_hash     = remove_bad_chars(post_body["tx_hash"]);
@@ -396,7 +399,7 @@ main(int ac, const char* av[])
                 || post_body.count("txprvkey") == 0
                 || post_body.count("txhash") == 0)
             {
-                return string("xmr address, tx private key or "
+                return string("ARQ address, tx private key or "
                                       "tx hash not provided");
             }
 
@@ -434,7 +437,7 @@ main(int ac, const char* av[])
     if (enable_pusher)
     {
         CROW_ROUTE(app, "/rawtx")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.show_rawtx();
         });
 
@@ -464,7 +467,7 @@ main(int ac, const char* av[])
     if (enable_key_image_checker)
     {
         CROW_ROUTE(app, "/rawkeyimgs")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.show_rawkeyimgs();
         });
 
@@ -495,7 +498,7 @@ main(int ac, const char* av[])
     if (enable_output_key_checker)
     {
         CROW_ROUTE(app, "/rawoutputkeys")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.show_rawoutputkeys();
         });
 
@@ -530,13 +533,13 @@ main(int ac, const char* av[])
     });
 
     CROW_ROUTE(app, "/mempool")
-    ([&]() {
+    ([&](const crow::request& req) {
         return xmrblocks.mempool(true);
     });
 
     // alias to  "/mempool"
     CROW_ROUTE(app, "/txpool")
-    ([&]() {
+    ([&](const crow::request& req) {
         return xmrblocks.mempool(true);
     });
 
@@ -552,57 +555,62 @@ main(int ac, const char* av[])
         return text;
     });
 
+    // We can handle these, but if there's a proxy in front of this it's strongly recommended to
+    // have it serve them directly instead:
+    CROW_ROUTE(app, "/blockchain.js")([&]() { return xmrblocks.get_blockchain_js(); });
+    CROW_ROUTE(app, "/css/style.css")([&]() { return xmrblocks.get_css(); });
+
     if (enable_js)
     {
         cout << "Enable JavaScript checking of outputs and proving txs\n";
 
         CROW_ROUTE(app, "/js/jquery.min.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("jquery.min.js");
         });
 
         CROW_ROUTE(app, "/js/crc32.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("crc32.js");
         });
 
         CROW_ROUTE(app, "/js/biginteger.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("biginteger.js");
         });
 
         CROW_ROUTE(app, "/js/crypto.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("crypto.js");
         });
 
         CROW_ROUTE(app, "/js/config.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("config.js");
         });
 
         CROW_ROUTE(app, "/js/nacl-fast-cn.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("nacl-fast-cn.js");
         });
 
         CROW_ROUTE(app, "/js/base58.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("base58.js");
         });
 
         CROW_ROUTE(app, "/js/cn_util.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("cn_util.js");
         });
 
         CROW_ROUTE(app, "/js/sha3.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             return xmrblocks.get_js_file("sha3.js");
         });
 
         CROW_ROUTE(app, "/js/all_in_one.js")
-        ([&]() {
+        ([&](const crow::request& req) {
             // /js/all_in_one.js file does not exist. it is generated on the fly
             // from the above real files.
             return xmrblocks.get_js_file("all_in_one.js");
@@ -616,7 +624,7 @@ main(int ac, const char* av[])
         cout << "Enable JSON API\n";
 
         CROW_ROUTE(app, "/api/transaction/<string>")
-        ([&](string tx_hash) {
+        ([&](const crow::request &req, string tx_hash) {
 
             myxmr::jsonresponse r{xmrblocks.json_transaction(remove_bad_chars(tx_hash))};
 
@@ -624,23 +632,15 @@ main(int ac, const char* av[])
         });
 
         CROW_ROUTE(app, "/api/rawtransaction/<string>")
-        ([&](string tx_hash) {
+        ([&](const crow::request &req, string tx_hash) {
 
             myxmr::jsonresponse r{xmrblocks.json_rawtransaction(remove_bad_chars(tx_hash))};
 
             return r;
         });
 
-        CROW_ROUTE(app, "/api/detailedtransaction/<string>")
-        ([&](string tx_hash) {
-
-            myxmr::jsonresponse r{xmrblocks.json_detailedtransaction(remove_bad_chars(tx_hash))};
-
-            return r;
-        });
-
         CROW_ROUTE(app, "/api/block/<string>")
-        ([&](string block_no_or_hash) {
+        ([&](const crow::request &req, string block_no_or_hash) {
 
             myxmr::jsonresponse r{xmrblocks.json_block(remove_bad_chars(block_no_or_hash))};
 
@@ -648,7 +648,7 @@ main(int ac, const char* av[])
         });
 
         CROW_ROUTE(app, "/api/rawblock/<string>")
-        ([&](string block_no_or_hash) {
+        ([&](const crow::request &req, string block_no_or_hash) {
 
             myxmr::jsonresponse r{xmrblocks.json_rawblock(remove_bad_chars(block_no_or_hash))};
 
@@ -662,7 +662,7 @@ main(int ac, const char* av[])
                           req.url_params.get("page") : "0";
 
             string limit = regex_search(req.raw_url, regex {"limit=\\d+"}) ?
-                           req.url_params.get("limit") : "100";
+                           req.url_params.get("limit") : "25";
 
             myxmr::jsonresponse r{xmrblocks.json_transactions(
                     remove_bad_chars(page), remove_bad_chars(limit))};
@@ -689,7 +689,7 @@ main(int ac, const char* av[])
         });
 
         CROW_ROUTE(app, "/api/search/<string>")
-        ([&](string search_value) {
+        ([&](const crow::request &req, string search_value) {
 
             myxmr::jsonresponse r{xmrblocks.json_search(remove_bad_chars(search_value))};
 
@@ -697,7 +697,7 @@ main(int ac, const char* av[])
         });
 
         CROW_ROUTE(app, "/api/networkinfo")
-        ([&]() {
+        ([&](const crow::request &req) {
 
             myxmr::jsonresponse r{xmrblocks.json_networkinfo()};
 
@@ -705,7 +705,7 @@ main(int ac, const char* av[])
         });
 
         CROW_ROUTE(app, "/api/emission")
-        ([&]() {
+        ([&](const crow::request &req) {
 
             myxmr::jsonresponse r{xmrblocks.json_emission()};
 
@@ -781,7 +781,7 @@ main(int ac, const char* av[])
         });
 
         CROW_ROUTE(app, "/api/version")
-        ([&]() {
+        ([&](const crow::request &req) {
 
             myxmr::jsonresponse r{xmrblocks.json_version()};
 
@@ -805,13 +805,13 @@ main(int ac, const char* av[])
     if (use_ssl)
     {
         cout << "Staring in ssl mode" << endl;
-        app.bindaddr(bindaddr).port(app_port).ssl_file(ssl_crt_file, ssl_key_file)
+        app.port(app_port).ssl_file(ssl_crt_file, ssl_key_file)
                 .multithreaded().run();
     }
     else
     {
         cout << "Staring in non-ssl mode" << endl;
-        app.bindaddr(bindaddr).port(app_port).multithreaded().run();
+        app.port(app_port).multithreaded().run();
     }
 
 

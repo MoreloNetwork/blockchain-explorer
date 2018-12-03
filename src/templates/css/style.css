@@ -9,15 +9,27 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
 }
 
+h1 {
+    font-variant: small-caps;
+}
+
+@font-face {
+    font-family: dejavu_mono;
+    src: local('DejaVu Sans Mono'),
+        url('/fonts/DejaVuSansMono.woff2') format('woff2'),
+        url('/fonts/DejaVuSansMono.woff') format('woff'),
+        url('/fonts/DejaVuSansMono.ttf') format('truetype');
+}
+
 .center {
     margin: auto;
     width: 96%;
-/*    border: 1px solid #73AD21;
-    padding: 10px; */
+    /*border: 1px solid #73AD21;
+    padding: 10px;*/
 }
 
 tr, li, #pages, .info {
-    font-family: "Lucida Console", Monaco, monospace;
+    font-family: dejavu_mono, monospace;
     font-size  : 12px;
     height: 22px;
 }
@@ -29,6 +41,29 @@ tr, li, #pages, .info {
 
 td {
     text-align: center;
+}
+
+table.mempool { width: 80%; max-width: 137ex; margin: 0 auto; }
+table.blocks { table-layout: fixed; width: 80%; max-width: 137ex; margin: 0 auto; }
+table.blocks td, table.blocks th {
+    padding: 0 1ex 0 1ex;
+    margin: 0;
+}
+table.blocks .height    { width: 8ex; }
+table.blocks .age       { width: 13ex; }
+table.blocks .diff      { width: 12ex; }
+table.blocks .pool      { width: 17ex; overflow: hidden; text-overflow: ellipsis; }
+table.blocks .size      { width: 11ex; }
+table.blocks .hash      { width: 17ex; overflow: hidden; text-overflow: ellipsis; }
+table.blocks .fees      { width: 8ex; }
+table.blocks .outputs   { width: 12ex; }
+table.blocks .inputs    { width: 15ex; }
+table.blocks .mixin     { width: 11ex; }
+table.blocks .txsize    { width: 13ex; }
+
+table.blocks .age.out-of-order, table.blocks .age.negative {
+    font-weight: bold;
+    color: red;
 }
 
 a:link {
@@ -115,15 +150,15 @@ form {
 
 input#toggle-1[type=checkbox] {
     position: absolute;
-/*    top: -9999px; */
+    /*top: -9999px;*/
     left: -9999px;
 
 }
 label#show-decoded-inputs {
-    -webkit-appearance: push-button;
-    -moz-appearance: button; 
+    /*-webkit-appearance: push-button;*/
+    /*-moz-appearance: button;*/
     display: inline-block;
-    margin: 60px 0 10px 0; 
+    /*margin: 60px 0 10px 0;*/
     cursor: pointer;
     background-color: black;;
     color: white;
@@ -135,7 +170,73 @@ div#decoded-inputs{
     display: none;
 }
 
-/Toggled State 
+/* Toggled State */
 input#toggle-1[type=checkbox]:checked ~ div#decoded-inputs {
     display: block;
 }
+
+
+body.show-pools {
+    margin-left: 250px;
+    transition: all 0.5s ease;
+}
+#pool-list {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0px;
+    transition: all 0.5s ease;
+    border: none;
+    z-index: 1;
+}
+body.show-pools #pool-list {
+    width: 250px;
+    box-shadow: -4px 8px 12px 5px #888888;
+    transition: all 0.5s ease;
+}
+#pool-list-control {
+    font-variant: small-caps;
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 250px;
+    border: none;
+    transform: rotate(0deg);
+    transform-origin: top right;
+    font-size: 25px;
+    transition: all 0.5s ease;
+    background-color: white;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: -4px 8px 12px 5px #888888;
+    color: black;
+}
+body.show-pools #pool-list-control {
+    left: 0px;
+    top: 0px;
+    width: 250px;
+    border: none;
+    transform: rotate(-90deg);
+    transform-origin: top right;
+    z-index: 2;
+}
+body.show-pools #pool-list-control .expand, #pool-list-control .collapse {
+    display: none;
+}
+body.show-pools #pool-list-control .collapse {
+    display: inline;
+}
+
+div#auto-update {
+    font-size: 13px;
+    text-align: center;
+}
+div#auto-update.updates-enabled .not-updating, div#auto-update.updates-disabled .updating {
+    display: none;
+}
+div#auto-update a {
+    font-weight: bold;
+}
+
+
