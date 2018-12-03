@@ -39,8 +39,8 @@ struct MempoolStatus
 
         string fee_str;
         string payed_for_kB_str;
-        string xmr_inputs_str;
-        string xmr_outputs_str;
+        string arq_inputs_str;
+        string arq_outputs_str;
         string timestamp_str;
         string txsize;
 

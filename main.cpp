@@ -353,7 +353,7 @@ main(int ac, const char* av[])
         map<std::string, std::string> post_body
                 = xmreg::parse_crow_post_data(req.body);
 
-        if (post_body.count("xmr_address") == 0
+        if (post_body.count("arq_address") == 0
             || post_body.count("viewkey") == 0
             || post_body.count("tx_hash") == 0)
         {
@@ -361,7 +361,7 @@ main(int ac, const char* av[])
         }
 
         string tx_hash     = remove_bad_chars(post_body["tx_hash"]);
-        string xmr_address = remove_bad_chars(post_body["xmr_address"]);
+        string arq_address = remove_bad_chars(post_body["arq_address"]);
         string viewkey     = remove_bad_chars(post_body["viewkey"]);
 
         // this will be only not empty when checking raw tx data
@@ -370,20 +370,20 @@ main(int ac, const char* av[])
 
         string domain      =  get_domain(req);
 
-        return xmrblocks.show_my_outputs(tx_hash, xmr_address,
+        return xmrblocks.show_my_outputs(tx_hash, arq_address,
                                          viewkey, raw_tx_data,
                                          domain);
     });
 
     CROW_ROUTE(app, "/myoutputs/<string>/<string>/<string>")
     ([&](const crow::request& req, string tx_hash,
-        string xmr_address, string viewkey)
+        string arq_address, string viewkey)
      {
 
         string domain = get_domain(req);
 
         return xmrblocks.show_my_outputs(remove_bad_chars(tx_hash),
-                                         remove_bad_chars(xmr_address),
+                                         remove_bad_chars(arq_address),
                                          remove_bad_chars(viewkey),
                                          string {},
                                          domain);
@@ -395,7 +395,7 @@ main(int ac, const char* av[])
             map<std::string, std::string> post_body
                     = xmreg::parse_crow_post_data(req.body);
 
-            if (post_body.count("xmraddress") == 0
+            if (post_body.count("arqaddress") == 0
                 || post_body.count("txprvkey") == 0
                 || post_body.count("txhash") == 0)
             {
@@ -405,7 +405,7 @@ main(int ac, const char* av[])
 
             string tx_hash     = remove_bad_chars(post_body["txhash"]);
             string tx_prv_key  = remove_bad_chars(post_body["txprvkey"]);
-            string xmr_address = remove_bad_chars(post_body["xmraddress"]);
+            string arq_address = remove_bad_chars(post_body["arqaddress"]);
 
             // this will be only not empty when checking raw tx data
             // using tx pusher
@@ -414,7 +414,7 @@ main(int ac, const char* av[])
             string domain      = get_domain(req);
 
             return xmrblocks.show_prove(tx_hash,
-                                        xmr_address,
+                                        arq_address,
                                         tx_prv_key,
                                         raw_tx_data,
                                         domain);
@@ -423,12 +423,12 @@ main(int ac, const char* av[])
 
     CROW_ROUTE(app, "/prove/<string>/<string>/<string>")
     ([&](const crow::request& req, string tx_hash,
-         string xmr_address, string tx_prv_key) {
+         string arq_address, string tx_prv_key) {
 
         string domain = get_domain(req);
 
         return xmrblocks.show_prove(remove_bad_chars(tx_hash),
-                                    remove_bad_chars(xmr_address),
+                                    remove_bad_chars(arq_address),
                                     remove_bad_chars(tx_prv_key),
                                     string {},
                                     domain);

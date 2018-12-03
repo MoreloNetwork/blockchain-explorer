@@ -2,8 +2,8 @@
 # CMake helper for the majority of the cpp-ethereum modules.
 #
 # This module defines
-#     Monero_XXX_LIBRARIES, the libraries needed to use ethereum.
-#     Monero_FOUND, If false, do not try to use ethereum.
+#     ARQMA_XXX_LIBRARIES, the libraries needed to use ethereum.
+#     ARQMA_FOUND, If false, do not try to use ethereum.
 #
 # File addetped from cpp-ethereum
 #
