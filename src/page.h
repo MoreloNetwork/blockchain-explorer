@@ -821,6 +821,13 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 continue;
             }
 
+            uint64_t blk_diff;
+            if (!mcore->get_diff_at_height(i, blk_diff))
+            {
+                cerr << "Cant get block diff: " << i << endl;
+                return fmt::format("Cant get block diff {:d}!", i);
+            }
+
             uint64_t tx_i {0};
 
             // this vector will go into block_tx cache
