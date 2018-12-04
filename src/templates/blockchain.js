@@ -94,17 +94,17 @@ function update_data() {
 
             row.append($('<td class="diff">' + b['diff'] + '</td>'));
             row.append($('<td class="pool"><a class="find-pool" id="find-' + b['hash'] + '"></a></td>'));
-            row.append($('<td class="size">' + (b['size'] / 1024.).toFixed(2) + '</td>'));
+            row.append($('<td class="size">' + (b['size'] / 1024.).toFixed(4) + '</td>'));
             row.append($('<td class="hash"><a href="/block/' + b['hash'] + '">' + b['hash'] + '</a></td>'));
             row.append($('<td class="fees">N/A</td>'));
             let outputs = 0;
             for (let tx of b['txs']) {
                 outputs += tx['arq_outputs'];
             }
-            row.append($('<td class="outputs">' + (outputs * COIN_FACTOR).toFixed(3) + '</td>'));
+            row.append($('<td class="outputs">' + (outputs * COIN_FACTOR).toFixed(9) + '</td>'));
             row.append($('<td class="inputs">0/1/-</td>'));
             row.append($('<td class="mixin">N/A</td>'));
-            row.append($('<td class="txsize">' + (b['txs'][0]['tx_size'] / 1024.).toFixed(2) + '</td>'));
+            row.append($('<td class="txsize">' + (b['txs'][0]['tx_size'] / 1024.).toFixed(4) + '</td>'));
 
             row.insertAfter(after);
             after = row;
@@ -115,11 +115,11 @@ function update_data() {
                 let row = $('<tr></tr>');
                 row.append($('<td class="height age diff pool size" colspan="5"></td>'));
                 row.append($('<td class="hash"><a href="/tx/' + tx['tx_hash'] + '">' + tx['tx_hash'] + '</a></td>'));
-                row.append($('<td class="fees">' + (tx['tx_fee'] * COIN_FACTOR).toFixed(3) + '</td>'));
+                row.append($('<td class="fees">' + (tx['tx_fee'] * COIN_FACTOR).toFixed(9) + '</td>'));
                 row.append($('<td class="outputs">?</td>'));
                 row.append($('<td class="inputs" title="A page refresh is required to see these values">?/?/?</td>'));
                 row.append($('<td class="mixin">' + tx['mixin'] + '</td>'));
-                row.append($('<td class="txsize">' + (tx['tx_size'] / 1024.).toFixed(2) + '</td>'));
+                row.append($('<td class="txsize">' + (tx['tx_size'] / 1024.).toFixed(4) + '</td>'));
                 row.insertAfter(after);
                 after = row;
             }
@@ -137,7 +137,7 @@ function update_data() {
             let median = (numOfLastBlocks() % 2 == 0
                 ? 0.5 * (mid1 + block_sizes[(numOfLastBlocks() >> 1) - 1])
                 : mid1);
-            $('#blk-size-median').text((median / 1024.).toFixed(2));
+            $('#blk-size-median').text((median / 1024.).toFixed(4));
 
         }
     });
@@ -148,10 +148,10 @@ function update_data() {
         let data = d['data'];
         $('#network-info-diff').text(data['difficulty']);
         $('#network-info-hashrate').text(si_prefix(data['hash_rate']) + 'H/s');
-        $('#network-info-fee-kb').text(Number((data['fee_per_kb'] * COIN_FACTOR).toPrecision(10)));
-        $('#network-info-block-limit').text((data['block_size_limit'] / 2048.).toFixed(2));
+        $('#network-info-fee-kb').text(Number((data['fee_per_kb'] * COIN_FACTOR).toPrecision(9)));
+        $('#network-info-block-limit').text((data['block_size_limit'] / 2048.).toFixed(4));
         $('#mempool-size').text(data['tx_pool_size']);
-        $('#mempool-size-kb').text((data['tx_pool_size_kbytes'] / 1024.).toFixed(2));
+        $('#mempool-size-kb').text((data['tx_pool_size_kbytes'] / 1024.).toFixed(4));
         let nio = $('#network-info-old');
         if (nio.length > 0) nio.remove();
     });
@@ -160,13 +160,13 @@ function update_data() {
         if (d['status'] != 'success') return;
         $('#last-updated').text(new Date().toLocaleTimeString())
         let data = d['data'];
-        $('#emission-amount').text((data['coinbase'] * COIN_FACTOR).toFixed(3));
-        $('#emission-fees').text((data['fee'] * COIN_FACTOR).toFixed(3));
+        $('#emission-amount').text((data['coinbase'] * COIN_FACTOR).toFixed(4));
+        $('#emission-fees').text((data['fee'] * COIN_FACTOR).toFixed(9));
         $('#emission-block').text(data['blk_no']);
     });
 
 
-    $.getJSON('/api/mempool?limit=25', function (d) {
+    $.getJSON('/api/mempool?limit=50', function (d) {
         if (d['status'] != 'success') return;
         $('#last-updated').text(new Date().toLocaleTimeString())
         let data = d['data'];
@@ -184,10 +184,10 @@ function update_data() {
             let row = $('<tr class="tx-row"></tr>');
             row.append($('<td class="age">' + tx['age'] + '</td>'));
             row.append($('<td class="hash"><a href="/tx/' + tx['tx_hash'] + '">' + tx['tx_hash'] + '</a></td>'));
-            row.append($('<td class="fee">' + (tx['tx_fee'] * COIN_FACTOR).toFixed(3) + '</td>'));
+            row.append($('<td class="fee">' + (tx['tx_fee'] * COIN_FACTOR).toFixed(9) + '</td>'));
             row.append($('<td class="inout" title="A page refresh is required to see these values">?(?)/?</td>'));
             row.append($('<td class="mixin">' + tx['mixin'] + '</td>'));
-            row.append($('<td class="size">' + (tx['tx_size'] / 1024.).toFixed(2) + '</td>'));
+            row.append($('<td class="size">' + (tx['tx_size'] / 1024.).toFixed(4) + '</td>'));
             row.insertBefore(next);
         }
         next.nextAll().addBack().remove();

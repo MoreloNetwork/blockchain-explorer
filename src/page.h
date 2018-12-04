@@ -67,8 +67,8 @@
 #define JS_NACLFAST TMPL_DIR "/js/nacl-fast-cn.js"
 #define JS_SHA3     TMPL_DIR "/js/sha3.js"
 
-#define ONIONEXPLORER_RPC_VERSION_MAJOR 1
-#define ONIONEXPLORER_RPC_VERSION_MINOR 3
+#define ONIONEXPLORER_RPC_VERSION_MAJOR 2
+#define ONIONEXPLORER_RPC_VERSION_MINOR 0
 #define MAKE_ONIONEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define ONIONEXPLORER_RPC_VERSION \
     MAKE_ONIONEXPLORER_RPC_VERSION(ONIONEXPLORER_RPC_VERSION_MAJOR, ONIONEXPLORER_RPC_VERSION_MINOR)
@@ -257,8 +257,8 @@ struct tx_details
             double payed_for_kB = arq_amount / tx_size;
 
             mixin_str        = std::to_string(mixin_no);
-            fee_str          = fmt::format("{:0.6f}", arq_amount);
-            fee_short_str    = fmt::format("{:0.4f}", arq_amount);
+            fee_str          = fmt::format("{:0.9f}", arq_amount);
+            fee_short_str    = fmt::format("{:0.9f}", arq_amount);
             payed_for_kB_str = fmt::format("{:0.4f}", payed_for_kB);
         }
 
@@ -270,10 +270,10 @@ struct tx_details
                 {"tx_fee"            , fee_str},
                 {"tx_fee_short"      , fee_short_str},
                 {"payed_for_kB"      , payed_for_kB_str},
-                {"sum_inputs"        , arq_amount_to_str(arq_inputs , "{:0.6f}")},
-                {"sum_outputs"       , arq_amount_to_str(arq_outputs, "{:0.6f}")},
-                {"sum_inputs_short"  , arq_amount_to_str(arq_inputs , "{:0.3f}")},
-                {"sum_outputs_short" , arq_amount_to_str(arq_outputs, "{:0.3f}")},
+                {"sum_inputs"        , arq_amount_to_str(arq_inputs , "{:0.9f}")},
+                {"sum_outputs"       , arq_amount_to_str(arq_outputs, "{:0.9f}")},
+                {"sum_inputs_short"  , arq_amount_to_str(arq_inputs , "{:0.9f}")},
+                {"sum_outputs_short" , arq_amount_to_str(arq_outputs, "{:0.9f}")},
                 {"no_inputs"         , static_cast<uint64_t>(input_key_imgs.size())},
                 {"no_outputs"        , static_cast<uint64_t>(output_pub_keys.size())},
                 {"no_nonrct_inputs"  , num_nonrct_inputs},
@@ -289,7 +289,7 @@ struct tx_details
                 {"payment_id8"       , pod_to_hex(payment_id8)},
                 {"unlock_time"       , unlock_time},
                 {"tx_size"           , fmt::format("{:0.4f}", tx_size)},
-                {"tx_size_short"     , fmt::format("{:0.2f}", tx_size)},
+                {"tx_size_short"     , fmt::format("{:0.4f}", tx_size)},
                 {"has_add_pks"       , !additional_pks.empty()}
         };
 
@@ -459,7 +459,7 @@ page(MicroCore* _mcore,
     stagenet = nettype == cryptonote::network_type::STAGENET;
 
 
-    no_of_mempool_tx_of_frontpage = 25;
+    no_of_mempool_tx_of_frontpage = 50;
 
     // read template files for all the pages
     // into template_file map
@@ -670,7 +670,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         // get block size in kB
         double blk_size = static_cast<double>(core_storage->get_db().get_block_size(i))/1024.0;
 
-        string blk_size_str = fmt::format("{:0.2f}", blk_size);
+        string blk_size_str = fmt::format("{:0.4f}", blk_size);
 
         blk_sizes.push_back(blk_size);
 
@@ -996,8 +996,8 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 = CurrentBlockchainStatus::get_emission();
 
         string emission_blk_no   = std::to_string(current_values.blk_no - 1);
-        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.3f}");
-        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.3f}");
+        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.9f}");
+        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.9f}");
 
         context["emission"] = mstch::map {
                 {"blk_no"    , emission_blk_no},
@@ -1027,7 +1027,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
  * Render mempool data
  */
 string
-mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 25)
+mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
 {
     std::vector<MempoolStatus::mempool_tx> mempool_txs;
 
@@ -1122,7 +1122,7 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 25)
     }
 
     context.insert({"mempool_size_kB",
-                    fmt::format("{:0.2f}",
+                    fmt::format("{:0.4f}",
                                 static_cast<double>(mempool_size_bytes)/1024.0)});
 
     if (add_header_and_footer)
@@ -1386,11 +1386,11 @@ show_block(uint64_t _blk_height)
 
     // add total fees in the block to the context
     context["sum_fees"]
-            = xmreg::arq_amount_to_str(sum_fees, "{:0.6f}", false);
+            = xmreg::arq_amount_to_str(sum_fees, "{:0.9f}", false);
 
     // get xmr in the block reward
     context["blk_reward"]
-            = xmreg::arq_amount_to_str(txd_coinbase.arq_outputs - sum_fees, "{:0.6f}");
+            = xmreg::arq_amount_to_str(txd_coinbase.arq_outputs - sum_fees, "{:0.9f}");
 
     add_css_style(context);
 
@@ -5620,8 +5620,8 @@ json_emission()
                 = CurrentBlockchainStatus::get_emission();
 
         string emission_blk_no   = std::to_string(current_values.blk_no - 1);
-        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.3f}");
-        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.4f}", false);
+        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.9f}");
+        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.9f}", false);
 
         j_data = json {
                 {"blk_no"  , current_values.blk_no - 1},
