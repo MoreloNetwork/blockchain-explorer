@@ -859,6 +859,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 txd_map.insert({"age"       , age.first});
                 txd_map.insert({"age_class" , age_class});
                 txd_map.insert({"age_title" , age_title});
+                txd_map.insert({"diff"      , blk_diff});
                 txd_map.insert({"is_ringct" , (tx.version > 1)});
                 txd_map.insert({"rct_type"  , tx.rct_signatures.type});
                 txd_map.insert({"blk_size"  , blk_size_str});
@@ -869,6 +870,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 {
                     txd_map["height"]     = string("");
                     txd_map["age"]        = string("");
+                    txd_map["diff"]       = string("");
                     txd_map["blk_size"]   = string("");
                 }
 
@@ -1230,6 +1232,13 @@ show_block(uint64_t _blk_height)
         return fmt::format("Cant get block {:d}!", _blk_height);
     }
 
+    uint64_t blk_diff;
+    if (!mcore->get_diff_at_height(_blk_height, blk_diff))
+    {
+        cerr << "Cant get block diff: " << _blk_height << endl;
+        return fmt::format("Cant get block diff {:d}!", _blk_height);
+    }
+
     // get block's hash
     crypto::hash blk_hash = core_storage->get_block_id_by_height(_blk_height);
 
@@ -1297,6 +1306,7 @@ show_block(uint64_t _blk_height)
             {"stagenet"             , stagenet},
             {"blk_hash"             , blk_hash_str},
             {"blk_height"           , _blk_height},
+            {"diff"                 , blk_diff},
             {"blk_timestamp"        , blk_timestamp},
             {"blk_timestamp_epoch"  , blk.timestamp},
             {"prev_hash"            , prev_hash_str},
@@ -1310,8 +1320,6 @@ show_block(uint64_t _blk_height)
             {"blk_age"              , age.first},
             {"delta_time"           , delta_time},
             {"blk_nonce"            , blk.nonce},
-            {"blk_pow_hash"         , blk_pow_hash_str},
-            {"blk_difficulty"       , blk_difficulty},
             {"age_format"           , age.second},
             {"major_ver"            , std::to_string(blk.major_version)},
             {"minor_ver"            , std::to_string(blk.minor_version)},
@@ -4657,6 +4665,13 @@ json_block(string block_no_or_hash)
     // get block size in bytes
     uint64_t blk_size = core_storage->get_db().get_block_size(block_height);
 
+    uint64_t blk_diff;
+    if (!mcore->get_diff_at_height(block_height, blk_diff))
+    {
+        j_data["title"] = fmt::format("Cant get block diff {:d}!", block_height);
+        return j_response;
+    }
+
     // miner reward tx
     transaction coinbase_tx = blk.miner_tx;
 
@@ -4703,6 +4718,7 @@ json_block(string block_no_or_hash)
 
     j_data = json {
             {"block_height"  , block_height},
+            {"diff"          , blk_diff},
             {"hash"          , pod_to_hex(blk_hash)},
             {"timestamp"     , blk.timestamp},
             {"timestamp_utc" , xmreg::timestamp_to_str_gm(blk.timestamp)},
@@ -4883,6 +4899,13 @@ json_transactions(string _page, string _limit)
             return j_response;
         }
 
+        uint64_t blk_diff;
+        if (!mcore->get_diff_at_height(i, blk_diff))
+        {
+            cerr << "Cant get block diff: " << i << endl;
+            return fmt::format("Cant get block diff {:d}!", i);
+        }
+
         // get block size in bytes
         double blk_size = core_storage->get_db().get_block_size(i);
 
@@ -4895,6 +4918,7 @@ json_transactions(string _page, string _limit)
                 {"height"       , i},
                 {"hash"         , pod_to_hex(blk_hash)},
                 {"age"          , age.first},
+                {"diff"         , blk_diff},
                 {"size"         , blk_size},
                 {"timestamp"    , blk.timestamp},
                 {"timestamp_utc", xmreg::timestamp_to_str_gm(blk.timestamp)},
