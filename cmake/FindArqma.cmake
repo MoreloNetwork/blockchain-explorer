@@ -32,7 +32,7 @@ set(LIBS common;cryptonote_basic;cryptonote_core;multisig;
 		cryptonote_protocol;daemonizer;mnemonics;epee;lmdb;device;
 		blockchain_db;ringct;wallet;cncrypto;easylogging;version;checkpoints)
 
-set(Xmr_INCLUDE_DIRS "${CPP_ARQMA_DIR}")
+set(Arqma_INCLUDE_DIRS "${CPP_ARQMA_DIR}")
 
 # if the project is a subset of main cpp-ethereum project
 # use same pattern for variables as Boost uses
@@ -41,19 +41,19 @@ foreach (l ${LIBS})
 
 	string(TOUPPER ${l} L)
 
-	find_library(Xmr_${L}_LIBRARY
+	find_library(Arqma_${L}_LIBRARY
 		NAMES ${l}
 		PATHS ${CMAKE_LIBRARY_PATH}
 		PATH_SUFFIXES "/src/${l}" "/src/" "/external/db_drivers/lib${l}" "/lib" "/src/crypto" "/contrib/epee/src" "/external/easylogging++/"
 		NO_DEFAULT_PATH
 	)
 
-	set(Xmr_${L}_LIBRARIES ${Xmr_${L}_LIBRARY})
+	set(Arqma_${L}_LIBRARIES ${Arqma_${L}_LIBRARY})
 
-	message(STATUS FindArqma " Xmr_${L}_LIBRARIES ${Xmr_${L}_LIBRARY}")
+	message(STATUS FindArqma " Arqma_${L}_LIBRARIES ${Arqma_${L}_LIBRARY}")
 
 	add_library(${l} STATIC IMPORTED)
-	set_property(TARGET ${l} PROPERTY IMPORTED_LOCATION ${Xmr_${L}_LIBRARIES})
+	set_property(TARGET ${l} PROPERTY IMPORTED_LOCATION ${Arqma_${L}_LIBRARIES})
 
 endforeach()
 
@@ -71,7 +71,7 @@ message(STATUS ${ARQMA_SOURCE_DIR}/build)
 include_directories(
 		${ARQMA_SOURCE_DIR}/src
 		${ARQMA_SOURCE_DIR}/external
-		${ARQMA_SOURCE_DIR}/build
+		${ARQMA_SOURCE_DIR}/build/Linux/release-v0.2.2/release
 		${ARQMA_SOURCE_DIR}/external/easylogging++
 		${ARQMA_SOURCE_DIR}/contrib/epee/include
 		${ARQMA_SOURCE_DIR}/external/db_drivers/liblmdb)

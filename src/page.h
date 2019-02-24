@@ -22,15 +22,19 @@
 
 #include "../ext/crow/crow.h"
 
+#include "../ext/json.hpp"
+
 #include "../ext/vpetrigocaches/cache.hpp"
 #include "../ext/vpetrigocaches/lru_cache_policy.hpp"
 #include "../ext/vpetrigocaches/fifo_cache_policy.hpp"
+#include "../ext/mstch/src/visitor/render_node.hpp"
+
+
 
 #include <algorithm>
 #include <limits>
 #include <ctime>
 #include <future>
-#include <visitor/render_node.hpp>
 
 
 #define TMPL_DIR                    "./templates"
@@ -67,8 +71,8 @@
 #define JS_NACLFAST TMPL_DIR "/js/nacl-fast-cn.js"
 #define JS_SHA3     TMPL_DIR "/js/sha3.js"
 
-#define ONIONEXPLORER_RPC_VERSION_MAJOR 1
-#define ONIONEXPLORER_RPC_VERSION_MINOR 3
+#define ONIONEXPLORER_RPC_VERSION_MAJOR 2
+#define ONIONEXPLORER_RPC_VERSION_MINOR 1
 #define MAKE_ONIONEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define ONIONEXPLORER_RPC_VERSION \
     MAKE_ONIONEXPLORER_RPC_VERSION(ONIONEXPLORER_RPC_VERSION_MAJOR, ONIONEXPLORER_RPC_VERSION_MINOR)
@@ -191,8 +195,6 @@ using namespace std;
 using epee::string_tools::pod_to_hex;
 using epee::string_tools::hex_to_pod;
 
-
-
 /**
 * @brief The tx_details struct
 *
@@ -257,8 +259,8 @@ struct tx_details
             double payed_for_kB = arq_amount / tx_size;
 
             mixin_str        = std::to_string(mixin_no);
-            fee_str          = fmt::format("{:0.6f}", arq_amount);
-            fee_short_str    = fmt::format("{:0.4f}", arq_amount);
+            fee_str          = fmt::format("{:0.9f}", arq_amount);
+            fee_short_str    = fmt::format("{:0.9f}", arq_amount);
             payed_for_kB_str = fmt::format("{:0.4f}", payed_for_kB);
         }
 
@@ -270,10 +272,10 @@ struct tx_details
                 {"tx_fee"            , fee_str},
                 {"tx_fee_short"      , fee_short_str},
                 {"payed_for_kB"      , payed_for_kB_str},
-                {"sum_inputs"        , arq_amount_to_str(arq_inputs , "{:0.6f}")},
-                {"sum_outputs"       , arq_amount_to_str(arq_outputs, "{:0.6f}")},
-                {"sum_inputs_short"  , arq_amount_to_str(arq_inputs , "{:0.3f}")},
-                {"sum_outputs_short" , arq_amount_to_str(arq_outputs, "{:0.3f}")},
+                {"sum_inputs"        , arq_amount_to_str(arq_inputs , "{:0.9f}")},
+                {"sum_outputs"       , arq_amount_to_str(arq_outputs, "{:0.9f}")},
+                {"sum_inputs_short"  , arq_amount_to_str(arq_inputs , "{:0.9f}")},
+                {"sum_outputs_short" , arq_amount_to_str(arq_outputs, "{:0.9f}")},
                 {"no_inputs"         , static_cast<uint64_t>(input_key_imgs.size())},
                 {"no_outputs"        , static_cast<uint64_t>(output_pub_keys.size())},
                 {"no_nonrct_inputs"  , num_nonrct_inputs},
@@ -289,7 +291,7 @@ struct tx_details
                 {"payment_id8"       , pod_to_hex(payment_id8)},
                 {"unlock_time"       , unlock_time},
                 {"tx_size"           , fmt::format("{:0.4f}", tx_size)},
-                {"tx_size_short"     , fmt::format("{:0.2f}", tx_size)},
+                {"tx_size_short"     , fmt::format("{:0.4f}", tx_size)},
                 {"has_add_pks"       , !additional_pks.empty()}
         };
 
@@ -459,7 +461,7 @@ page(MicroCore* _mcore,
     stagenet = nettype == cryptonote::network_type::STAGENET;
 
 
-    no_of_mempool_tx_of_frontpage = 25;
+    no_of_mempool_tx_of_frontpage = 50;
 
     // read template files for all the pages
     // into template_file map
@@ -670,7 +672,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         // get block size in kB
         double blk_size = static_cast<double>(core_storage->get_db().get_block_size(i))/1024.0;
 
-        string blk_size_str = fmt::format("{:0.2f}", blk_size);
+        string blk_size_str = fmt::format("{:0.4f}", blk_size);
 
         blk_sizes.push_back(blk_size);
 
@@ -821,6 +823,13 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 continue;
             }
 
+            uint64_t blk_diff;
+            if (!mcore->get_diff_at_height(i, blk_diff))
+            {
+                cerr << "Cant get block diff: " << i << endl;
+                return fmt::format("Cant get block diff {:d}!", i);
+            }
+
             uint64_t tx_i {0};
 
             // this vector will go into block_tx cache
@@ -859,6 +868,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 txd_map.insert({"age"       , age.first});
                 txd_map.insert({"age_class" , age_class});
                 txd_map.insert({"age_title" , age_title});
+                txd_map.insert({"diff"      , blk_diff});
                 txd_map.insert({"is_ringct" , (tx.version > 1)});
                 txd_map.insert({"rct_type"  , tx.rct_signatures.type});
                 txd_map.insert({"blk_size"  , blk_size_str});
@@ -869,6 +879,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 {
                     txd_map["height"]     = string("");
                     txd_map["age"]        = string("");
+                    txd_map["diff"]       = string("");
                     txd_map["blk_size"]   = string("");
                 }
 
@@ -987,8 +998,8 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                 = CurrentBlockchainStatus::get_emission();
 
         string emission_blk_no   = std::to_string(current_values.blk_no - 1);
-        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.3f}");
-        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.3f}");
+        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.9f}");
+        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.9f}");
 
         context["emission"] = mstch::map {
                 {"blk_no"    , emission_blk_no},
@@ -1018,7 +1029,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
  * Render mempool data
  */
 string
-mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 25)
+mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
 {
     std::vector<MempoolStatus::mempool_tx> mempool_txs;
 
@@ -1113,7 +1124,7 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 25)
     }
 
     context.insert({"mempool_size_kB",
-                    fmt::format("{:0.2f}",
+                    fmt::format("{:0.4f}",
                                 static_cast<double>(mempool_size_bytes)/1024.0)});
 
     if (add_header_and_footer)
@@ -1230,6 +1241,13 @@ show_block(uint64_t _blk_height)
         return fmt::format("Cant get block {:d}!", _blk_height);
     }
 
+    uint64_t blk_diff;
+    if (!mcore->get_diff_at_height(_blk_height, blk_diff))
+    {
+        cerr << "Cant get block diff: " << _blk_height << endl;
+        return fmt::format("Cant get block diff {:d}!", _blk_height);
+    }
+
     // get block's hash
     crypto::hash blk_hash = core_storage->get_block_id_by_height(_blk_height);
 
@@ -1297,6 +1315,7 @@ show_block(uint64_t _blk_height)
             {"stagenet"             , stagenet},
             {"blk_hash"             , blk_hash_str},
             {"blk_height"           , _blk_height},
+            {"diff"                 , blk_diff},
             {"blk_timestamp"        , blk_timestamp},
             {"blk_timestamp_epoch"  , blk.timestamp},
             {"prev_hash"            , prev_hash_str},
@@ -1310,8 +1329,6 @@ show_block(uint64_t _blk_height)
             {"blk_age"              , age.first},
             {"delta_time"           , delta_time},
             {"blk_nonce"            , blk.nonce},
-            {"blk_pow_hash"         , blk_pow_hash_str},
-            {"blk_difficulty"       , blk_difficulty},
             {"age_format"           , age.second},
             {"major_ver"            , std::to_string(blk.major_version)},
             {"minor_ver"            , std::to_string(blk.minor_version)},
@@ -1371,11 +1388,11 @@ show_block(uint64_t _blk_height)
 
     // add total fees in the block to the context
     context["sum_fees"]
-            = xmreg::arq_amount_to_str(sum_fees, "{:0.6f}", false);
+            = xmreg::arq_amount_to_str(sum_fees, "{:0.9f}", false);
 
     // get xmr in the block reward
     context["blk_reward"]
-            = xmreg::arq_amount_to_str(txd_coinbase.arq_outputs - sum_fees, "{:0.6f}");
+            = xmreg::arq_amount_to_str(txd_coinbase.arq_outputs - sum_fees, "{:0.9f}");
 
     add_css_style(context);
 
@@ -1755,7 +1772,7 @@ show_ringmembers_hex(string const& tx_hash_str)
                     == false)
                 continue;
 
-            core_storage->get_db().get_output_key(in_key.amount,
+            core_storage->get_db().get_output_key(epee::span<const uint64_t>(&in_key.amount, 1),
                                                   absolute_offsets,
                                                   mixin_outputs);
         }
@@ -1785,7 +1802,340 @@ show_ringmembers_hex(string const& tx_hash_str)
     // return as all_mixin_outputs vector hex
     return epee::string_tools
             ::buff_to_hex_nodelimer(oss.str());
+}
 
+string
+show_ringmemberstx_hex(string const& tx_hash_str)
+{
+    transaction tx;
+    crypto::hash tx_hash;
+
+    if (!get_tx(tx_hash_str, tx, tx_hash))
+        return string {"Cant get tx: "} +  tx_hash_str;
+
+    vector<txin_to_key> input_key_imgs = xmreg::get_key_images(tx);
+
+    // key: constracted from concatenation of in_key.amount and absolute_offsets,
+    // value: vector of string where string is transaction hash + output index + tx_hex
+    // will have to cut this string when de-seraializing this data
+    // later in the unit tests
+    // transaction hash and output index represent tx_out_index
+    std::map<string, vector<string>> all_mixin_txs;
+
+    for (txin_to_key const& in_key: input_key_imgs)
+    {
+        // get absolute offsets of mixins
+        std::vector<uint64_t> absolute_offsets
+                = cryptonote::relative_output_offsets_to_absolute(
+                        in_key.key_offsets);
+
+        //tx_out_index is pair::<transaction hash, output index>
+        vector<tx_out_index> indices;
+
+        // get tx hashes and indices in the txs for the
+        // given outputs of mixins
+        //  this cant THROW DB_EXCEPTION
+        try
+        {
+            // get tx of the real output
+            core_storage->get_db().get_output_tx_and_index(
+                        in_key.amount, absolute_offsets, indices);
+        }
+        catch (exception const& e)
+        {
+
+            string out_msg = fmt::format(
+                    "Cant get ring member tx_out_index for tx {:s}", tx_hash_str
+            );
+
+            cerr << out_msg << endl;
+
+            return string(out_msg);
+        }
+
+        string map_key = std::to_string(in_key.amount);
+
+        for (auto const& ao: absolute_offsets)
+            map_key += std::to_string(ao);
+
+        // serialize each mixin tx
+        for (auto const& txi : indices)
+        {
+           auto const& mixin_tx_hash = txi.first;
+           auto const& output_index_in_tx = txi.second;
+
+           transaction mixin_tx;
+
+           if (!mcore->get_tx(mixin_tx_hash, mixin_tx))
+           {
+               throw std::runtime_error("Cant get tx: "
+                                        + pod_to_hex(mixin_tx_hash));
+           }
+
+           // serialize tx
+           string tx_hex = epee::string_tools::buff_to_hex_nodelimer(
+                                   t_serializable_object_to_blob(mixin_tx));
+
+           all_mixin_txs[map_key].push_back(
+                       pod_to_hex(mixin_tx_hash)
+                       + std::to_string(output_index_in_tx)
+                       + tx_hex);
+        }
+
+    } // for (txin_to_key const& in_key: input_key_imgs)
+
+    if (all_mixin_txs.empty())
+        return string {"No ring members to serialize"};
+
+    // archive all_mixin_outputs vector
+    std::ostringstream oss;
+    boost::archive::portable_binary_oarchive archive(oss);
+    archive << all_mixin_txs;
+
+    // return as all_mixin_outputs vector hex
+    return epee::string_tools
+            ::buff_to_hex_nodelimer(oss.str());
+}
+
+/**
+ * @brief Get ring member tx data
+ *
+ * Used for generating json file of txs used in unit testing.
+ * Thanks to json output from this function, we can mock
+ * a number of blockchain quries about key images
+ *
+ * @param tx_hash_str
+ * @return
+ */
+json
+show_ringmemberstx_jsonhex(string const& tx_hash_str)
+{
+    transaction tx;
+    crypto::hash tx_hash;
+
+    if (!get_tx(tx_hash_str, tx, tx_hash))
+        return string {"Cant get tx: "} +  tx_hash_str;
+
+    vector<txin_to_key> input_key_imgs = xmreg::get_key_images(tx);
+
+    json tx_json;
+
+    string tx_hex;
+
+    try
+    {
+        tx_hex = tx_to_hex(tx);
+    }
+    catch (std::exception const& e)
+    {
+        cerr << e.what() << endl;
+        return json {"error", "Failed to obtain hex of tx"};
+    }
+
+    tx_json["hash"] = tx_hash_str;
+    tx_json["hex"]  = tx_hex;
+    tx_json["nettype"] = static_cast<size_t>(nettype);
+    tx_json["is_ringct"] = (tx.version > 1);
+    tx_json["rct_type"] = tx.rct_signatures.type;
+
+    tx_json["_comment"] = "Just a placeholder for some comment if needed later";
+
+    // add placeholder for sender and recipient details
+    // this is most useful for unit testing on stagenet/testnet
+    // private monero networks, so we can easly put these
+    // networks accounts details here.
+    tx_json["sender"] = json {
+                            {"seed", ""},
+                            {"address", ""},
+                            {"viewkey", ""},
+                            {"spendkey", ""},
+                            {"amount", 0ull},
+                            {"change", 0ull},
+                            {"outputs", json::array({json::array(
+                                                    {"index placeholder",
+                                                     "public_key placeholder",
+                                                     "amount placeholder"}
+                                        )})
+                            },
+                            {"_comment", ""}};
+
+    tx_json["recipient"] = json::array();
+
+    tx_json["recipient"].push_back(
+                              json { {"seed", ""},
+                                   {"address", ""},
+                                   {"is_subaddress", false},
+                                   {"viewkey", ""},
+                                   {"spendkey", ""},
+                                   {"amount", 0ull},
+                                   {"outputs", json::array({json::array(
+                                                           {"index placeholder",
+                                                            "public_key placeholder",
+                                                            "amount placeholder"}
+                                               )})
+                                   },
+                                   {"_comment", ""}});
+
+    uint64_t tx_blk_height {0};
+
+    try
+    {
+        tx_blk_height = core_storage->get_db().get_tx_block_height(tx_hash);
+    }
+    catch (exception& e)
+    {
+        cerr << "Cant get block height: " << tx_hash
+             << e.what() << endl;
+
+        return json {"error", "Cant get block height"};
+    }
+
+    // get block cointaining this tx
+    block blk;
+
+    if ( !mcore->get_block_by_height(tx_blk_height, blk))
+    {
+        cerr << "Cant get block: " << tx_blk_height << endl;
+        return json {"error", "Cant get block"};
+    }
+
+    block_complete_entry complete_block_data;
+
+    if (!mcore->get_block_complete_entry(blk, complete_block_data))
+    {
+        cerr << "Failed to obtain complete block data " << endl;
+        return json {"error", "Failed to obtain complete block data "};
+    }
+
+    std::string complete_block_data_str;
+
+    if(!epee::serialization::store_t_to_binary(
+                complete_block_data, complete_block_data_str))
+    {
+        cerr << "Failed to serialize complete_block_data\n";
+        return json {"error", "Failed to obtain complete block data"};
+    }
+
+    tx_details txd = get_tx_details(tx);
+
+    tx_json["payment_id"] = pod_to_hex(txd.payment_id);
+    tx_json["payment_id8"] = pod_to_hex(txd.payment_id8);
+    tx_json["payment_id8e"] = pod_to_hex(txd.payment_id8);
+
+    tx_json["block"] = epee::string_tools
+             ::buff_to_hex_nodelimer(complete_block_data_str);
+
+    tx_json["block_version"] = json {blk.major_version, blk.minor_version};
+
+    tx_json["inputs"] = json::array();
+
+
+    // key: constracted from concatenation of in_key.amount and absolute_offsets,
+    // value: vector of string where string is transaction hash + output index + tx_hex
+    // will have to cut this string when de-seraializing this data
+    // later in the unit tests
+    // transaction hash and output index represent tx_out_index
+    std::map<string, vector<string>> all_mixin_txs;
+
+    for (txin_to_key const& in_key: input_key_imgs)
+    {
+        // get absolute offsets of mixins
+        std::vector<uint64_t> absolute_offsets
+                = cryptonote::relative_output_offsets_to_absolute(
+                        in_key.key_offsets);
+
+        //tx_out_index is pair::<transaction hash, output index>
+        vector<tx_out_index> indices;
+        std::vector<output_data_t> mixin_outputs;
+
+        // get tx hashes and indices in the txs for the
+        // given outputs of mixins
+        //  this cant THROW DB_EXCEPTION
+        try
+        {
+            // get tx of the real output
+            core_storage->get_db().get_output_tx_and_index(
+                        in_key.amount, absolute_offsets, indices);
+
+            // get mining ouput info
+            core_storage->get_db().get_output_key(
+                        epee::span<const uint64_t>(&in_key.amount, 1),
+                        absolute_offsets,
+                        mixin_outputs);
+        }
+        catch (exception const& e)
+        {
+
+            string out_msg = fmt::format(
+                    "Cant get ring member tx_out_index for tx {:s}", tx_hash_str
+            );
+
+            cerr << out_msg << endl;
+
+            return json {"error", out_msg};
+        }
+
+
+        tx_json["inputs"].push_back(json {{"key_image", pod_to_hex(in_key.k_image)},
+                                          {"amount", in_key.amount},
+                                          {"absolute_offsets", absolute_offsets},
+                                          {"ring_members", json::array()}});
+
+        json& ring_members = tx_json["inputs"].back()["ring_members"];
+
+
+        if (indices.size() != mixin_outputs.size())
+        {
+            cerr << "indices.size() != mixin_outputs.size()\n";
+            return json {"error", "indices.size() != mixin_outputs.size()"};
+        }
+
+        // serialize each mixin tx
+        //for (auto const& txi : indices)
+        for (size_t i = 0; i < indices.size(); ++i)
+        {
+
+           tx_out_index const& txi = indices[i];
+           output_data_t const& mo = mixin_outputs[i];
+
+           auto const& mixin_tx_hash = txi.first;
+           auto const& output_index_in_tx = txi.second;
+
+           transaction mixin_tx;
+
+           if (!mcore->get_tx(mixin_tx_hash, mixin_tx))
+           {
+               throw std::runtime_error("Cant get tx: "
+                                        + pod_to_hex(mixin_tx_hash));
+           }
+
+           // serialize tx
+           string tx_hex = epee::string_tools::buff_to_hex_nodelimer(
+                                   t_serializable_object_to_blob(mixin_tx));
+
+           ring_members.push_back(
+                   json {
+                          {"ouput_pk", pod_to_hex(mo.pubkey)},
+                          {"tx_hash", pod_to_hex(mixin_tx_hash)},
+                          {"output_index_in_tx", txi.second},
+                          {"tx_hex", tx_hex},
+                   });
+
+        }
+
+    } // for (txin_to_key const& in_key: input_key_imgs)
+
+
+    // archive all_mixin_outputs vector
+    std::ostringstream oss;
+    boost::archive::portable_binary_oarchive archive(oss);
+    archive << all_mixin_txs;
+
+    // return as all_mixin_outputs vector hex
+    //return epee::string_tools
+    //        ::buff_to_hex_nodelimer(oss.str());
+
+    return tx_json;
 }
 
 
@@ -2108,8 +2458,10 @@ show_my_outputs(string tx_hash_str,
                           address_info.address.m_spend_public_key,
                           tx_pubkey);
 
-        //cout << pod_to_hex(outp.first.key) << endl;
-        //cout << pod_to_hex(tx_pubkey) << endl;
+//        cout << pod_to_hex(derivation) << ", " << output_idx << ", "
+//             << pod_to_hex(address_info.address.m_spend_public_key) << ", "
+//             << pod_to_hex(outp.first.key) << " == "
+//             << pod_to_hex(tx_pubkey) << '\n'  << '\n';
 
         // check if generated public key matches the current output's key
         bool mine_output = (outp.first.key == tx_pubkey);
@@ -2123,6 +2475,7 @@ show_my_outputs(string tx_hash_str,
                               output_idx,
                               address_info.address.m_spend_public_key,
                               tx_pubkey);
+
 
             mine_output = (outp.first.key == tx_pubkey);
 
@@ -2222,7 +2575,7 @@ show_my_outputs(string tx_hash_str,
             if (are_absolute_offsets_good(absolute_offsets, in_key) == false)
                 continue;
 
-            core_storage->get_db().get_output_key(in_key.amount,
+            core_storage->get_db().get_output_key(epee::span<const uint64_t>(&in_key.amount, 1),
                                                   absolute_offsets,
                                                   mixin_outputs);
         }
@@ -4385,7 +4738,7 @@ json_transaction(string tx_hash_str)
             if (are_absolute_offsets_good(absolute_offsets, in_key) == false)
                 continue;
 
-            core_storage->get_db().get_output_key(in_key.amount,
+            core_storage->get_db().get_output_key(epee::span<const uint64_t>(&in_key.amount, 1),
                                                   absolute_offsets,
                                                   outputs);
         }
@@ -4588,7 +4941,7 @@ json_block(string block_no_or_hash)
             {"data"  , json {}}
     };
 
-    json& j_data = j_response["data"];
+    nlohmann::json& j_data = j_response["data"];
 
     uint64_t current_blockchain_height
             =  core_storage->get_current_blockchain_height();
@@ -4657,6 +5010,13 @@ json_block(string block_no_or_hash)
     // get block size in bytes
     uint64_t blk_size = core_storage->get_db().get_block_size(block_height);
 
+    uint64_t blk_diff;
+    if (!mcore->get_diff_at_height(block_height, blk_diff))
+    {
+        j_data["title"] = fmt::format("Cant get block diff {:d}!", block_height);
+        return j_response;
+    }
+
     // miner reward tx
     transaction coinbase_tx = blk.miner_tx;
 
@@ -4703,6 +5063,7 @@ json_block(string block_no_or_hash)
 
     j_data = json {
             {"block_height"  , block_height},
+            {"diff"          , blk_diff},
             {"hash"          , pod_to_hex(blk_hash)},
             {"timestamp"     , blk.timestamp},
             {"timestamp_utc" , xmreg::timestamp_to_str_gm(blk.timestamp)},
@@ -4883,6 +5244,13 @@ json_transactions(string _page, string _limit)
             return j_response;
         }
 
+        uint64_t blk_diff;
+        if (!mcore->get_diff_at_height(i, blk_diff))
+        {
+            cerr << "Cant get block diff: " << i << endl;
+            return fmt::format("Cant get block diff {:d}!", i);
+        }
+
         // get block size in bytes
         double blk_size = core_storage->get_db().get_block_size(i);
 
@@ -4895,6 +5263,7 @@ json_transactions(string _page, string _limit)
                 {"height"       , i},
                 {"hash"         , pod_to_hex(blk_hash)},
                 {"age"          , age.first},
+                {"diff"         , blk_diff},
                 {"size"         , blk_size},
                 {"timestamp"    , blk.timestamp},
                 {"timestamp_utc", xmreg::timestamp_to_str_gm(blk.timestamp)},
@@ -5589,8 +5958,8 @@ json_emission()
                 = CurrentBlockchainStatus::get_emission();
 
         string emission_blk_no   = std::to_string(current_values.blk_no - 1);
-        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.3f}");
-        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.4f}", false);
+        string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.9f}");
+        string emission_fee      = arq_amount_to_str(current_values.fee, "{:0.9f}", false);
 
         j_data = json {
                 {"blk_no"  , current_values.blk_no - 1},
@@ -6063,7 +6432,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
             // offsets seems good, so try to get the outputs for the amount and
             // offsets given
-            core_storage->get_db().get_output_key(in_key.amount,
+            core_storage->get_db().get_output_key(epee::span<const uint64_t>(&in_key.amount, 1),
                                                   absolute_offsets,
                                                   outputs);
         }
@@ -6276,7 +6645,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
         if (core_storage->get_db().tx_exists(txd.hash, tx_index))
         {
             out_amount_indices = core_storage->get_db()
-                    .get_tx_amount_output_indices(tx_index);
+                    .get_tx_amount_output_indices(tx_index).front();
         }
         else
         {

@@ -53,9 +53,9 @@ table.blocks .height    { width: 8ex; }
 table.blocks .age       { width: 13ex; }
 table.blocks .diff      { width: 12ex; }
 table.blocks .pool      { width: 17ex; overflow: hidden; text-overflow: ellipsis; }
-table.blocks .size      { width: 11ex; }
-table.blocks .hash      { width: 17ex; overflow: hidden; text-overflow: ellipsis; }
-table.blocks .fees      { width: 8ex; }
+table.blocks .size      { width: 14ex; }
+table.blocks .hash      { width: 34ex; overflow: hidden; text-overflow: ellipsis; }
+table.blocks .fees      { width: 12ex; }
 table.blocks .outputs   { width: 12ex; }
 table.blocks .inputs    { width: 15ex; }
 table.blocks .mixin     { width: 11ex; }
@@ -191,7 +191,7 @@ body.show-pools {
     z-index: 1;
 }
 body.show-pools #pool-list {
-    width: 250px;
+    width: 275px;
     box-shadow: -4px 8px 12px 5px #888888;
     transition: all 0.5s ease;
 }
@@ -200,17 +200,17 @@ body.show-pools #pool-list {
     position: fixed;
     left: 0px;
     top: 0px;
-    width: 250px;
+    width: 275px;
     border: none;
     transform: rotate(0deg);
     transform-origin: top right;
     font-size: 25px;
     transition: all 0.5s ease;
-    background-color: white;
+    background-color: #00006E;
     text-align: center;
     cursor: pointer;
     box-shadow: -4px 8px 12px 5px #888888;
-    color: black;
+    color: white;
 }
 body.show-pools #pool-list-control {
     left: 0px;
@@ -238,5 +238,3 @@ div#auto-update.updates-enabled .not-updating, div#auto-update.updates-disabled 
 div#auto-update a {
     font-weight: bold;
 }
-
-
