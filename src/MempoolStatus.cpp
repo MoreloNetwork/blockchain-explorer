@@ -109,12 +109,27 @@ MempoolStatus::read_mempool()
 
     // get txs in the mempool
     std::vector<tx_info> mempool_tx_info;
+    //std::vector<tx_info> pool_tx_info;
 
-    if (!rpc.get_mempool(mempool_tx_info))
+    std::vector<spent_key_image_info> pool_key_image_info;
+
+    if (!mcore->get_mempool().get_transactions_and_spent_keys_info(mempool_tx_info, pool_key_image_info))
     {
         cerr << "Getting mempool failed " << endl;
         return false;
     }
+
+    (void) pool_key_image_info;
+
+     // sort txpool txs
+
+     // so we sort it here.
+
+     std::sort(mempool_tx_info.begin(), mempool_tx_info.end(), [](tx_info& t1, tx_info& t2)
+     {
+         return t1.receive_time > t2.receive_time;
+     });
+
 
     // if dont have tx_blob member, construct tx
     // from json obtained from the rpc call

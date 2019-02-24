@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5.0)
 
 project(myxrm)
 
 set(SOURCE_HEADERS
-        MicroCore.h
+    MicroCore.h
 		tools.h
 		arqma_headers.h
 		CurrentBlockchainStatus.h)

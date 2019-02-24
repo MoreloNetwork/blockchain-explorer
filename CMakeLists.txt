@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5.0)
 
 set(PROJECT_NAME
         arqblocks)
@@ -25,7 +25,7 @@ set(ARQMA_SOURCE_DIR ${ARQMA_DIR}
         CACHE PATH "Path to the root directory for Arqma")
 
 # set location of arqma build tree
-set(ARQMA_BUILD_DIR ${ARQMA_SOURCE_DIR}/build/Linux/release-v0.2/release/
+set(ARQMA_BUILD_DIR ${ARQMA_SOURCE_DIR}/build/Linux/release-v0.2.2/release
         CACHE PATH "Path to the build directory for Arqma")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
