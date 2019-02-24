@@ -1,6 +1,6 @@
 var config = {
     testnet: false, // this is adjusted page.h if needed. dont need to change manually
-    stagenet: true, // this is adjusted page.h if needed. dont need to change manually
+    stagenet: false, // this is adjusted page.h if needed. dont need to change manually
     coinUnitPlaces: 9,
     txMinConfirms: 4, // corresponds to CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE in Monero
     txCoinbaseMinConfirms: 18, // corresponds to CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW in Monero
@@ -25,6 +25,6 @@ var config = {
     idleTimeout: 30,
     idleWarningDuration: 20,
     maxBlockNumber: 500000000,
-    avgBlockTime: 240,
+    avgBlockTime: 120,
     debugMode: false
 };
