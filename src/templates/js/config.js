@@ -6,7 +6,7 @@ var config = {
     txCoinbaseMinConfirms: 18, // corresponds to CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW in Monero
     coinSymbol: 'ARQ',
     openAliasPrefix: "arq",
-    coinName: 'Arqma',
+    coinName: 'ArQmA',
     coinUriPrefix: 'arqma:',
     addressPrefix: 0x2cca,
     integratedAddressPrefix: 0x116bc7,
