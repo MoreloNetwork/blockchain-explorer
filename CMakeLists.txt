@@ -69,7 +69,12 @@ endif()
 
 # include boost headers
 include_directories(${Boost_INCLUDE_DIRS})
+
+# include arqma
+include_directories(${ARQMA_SOURCE_DIR}/build/Linux/release-v0.2.2/release)
+
 include_directories("ext/mstch/include")
+include_directories("ext/mstch/include/src")
 include_directories("ext/crow")
 
 # add ext/ subfolder
