@@ -1,4 +1,4 @@
-# Arqma Onion Blockchain Explorer
+# ArQmA Onion Blockchain Explorer
 
 Currently available Arqma blockchain explorers have several limitations which are of
 special importance to privacy-oriented users:
@@ -13,8 +13,8 @@ special importance to privacy-oriented users:
 
 
 In this example, these limitations are addressed by development of
-an Arqma Onion Blockchain Explorer. The example not only shows how to use
-Arqma C++ libraries, but also demonstrates how to use:
+an ArQmA Onion Blockchain Explorer. The example not only shows how to use
+ArQmA C++ libraries, but also demonstrates how to use:
 
  - [crow](https://github.com/ipkn/crow) - C++ micro web framework
  - [mstch](https://github.com/no1msd/mstch) - C++ {{mustache}} templates
@@ -22,9 +22,9 @@ Arqma C++ libraries, but also demonstrates how to use:
  - [fmt](https://github.com/fmtlib/fmt) - Small, safe and fast string formatting library
 
 
-## Arqma Onion Blockchain Explorer features
+## ArQmA Onion Blockchain Explorer features
 
-The key features of the Arqma Onion Blockchain Explorer are:
+The key features of the ArQmA Onion Blockchain Explorer are:
 
  - no cookies, no web analytics trackers, no images,
  - by default no JavaScript, but can be enabled for client side decoding and proving transactions,
@@ -33,12 +33,12 @@ The key features of the Arqma Onion Blockchain Explorer are:
  - showing encrypted payments ID,
  - showing ring signatures,
  - showing transaction extra field,
- - showing public components of Arqma addresses,
- - decoding which outputs and mixins belong to the given Arqma address and viewkey,
- - can prove that you send Arqma to someone,
+ - showing public components of ArQmA addresses,
+ - decoding which outputs and mixins belong to the given ArQmA address and viewkey,
+ - can prove that you send ArQmA to someone,
  - detailed information about ring members, such as, their age, timescale and their ring sizes,
  - showing number of amount output indices,
- - support Arqma testnet and stagnet networks,
+ - support ArQmA testnet and stagnet networks,
  - tx checker and pusher for online pushing of transactions,
  - estimate possible spendings based on address and viewkey,
  - can provide total amount of all miner fees,
@@ -49,12 +49,12 @@ The key features of the Arqma Onion Blockchain Explorer are:
 
 ## Compilation on Ubuntu 16.04/18.04
 
-##### Compile latest Arqma development version
+##### Compile latest ArQmA development version
 
-Download and compile recent Arqma into your home folder:
+Download and compile recent ArQmA into your home folder:
 
 ```bash
-# first install Arqma dependecines
+# first install ArQmA dependecines
 sudo apt update
 
 sudo apt install git build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev doxygen graphviz libpgm-dev libudev-dev libusb-1.0-0-dev libhidapi-dev
@@ -72,7 +72,7 @@ USE_SINGLE_BUILDDIR=1 make
 
 ##### Compile and run the explorer
 
-Once the Arqma is compiles, the explorer can be downloaded and compiled
+Once the ArQmA is compiles, the explorer can be downloaded and compiled
 as follows:
 
 ```bash
