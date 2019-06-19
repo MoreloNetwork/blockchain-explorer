@@ -241,17 +241,17 @@ get_default_lmdb_folder(cryptonote::network_type nettype)
 {
     // default path to monero folder
     // on linux this is /home/<username>/.bitmonero
-    string default_monero_dir = tools::get_default_data_dir();
+    string default_arqma_dir = tools::get_default_data_dir();
 
     if (nettype == cryptonote::network_type::TESTNET)
-        default_monero_dir += "/testnet";
+        default_arqma_dir += "/testnet";
     if (nettype == cryptonote::network_type::STAGENET)
-        default_monero_dir += "/stagenet";
+        default_arqma_dir += "/stagenet";
 
 
     // the default folder of the lmdb blockchain database
     // is therefore as follows
-    return default_monero_dir + string("/lmdb");
+    return default_arqma_dir + string("/lmdb");
 }
 
 
@@ -935,6 +935,7 @@ decode_ringct(rct::rctSig const& rv,
         switch (rv.type)
         {
             case rct::RCTTypeSimple:
+            case rct::RCCYypeBulletproof
             case rct::RCTTypeSimpleBulletproof:
                 amount = rct::decodeRctSimple(rv,
                                               rct::sk2rct(scalar1),
@@ -1154,7 +1155,7 @@ is_output_ours(const size_t& output_index,
 
     // get the tx output public key
     // that normally would be generated for us,
-    // if someone had sent us some xmr.
+    // if someone had sent us some arq.
     public_key pubkey;
 
     derive_public_key(derivation,

@@ -21,11 +21,11 @@ rpccalls::rpccalls(string _deamon_url,
 
     m_http_client.set_server(
             deamon_url,
-            boost::optional<epee::net_utils::http::login>{});
+            boost::optional<epee::net_utils::http::login>{}, epee::net_utils::ssl_support_t::e_ssl_support_disabled);
 }
 
 bool
-rpccalls::connect_to_monero_deamon()
+rpccalls::connect_to_arqma_deamon()
 {
     //std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
@@ -45,7 +45,7 @@ rpccalls::get_current_height()
 
     std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-    if (!connect_to_monero_deamon())
+    if (!connect_to_arqma_deamon())
     {
         cerr << "get_current_height: not connected to deamon" << endl;
         return false;
@@ -57,7 +57,7 @@ rpccalls::get_current_height()
 
     if (!r)
     {
-        cerr << "Error connecting to Monero deamon at "
+        cerr << "Error connecting to Arqma deamon at "
              << deamon_url << endl;
         return 0;
     }
@@ -77,7 +77,7 @@ rpccalls::get_mempool(vector<tx_info>& mempool_txs)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_monero_deamon())
+        if (!connect_to_arqma_deamon())
         {
             cerr << "get_mempool: not connected to deamon" << endl;
             return false;
@@ -90,7 +90,7 @@ rpccalls::get_mempool(vector<tx_info>& mempool_txs)
 
     if (!r || res.status != CORE_RPC_STATUS_OK)
     {
-        cerr << "Error connecting to Monero deamon at "
+        cerr << "Error connecting to Arqma deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -124,7 +124,7 @@ rpccalls::commit_tx(tools::wallet2::pending_tx& ptx, string& error_msg)
 
     std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-    if (!connect_to_monero_deamon())
+    if (!connect_to_arqma_deamon())
     {
         cerr << "commit_tx: not connected to deamon" << endl;
         return false;
@@ -163,7 +163,7 @@ rpccalls::get_network_info(COMMAND_RPC_GET_INFO::response& response)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_monero_deamon())
+        if (!connect_to_arqma_deamon())
         {
             cerr << "get_network_info: not connected to deamon" << endl;
             return false;
@@ -189,14 +189,14 @@ rpccalls::get_network_info(COMMAND_RPC_GET_INFO::response& response)
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Monero deamon due to "
+            cerr << "Error connecting to Arqma deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "Error connecting to Monero deamon at "
+        cerr << "Error connecting to Arqma deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -223,7 +223,7 @@ rpccalls::get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response& response)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_monero_deamon())
+        if (!connect_to_arqma_deamon())
         {
             cerr << "get_hardfork_info: not connected to deamon" << endl;
             return false;
@@ -250,14 +250,14 @@ rpccalls::get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response& response)
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Monero deamon due to "
+            cerr << "Error connecting to Arqma deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "Error connecting to Monero deamon at "
+        cerr << "Error connecting to Arqma deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -275,9 +275,9 @@ rpccalls::get_dynamic_per_kb_fee_estimate(
         uint64_t& fee,
         string& error_msg)
 {
-    epee::json_rpc::request<COMMAND_RPC_GET_PER_KB_FEE_ESTIMATE::request>
+    epee::json_rpc::request<COMMAND_RPC_GET_BASE_FEE_ESTIMATE::request>
             req_t = AUTO_VAL_INIT(req_t);
-    epee::json_rpc::response<COMMAND_RPC_GET_PER_KB_FEE_ESTIMATE::response, std::string>
+    epee::json_rpc::response<COMMAND_RPC_GET_BASE_FEE_ESTIMATE::response, std::string>
             resp_t = AUTO_VAL_INIT(resp_t);
 
 
@@ -291,7 +291,7 @@ rpccalls::get_dynamic_per_kb_fee_estimate(
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_monero_deamon())
+        if (!connect_to_arqma_deamon())
         {
             cerr << "get_dynamic_per_kb_fee_estimate: not connected to deamon" << endl;
             return false;
@@ -318,14 +318,14 @@ rpccalls::get_dynamic_per_kb_fee_estimate(
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Monero deamon due to "
+            cerr << "Error connecting to Arqma deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "Error connecting to Monero deamon at "
+        cerr << "Error connecting to Arqma deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -354,7 +354,7 @@ rpccalls::get_block(string const& blk_hash, block& blk, string& error_msg)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_monero_deamon())
+        if (!connect_to_arqma_deamon())
         {
             cerr << "get_block: not connected to deamon" << endl;
             return false;
@@ -381,14 +381,14 @@ rpccalls::get_block(string const& blk_hash, block& blk, string& error_msg)
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Monero deamon due to "
+            cerr << "Error connecting to Arqma deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "get_block: error connecting to Monero deamon at "
+        cerr << "get_block: error connecting to Arqma deamon at "
              << deamon_url << endl;
         return false;
     }

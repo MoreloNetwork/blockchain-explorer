@@ -71,11 +71,11 @@
 #define JS_NACLFAST TMPL_DIR "/js/nacl-fast-cn.js"
 #define JS_SHA3     TMPL_DIR "/js/sha3.js"
 
-#define ONIONEXPLORER_RPC_VERSION_MAJOR 2
-#define ONIONEXPLORER_RPC_VERSION_MINOR 1
-#define MAKE_ONIONEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
-#define ONIONEXPLORER_RPC_VERSION \
-    MAKE_ONIONEXPLORER_RPC_VERSION(ONIONEXPLORER_RPC_VERSION_MAJOR, ONIONEXPLORER_RPC_VERSION_MINOR)
+#define ARQMAEXPLORER_RPC_VERSION_MAJOR 2
+#define ARQMAEXPLORER_RPC_VERSION_MINOR 2
+#define MAKE_ARQMAEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
+#define ARQMAEXPLORER_RPC_VERSION \
+    MAKE_ARQMAEXPLORER_RPC_VERSION(ARQMAEXPLORER_RPC_VERSION_MAJOR, ARQMAEXPLORER_RPC_VERSION_MINOR)
 
 
 // basic info about tx to be stored in cashe.
@@ -236,7 +236,7 @@ struct tx_details
     // key images of inputs
     vector<txin_to_key> input_key_imgs;
 
-    // public keys and xmr amount of outputs
+    // public keys and arq amount of outputs
     vector<pair<txout_to_key, uint64_t>> output_pub_keys;
 
     mstch::map
@@ -569,7 +569,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
     {
         json j_info;
 
-        get_monero_network_info(j_info);
+        get_arqma_network_info(j_info);
 
         return j_info;
     });
@@ -670,7 +670,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         crypto::hash blk_hash = core_storage->get_block_id_by_height(i);
 
         // get block size in kB
-        double blk_size = static_cast<double>(core_storage->get_db().get_block_size(i))/1024.0;
+        double blk_size = static_cast<double>(core_storage->get_db().get_block_weight(i))/1024.0;
 
         string blk_size_str = fmt::format("{:0.4f}", blk_size);
 
@@ -1288,7 +1288,7 @@ show_block(uint64_t _blk_height)
     }
 
     // get block size in bytes
-    uint64_t blk_size = core_storage->get_db().get_block_size(_blk_height);
+    uint64_t blk_size = core_storage->get_db().get_block_weight(_blk_height);
 
     // miner reward tx
     transaction coinbase_tx = blk.miner_tx;
@@ -1390,7 +1390,7 @@ show_block(uint64_t _blk_height)
     context["sum_fees"]
             = xmreg::arq_amount_to_str(sum_fees, "{:0.9f}", false);
 
-    // get xmr in the block reward
+    // get arq in the block reward
     context["blk_reward"]
             = xmreg::arq_amount_to_str(txd_coinbase.arq_outputs - sum_fees, "{:0.9f}");
 
@@ -2162,7 +2162,7 @@ show_my_outputs(string tx_hash_str,
 
     if (arq_address_str.empty())
     {
-        return string("Monero address not provided!");
+        return string("Arqma address not provided!");
     }
 
     if (viewkey_str.empty())
@@ -5008,7 +5008,7 @@ json_block(string block_no_or_hash)
 
 
     // get block size in bytes
-    uint64_t blk_size = core_storage->get_db().get_block_size(block_height);
+    uint64_t blk_size = core_storage->get_db().get_block_weight(block_height);
 
     uint64_t blk_diff;
     if (!mcore->get_diff_at_height(block_height, blk_diff))
@@ -5252,7 +5252,7 @@ json_transactions(string _page, string _limit)
         }
 
         // get block size in bytes
-        double blk_size = core_storage->get_db().get_block_size(i);
+        double blk_size = core_storage->get_db().get_block_weight(i);
 
         crypto::hash blk_hash = core_storage->get_block_id_by_height(i);
 
@@ -5512,7 +5512,7 @@ json_outputs(string tx_hash_str,
     if (address_str.empty())
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Monero address not provided";
+        j_response["message"] = "Arqma address not provided";
         return j_response;
     }
 
@@ -5549,7 +5549,7 @@ json_outputs(string tx_hash_str,
     if (!xmreg::parse_str_address(address_str,  address_info, nettype))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant parse monero address: " + address_str;
+        j_response["message"] = "Cant parse Arqma address: " + address_str;
         return j_response;
 
     }
@@ -5737,7 +5737,7 @@ json_outputsblocks(string _limit,
     if (address_str.empty())
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Monero address not provided";
+        j_response["message"] = "Arqma address not provided";
         return j_response;
     }
 
@@ -5754,7 +5754,7 @@ json_outputsblocks(string _limit,
     if (!xmreg::parse_str_address(address_str, address_info, nettype))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant parse monero address: " + address_str;
+        j_response["message"] = "Cant parse Arqma address: " + address_str;
         return j_response;
 
     }
@@ -5900,10 +5900,10 @@ json_networkinfo()
     json j_info;
 
     // get basic network info
-    if (!get_monero_network_info(j_info))
+    if (!get_arqma_network_info(j_info))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant get monero network info";
+        j_response["message"] = "Cant get Arqma network info";
         return j_response;
     }
 
@@ -5993,7 +5993,7 @@ json_version()
             {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
             {"git_branch_name"     , string {GIT_BRANCH_NAME}},
             {"arqma_version_full"  , string {ARQMA_VERSION_FULL}},
-            {"api"                 , ONIONEXPLORER_RPC_VERSION},
+            {"api"                 , ARQMAEXPLORER_RPC_VERSION},
             {"blockchain_height"   , core_storage->get_current_blockchain_height()}
     };
 
@@ -6987,7 +6987,7 @@ get_full_page(const string& middle)
 }
 
 bool
-get_monero_network_info(json& j_info)
+get_arqma_network_info(json& j_info)
 {
     MempoolStatus::network_info local_copy_network_info
         = MempoolStatus::current_network_info;
@@ -7083,9 +7083,9 @@ get_footer()
             {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
             {"git_branch_name"     , string {GIT_BRANCH_NAME}},
             {"arqma_version_full"  , string {ARQMA_VERSION_FULL}},
-            {"api"                 , std::to_string(ONIONEXPLORER_RPC_VERSION_MAJOR)
+            {"api"                 , std::to_string(ARQMAEXPLORER_RPC_VERSION_MAJOR)
                                      + "."
-                                     + std::to_string(ONIONEXPLORER_RPC_VERSION_MINOR)},
+                                     + std::to_string(ARQMAEXPLORER_RPC_VERSION_MINOR)},
     };
 
     string footer_html = mstch::render(xmreg::read(TMPL_FOOTER), footer_context);

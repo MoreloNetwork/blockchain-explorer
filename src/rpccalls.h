@@ -85,7 +85,7 @@ public:
              uint64_t _timeout = 200000);
 
     bool
-    connect_to_monero_deamon();
+    connect_to_arqma_deamon();
 
     uint64_t
     get_current_height();
@@ -100,7 +100,7 @@ public:
     get_network_info(COMMAND_RPC_GET_INFO::response& info);
 
     bool
-    get_hardfork_info( COMMAND_RPC_HARD_FORK_INFO::response& res);
+    get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response& res);
 
     bool
     get_dynamic_per_kb_fee_estimate(
@@ -130,7 +130,7 @@ public:
         {
             std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-            if (!connect_to_monero_deamon())
+            if (!connect_to_arqma_deamon())
             {
                 cerr << "get_alt_blocks: not connected to deamon" << endl;
                 return false;
@@ -156,14 +156,14 @@ public:
 
             if (!err.empty())
             {
-                cerr << "Error connecting to Monero deamon due to "
+                cerr << "Error connecting to Arqma deamon due to "
                      << err << endl;
                 return false;
             }
         }
         else
         {
-            cerr << "Error connecting to Monero deamon at "
+            cerr << "Error connecting to Arqma deamon at "
                  << deamon_url << endl;
             return false;
         }
