@@ -70,7 +70,7 @@ var cnUtil = (function(initConfig) {
     var RCTTypeSimple = 2;
     var RCTTypeFullBulletproof = 3;
     var RCTTypeSimpleBulletproof = 4;
-    var RCCTypeBulletproof = 5;
+    var RCTTypeBulletproof = 5;
     var TX_EXTRA_NONCE_MAX_COUNT = 255;
     var TX_EXTRA_TAGS = {
         PADDING: '00',

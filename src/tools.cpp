@@ -935,7 +935,7 @@ decode_ringct(rct::rctSig const& rv,
         switch (rv.type)
         {
             case rct::RCTTypeSimple:
-            case rct::RCCYypeBulletproof
+            case rct::RCTTypeBulletproof:
             case rct::RCTTypeSimpleBulletproof:
                 amount = rct::decodeRctSimple(rv,
                                               rct::sk2rct(scalar1),

@@ -109,10 +109,11 @@ MempoolStatus::read_mempool()
 
     // get txs in the mempool
     std::vector<tx_info> mempool_tx_info;
-    //std::vector<tx_info> pool_tx_info;
 
+    //std::vector<tx_info> pool_tx_info;
     std::vector<spent_key_image_info> pool_key_image_info;
 
+    // get txpool from lmdb database instead of rpc call
     if (!mcore->get_mempool().get_transactions_and_spent_keys_info(mempool_tx_info, pool_key_image_info))
     {
         cerr << "Getting mempool failed " << endl;
@@ -172,7 +173,6 @@ MempoolStatus::read_mempool()
                tx, output_pub_keys, input_key_imgs);
 
 
-
         double tx_size =  static_cast<double>(_tx_info.blob_size)/1024.0;
 
         double payed_for_kB = ARQ_AMOUNT(_tx_info.fee) / tx_size;
@@ -186,15 +186,17 @@ MempoolStatus::read_mempool()
         last_tx.mixin_no          = sum_data[2];
         last_tx.num_nonrct_inputs = sum_data[3];
 
-        last_tx.fee_str          = xmreg::arq_amount_to_str(_tx_info.fee, "{:0.4f}", false);
-        last_tx.payed_for_kB_str = fmt::format("{:0.4f}", payed_for_kB);
-        last_tx.arq_inputs_str   = xmreg::arq_amount_to_str(last_tx.sum_inputs , "{:0.3f}");
-        last_tx.arq_outputs_str  = xmreg::arq_amount_to_str(last_tx.sum_outputs, "{:0.3f}");
-        last_tx.timestamp_str    = xmreg::timestamp_to_str_gm(_tx_info.receive_time);
+        last_tx.fee_str               = xmreg::arq_amount_to_str(_tx_info.fee, "{:0.4f}", false);
+        last_tx.fee_nano_str          = xmreg::arq_amount_to_str(_tx_info.fee*1.0e6, "{:04.0f}", false);
+        last_tx.payed_for_kB_str      = fmt::format("{:0.4f}", payed_for_kB);
+        last_tx.payed_for_kB_nano_str = fmt::format("{:04.0f}", payed_for_kB*1.0e6);
+        last_tx.arq_inputs_str        = xmreg::arq_amount_to_str(last_tx.sum_inputs , "{:0.3f}");
+        last_tx.arq_outputs_str       = xmreg::arq_amount_to_str(last_tx.sum_outputs, "{:0.3f}");
+        last_tx.timestamp_str         = xmreg::timestamp_to_str_gm(_tx_info.receive_time);
 
-        last_tx.txsize           = fmt::format("{:0.2f}", tx_size);
+        last_tx.txsize                = fmt::format("{:0.2f}", tx_size);
 
-        last_tx.pID              = '-';
+        last_tx.pID                   = '-';
 
         crypto::hash payment_id;
         crypto::hash8 payment_id8;
@@ -282,6 +284,7 @@ MempoolStatus::read_network_info()
     local_copy.cumulative_difficulty      = rpc_network_info.cumulative_difficulty;
     local_copy.block_size_limit           = rpc_network_info.block_size_limit;
     local_copy.block_size_median          = rpc_network_info.block_size_median;
+    local_copy.block_weight_limit         = rpc_network_info.block_weight_limit;
     local_copy.start_time                 = rpc_network_info.start_time;
 
 

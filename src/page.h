@@ -40,7 +40,6 @@
 #define TMPL_DIR                    "./templates"
 #define TMPL_PARIALS_DIR            TMPL_DIR "/partials"
 #define TMPL_CSS_STYLES             TMPL_DIR "/css/style.css"
-#define TMPL_BLOCKCHAIN_JS          TMPL_DIR "/blockchain.js"
 #define TMPL_INDEX                  TMPL_DIR "/index.html"
 #define TMPL_INDEX2                 TMPL_DIR "/index2.html"
 #define TMPL_MEMPOOL                TMPL_DIR "/mempool.html"
@@ -72,7 +71,7 @@
 #define JS_SHA3     TMPL_DIR "/js/sha3.js"
 
 #define ARQMAEXPLORER_RPC_VERSION_MAJOR 2
-#define ARQMAEXPLORER_RPC_VERSION_MINOR 2
+#define ARQMAEXPLORER_RPC_VERSION_MINOR 3
 #define MAKE_ARQMAEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define ARQMAEXPLORER_RPC_VERSION \
     MAKE_ARQMAEXPLORER_RPC_VERSION(ARQMAEXPLORER_RPC_VERSION_MAJOR, ARQMAEXPLORER_RPC_VERSION_MINOR)
@@ -131,7 +130,7 @@ public:
 
     // enabled for numeric types
     template<typename T>
-    typename  std::enable_if<std::is_arithmetic<T>::value, nlohmann::json>::type
+    typename std::enable_if<std::is_arithmetic<T>::value, nlohmann::json>::type
     operator()(T const& value) const {
         return nlohmann::json {value};
     }
@@ -247,6 +246,8 @@ struct tx_details
         string fee_str {"N/A"};
         string fee_short_str {"N/A"};
         string payed_for_kB_str {""};
+        string fee_nano_str {"N/A"};
+        string payed_for_kB_nano_str {"N/A"};
 
         const double& arq_amount = ARQ_AMOUNT(fee);
 
@@ -258,10 +259,12 @@ struct tx_details
         {
             double payed_for_kB = arq_amount / tx_size;
 
-            mixin_str        = std::to_string(mixin_no);
-            fee_str          = fmt::format("{:0.9f}", arq_amount);
-            fee_short_str    = fmt::format("{:0.9f}", arq_amount);
-            payed_for_kB_str = fmt::format("{:0.4f}", payed_for_kB);
+            mixin_str             = std::to_string(mixin_no);
+            fee_str               = fmt::format("{:0.9f}", arq_amount);
+            fee_short_str         = fmt::format("{:0.9f}", arq_amount);
+            fee_nano_str          = fmt::format("{:04.0f}", arq_amount * 1e6);
+            payed_for_kB_str      = fmt::format("{:0.4f}", payed_for_kB);
+            payed_for_kB_nano_str = fmt::format("{:04.0f}", payed_for_kB * 1e6);
         }
 
 
@@ -271,7 +274,9 @@ struct tx_details
                 {"pub_key"           , pod_to_hex(pk)},
                 {"tx_fee"            , fee_str},
                 {"tx_fee_short"      , fee_short_str},
+                {"fee_nano"          , fee_nano_str},
                 {"payed_for_kB"      , payed_for_kB_str},
+                {"payed_for_kB_nano" , payed_for_kB_nano},
                 {"sum_inputs"        , arq_amount_to_str(arq_inputs , "{:0.9f}")},
                 {"sum_outputs"       , arq_amount_to_str(arq_outputs, "{:0.9f}")},
                 {"sum_inputs_short"  , arq_amount_to_str(arq_inputs , "{:0.9f}")},
@@ -467,7 +472,6 @@ page(MicroCore* _mcore,
     // into template_file map
 
     template_file["css_styles"]      = xmreg::read(TMPL_CSS_STYLES);
-    template_file["blockchain_js"]   = xmreg::read(TMPL_BLOCKCHAIN_JS);
     template_file["header"]          = xmreg::read(TMPL_HEADER);
     template_file["footer"]          = get_footer();
     template_file["index2"]          = get_full_page(xmreg::read(TMPL_INDEX2));
@@ -957,9 +961,12 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         current_network_info.current = true;
     }
 
+    std::string fee_type = height >= 10100 ? "byte" : "kb";
+
     context["network_info"] = mstch::map {
             {"difficulty"        , current_network_info.difficulty},
             {"hash_rate"         , hash_rate},
+            {"fee_type"          , fee_type},
             {"fee_per_kb"        , print_money(current_network_info.fee_per_kb)},
             {"alt_blocks_no"     , current_network_info.alt_blocks_count},
             {"have_alt_block"    , (current_network_info.alt_blocks_count > 0)},
@@ -1111,7 +1118,9 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
                 {"age"             , age_str},
                 {"hash"            , pod_to_hex(mempool_tx.tx_hash)},
                 {"fee"             , mempool_tx.fee_str},
+                {"fee_nano"        , mempool_tx.fee_nano_str},
                 {"payed_for_kB"    , mempool_tx.payed_for_kB_str},
+                {"payed_for_kB_nano" , mempool_tx.payed_for_kB_nano_str},
                 {"arq_inputs"      , mempool_tx.arq_inputs_str},
                 {"arq_outputs"     , mempool_tx.arq_outputs_str},
                 {"no_inputs"       , mempool_tx.no_inputs},
@@ -1324,8 +1333,7 @@ show_block(uint64_t _blk_height)
             {"have_next_hash"       , have_next_hash},
             {"have_prev_hash"       , have_prev_hash},
             {"have_txs"             , have_txs},
-            {"no_txs"               , std::to_string(
-                                         blk.tx_hashes.size())},
+            {"no_txs"               , std::to_string(blk.tx_hashes.size())},
             {"blk_age"              , age.first},
             {"delta_time"           , delta_time},
             {"blk_nonce"            , blk.nonce},
@@ -2340,8 +2348,7 @@ show_my_outputs(string tx_hash_str,
     string pid_str   = pod_to_hex(txd.payment_id);
     string pid8_str  = pod_to_hex(txd.payment_id8);
 
-    string shortcut_url = domain
-                          + (tx_prove ? "/prove" : "/myoutputs")
+    string shortcut_url = tx_prove ? string("/prove") : string("/myoutputs")
                           + '/' + tx_hash_str
                           + '/' + arq_address_str
                           + '/' + viewkey_str;
@@ -2375,6 +2382,7 @@ show_my_outputs(string tx_hash_str,
             {"payment_id8"          , pid8_str},
             {"decrypted_payment_id8", string{}},
             {"tx_prove"             , tx_prove},
+            {"domain_url"           , domain},
             {"shortcut_url"         , shortcut_url}
     };
 
@@ -6334,6 +6342,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
             {"tx_blk_height"         , tx_blk_height},
             {"tx_size"               , fmt::format("{:0.4f}", tx_size)},
             {"tx_fee"                , xmreg::arq_amount_to_str(txd.fee, "{:0.9f}", false)},
+            {"tx_fee_nano"           , xmreg::arq_amount_to_str(txd.fee*1e9, "{:0.4f}", false)},
             {"payed_for_kB"          , fmt::format("{:0.9f}", payed_for_kB)},
             {"tx_version"            , static_cast<uint64_t>(txd.version)},
             {"blk_timestamp"         , blk_timestamp},

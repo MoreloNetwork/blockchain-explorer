@@ -394,6 +394,18 @@ function ge_scalarmult(P, s) {
   return res;
 }
 
+//res = s*P
+function ge_scalarmult_raw(P, s) {
+  var p = [gf(), gf(), gf(), gf()];
+  //res = new Uint8Array(32),
+  //upk = unpack(P);
+  //ge_neg(P);
+  //if (unpackneg(upk, P) !== 0) throw "non-0 error on point decode";
+  scalarmult(p, P, s);
+  //pack(res, p);
+  return p;
+}
+
 //res = c*P + r*G
 function ge_double_scalarmult_base_vartime(c, P, r) {
   var uP = [gf(), gf(), gf(), gf()],
@@ -427,7 +439,25 @@ function ge_double_scalarmult_postcomp_vartime(r, Pb, c, I) {
   return res;
 }
 
-//res = P + Q
+//res = a*A + b*B
+function ge_double_scalarmult_postcomp_vartime_raw_output(a, A, b, B) {
+  var uA = [gf(), gf(), gf(), gf()],
+  uB = [gf(), gf(), gf(), gf()],
+  bB = [gf(), gf(), gf(), gf()],
+  aA = [gf(), gf(), gf(), gf()];
+  //res = new Uint8Array(32);
+  ge_neg(A);
+  if (unpackneg(uA, A) !== 0) throw "non-0 error on point decode";
+  scalarmult(aA, uA, a);
+  ge_neg(B);
+  if (unpackneg(uB, B) !== 0) throw "non-0 error on point decode";
+  scalarmult(bB, uB, b);
+  add(aA, bB);
+  //pack(res, aA);
+  return aA;
+}
+
+/*//res = P + Q
 function ge_add(P, Q) {
   var uP = [gf(), gf(), gf(), gf()],
   uQ = [gf(), gf(), gf(), gf()],
@@ -438,6 +468,47 @@ function ge_add(P, Q) {
   if (unpackneg(uQ, Q) !== 0) throw "non-0 error on point decode";
   add(uP, uQ);
   pack(res, uP);
+  return res;
+}*/
+
+//raw input and output
+function ge_add_raw(A, B) {
+  add(A, B);
+  //var res = new Uint8Array(32);
+  //ge_neg(A);
+  //ge_neg(B);
+  //if (unpackneg(uA, A) !== 0) throw "non-0 error on point decode";
+  //if (unpackneg(uB, B) !== 0) throw "non-0 error on point decode";
+  //add(A, B);
+  //pack(res, uP);
+  return A;
+}
+
+//raw or packed input, packed output
+function ge_add(A, B) {
+  if (B.length === 32){
+    var uB = unpack(B);
+    if (A.length === 32){
+      var uA = unpack(A);
+      add(uA, uB);
+      A = uA;
+    } else {
+      add(A, uB);
+    }
+  } else if (A.length === 32){
+    var uA = unpack(A);
+    add(uA, B);
+    A = uA;
+  } else {
+    add(A, B);
+  }
+  var res = new Uint8Array(32);
+  //ge_neg(A);
+  //ge_neg(B);
+  //if (unpackneg(uA, A) !== 0) throw "non-0 error on point decode";
+  //if (unpackneg(uB, B) !== 0) throw "non-0 error on point decode";
+  //add(A, B);
+  pack(res, A);
   return res;
 }
 
@@ -473,6 +544,19 @@ function reduce(r) {
   for (i = 0; i < 64; i++) x[i] = r[i];
   for (i = 0; i < 64; i++) r[i] = 0;
   modL(r, x);
+}
+
+function packwrap(p) {
+  var res = new Uint8Array(32);
+  pack(res, p);
+  return res;
+}
+
+function unpack(p) {
+  var uP = [gf(), gf(), gf(), gf()];
+  ge_neg(p);
+  if (unpackneg(uP, p) !== 0) throw "non-0 error on point decode";
+  return uP;
 }
 
 function unpackneg(r, p) {
@@ -519,7 +603,12 @@ nacl.ll = {
   ge_scalarmult: ge_scalarmult,
   ge_double_scalarmult_base_vartime: ge_double_scalarmult_base_vartime,
   ge_add: ge_add,
-  ge_double_scalarmult_postcomp_vartime: ge_double_scalarmult_postcomp_vartime
+  ge_double_scalarmult_postcomp_vartime: ge_double_scalarmult_postcomp_vartime,
+  ge_double_scalarmult_postcomp_vartime_raw_output: ge_double_scalarmult_postcomp_vartime_raw_output,
+  ge_add_raw: ge_add_raw,
+  ge_scalarmult_raw: ge_scalarmult_raw,
+  pack: packwrap,
+  unpack: unpack
 
 };
 
