@@ -5,8 +5,6 @@
 #ifndef CROWXMR_PAGE_H
 #define CROWXMR_PAGE_H
 
-
-
 #include "mstch/mstch.hpp"
 
 #include "arqma_headers.h"
@@ -71,7 +69,7 @@
 #define JS_SHA3     TMPL_DIR "/js/sha3.js"
 
 #define ARQMAEXPLORER_RPC_VERSION_MAJOR 2
-#define ARQMAEXPLORER_RPC_VERSION_MINOR 3
+#define ARQMAEXPLORER_RPC_VERSION_MINOR 4
 #define MAKE_ARQMAEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define ARQMAEXPLORER_RPC_VERSION \
     MAKE_ARQMAEXPLORER_RPC_VERSION(ARQMAEXPLORER_RPC_VERSION_MAJOR, ARQMAEXPLORER_RPC_VERSION_MINOR)
@@ -108,7 +106,7 @@ namespace std
     template<>
     struct hash<tx_info_cache::key>
     {
-        size_t operator()(const tx_info_cache::key& k) const
+        size_t operator()(const tx_info_cache::key &k) const
         {
             size_t const h1 ( std::hash<crypto::hash>{}(k.tx_hash) );
             size_t const h2 ( std::hash<bool>{}(k.detailed) );
@@ -131,29 +129,29 @@ public:
     // enabled for numeric types
     template<typename T>
     typename std::enable_if<std::is_arithmetic<T>::value, nlohmann::json>::type
-    operator()(T const& value) const {
+    operator()(T const &value) const {
         return nlohmann::json {value};
     }
 
-    nlohmann::json operator()(std::string const& value) const {
+    nlohmann::json operator()(std::string const &value) const {
         return nlohmann::json {value};
     }
 
-    nlohmann::json operator()(mstch::map const& n_map) const
+    nlohmann::json operator()(mstch::map const &n_map) const
     {
         nlohmann::json j;
 
-        for (auto const& kv: n_map)
+        for (auto const &kv: n_map)
             j[kv.first] = boost::apply_visitor(mstch_node_to_json(), kv.second);
 
         return j;
     }
 
-    nlohmann::json operator()(mstch::array const& n_array) const
+    nlohmann::json operator()(mstch::array const &n_array) const
     {
         nlohmann::json j;
 
-        for (auto const& v:  n_array)
+        for (auto const &v:  n_array)
             j.push_back(boost::apply_visitor(mstch_node_to_json(), v));
 
         return j;
@@ -175,9 +173,9 @@ namespace internal
 {
     // add conversion from mstch::map to nlohmann::json
     void
-    to_json(nlohmann::json& j, mstch::map const &m)
+    to_json(nlohmann::json &j, mstch::map const &m)
     {
-        for (auto const& kv: m)
+        for (auto const &kv: m)
             j[kv.first] = boost::apply_visitor(mstch_node_to_json(), kv.second);
     }
 }
@@ -308,8 +306,7 @@ struct tx_details
     string
     get_extra_str() const
     {
-        return epee::string_tools::buff_to_hex_nodelimer(
-                string{reinterpret_cast<const char*>(extra.data()), extra.size()});
+        return epee::string_tools::buff_to_hex_nodelimer(string{reinterpret_cast<const char*>(extra.data()), extra.size()});
     }
 
 
@@ -334,7 +331,7 @@ struct tx_details
     }
 
     string
-    print_signature(const signature& sig)
+    print_signature(const signature &sig)
     {
         stringstream ss;
 
@@ -697,12 +694,11 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
             // start measure time here
             auto start = std::chrono::steady_clock::now();
 
-            const vector<pair<crypto::hash, mstch::node>>& txd_pairs
-                    = block_tx_cache.Get(i);
+            const vector<pair<crypto::hash, mstch::node>> &txd_pairs = block_tx_cache.Get(i);
 
             // copy tx maps from txs_maps_tmp into txs array,
             // that will go to templates
-            for (const pair<crypto::hash, mstch::node>& txd_pair: txd_pairs)
+            for (const pair<crypto::hash, mstch::node> &txd_pair: txd_pairs)
             {
                 // we need to check if the given transaction is still
                 // in the same block as when it was cached. it is possible
@@ -715,7 +711,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
                 bool is_tx_still_in_block_as_expected {true};
 
-                if (i + CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE > height)
+                if (i + config::tx_settings::ARQMA_TX_CONFIRMATIONS_REQUIRED > height)
                 {
                     const crypto::hash& tx_hash = txd_pair.first;
 
@@ -723,8 +719,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
                     {
                         try
                         {
-                            uint64_t tx_height_in_blockchain =
-                                    core_storage->get_db().get_tx_block_height(tx_hash);
+                            uint64_t tx_height_in_blockchain = core_storage->get_db().get_tx_block_height(tx_hash);
 
                             // check if height of the given tx that we have in cache,
                             // denoted by i, is same as what is acctually stored
@@ -785,8 +780,9 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
                 if (forged) {
                     auto &age_class = boost::get<std::string>(txd_map["age_class"]);
-                    if (age_class.find("out-of-order") == std::string::npos) {
-                        age_class += " out-of-order";
+                    if(age_class.find("out-of-order") == std::string::npos)
+                    {
+                        age_class += "out-of-order";
                         auto &age_title = boost::get<std::string>(txd_map["age_title"]);
                         if (!age_title.empty()) age_title += "&#xa;";
                         age_title += "This block timestamp is probably forged: a later block has an earlier timestamp";
@@ -797,8 +793,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
             }  // for (const pair<crypto::hash, mstch::map>& txd_pair: txd_pairs)
 
-            auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-                    (std::chrono::steady_clock::now() - start);
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start);
 
             // cout << "block_tx_json_cache from cache" << endl;
 
@@ -844,64 +839,66 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
             {
                 const cryptonote::transaction& tx = *it;
 
-                const tx_details& txd = get_tx_details(tx, false, i, height);
+                const tx_details &txd = get_tx_details(tx, false, i, height);
 
                 mstch::map txd_map = txd.get_mstch_map();
 
                 std::string age_class = "";
                 std::string age_title = "";
-                if (tx_i == 0) {
-                    if (age.first[0] == '-') {
-                        age_class += " negative";
-                        age_title += "This block was observed with a (forged) future timestamp";
-                    }
-
-                    block next_blk;
-                    if (forged) {
-                        age_class += " out-of-order";
-                        if (!age_title.empty()) age_title += "&#xa;";
-                        age_title += "This block timestamp is probably forged: a later block has an earlier timestamp";
-                    }
-                }
-
-                //add age to the txd mstch map
-                txd_map.insert({"height"    , i});
-                txd_map.insert({"blk_hash"  , blk_hash_str});
-                txd_map.insert({"blk_or_tx_hash", tx_i == 0 ? blk_hash_str : txd_map.at("hash")});
-					                       txd_map.insert({"block_or_tx", std::string(tx_i == 0 ? "block" : "tx")});
-                txd_map.insert({"age"       , age.first});
-                txd_map.insert({"age_class" , age_class});
-                txd_map.insert({"age_title" , age_title});
-                txd_map.insert({"diff"      , blk_diff});
-                txd_map.insert({"is_ringct" , (tx.version > 1)});
-                txd_map.insert({"rct_type"  , tx.rct_signatures.type});
-                txd_map.insert({"blk_size"  , blk_size_str});
-
-
-                // do not show block info for other than first tx in a block
-                if (tx_i > 0)
+                if(tx_i == 0)
                 {
-                    txd_map["height"]     = string("");
-                    txd_map["age"]        = string("");
-                    txd_map["diff"]       = string("");
-                    txd_map["blk_size"]   = string("");
-                }
+                  if (age.first[0] == '-')
+                  {
+                    age_class += " negative";
+                    age_title += "This block was observed with a (forged) future timestamp";
+                  }
 
-                txd_pairs.emplace_back(txd.hash, txd_map);
+                  block next_blk;
+                  if(forged)
+                  {
+                    age_class += " out-of-order";
+                    if(!age_title.empty()) age_title += "&#xa;";
+                    age_title += "This block timestamp is probably forged: a later block has an earlier timestamp";
+                  }
+               }
 
-                ++tx_i;
+               //add age to the txd mstch map
+               txd_map.insert({"height"    , i});
+               txd_map.insert({"blk_hash"  , blk_hash_str});
+               txd_map.insert({"blk_or_tx_hash", tx_i == 0 ? blk_hash_str : txd_map.at("hash")});
+			   txd_map.insert({"block_or_tx", std::string(tx_i == 0 ? "block" : "tx")});
+               txd_map.insert({"age"       , age.first});
+               txd_map.insert({"age_class" , age_class});
+               txd_map.insert({"age_title" , age_title});
+               txd_map.insert({"diff"      , blk_diff});
+               txd_map.insert({"is_ringct" , (tx.version > 1)});
+               txd_map.insert({"rct_type"  , tx.rct_signatures.type});
+               txd_map.insert({"blk_size"  , blk_size_str});
+
+
+               // do not show block info for other than first tx in a block
+               if (tx_i > 0)
+               {
+                 txd_map["height"]     = string("");
+                 txd_map["age"]        = string("");
+                 txd_map["diff"]       = string("");
+                 txd_map["blk_size"]   = string("");
+               }
+
+               txd_pairs.emplace_back(txd.hash, txd_map);
+
+               ++tx_i;
 
             } // for(list<cryptonote::transaction>::reverse_iterator rit = blk_txs.rbegin();
 
             // copy tx maps from txs_maps_tmp into txs array,
             // that will go to templates
-            for (const pair<crypto::hash, mstch::node>& txd_pair: txd_pairs)
+            for (const pair<crypto::hash, mstch::node> &txd_pair: txd_pairs)
             {
                 txs.push_back(boost::get<mstch::map>(txd_pair.second));
             }
 
-            auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-                    (std::chrono::steady_clock::now() - start);
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start);
 
             duration_non_cached += duration.count();
 
@@ -924,35 +921,30 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
     // save computational times for disply in the frontend
 
-    context["construction_time_cached"] = fmt::format(
-            "{:0.4f}", duration_cached/1.0e6);
+    context["construction_time_cached"] = fmt::format("{:0.4f}", duration_cached/1.0e6);
 
-    context["construction_time_non_cached"] = fmt::format(
-            "{:0.4f}", duration_non_cached/1.0e6);
+    context["construction_time_non_cached"] = fmt::format("{:0.4f}", duration_non_cached/1.0e6);
 
-    context["construction_time_total"] = fmt::format(
-            "{:0.4f}", (duration_non_cached+duration_cached)/1.0e6);
+    context["construction_time_total"] = fmt::format("{:0.4f}", (duration_non_cached+duration_cached)/1.0e6);
 
     context["cache_hits"]   = cache_hits;
     context["cache_misses"] = cache_misses;
 
 
     // get current network info from MemoryStatus thread.
-    MempoolStatus::network_info current_network_info
-        = MempoolStatus::current_network_info;
+    MempoolStatus::network_info current_network_info = MempoolStatus::current_network_info;
 
     // perapre network info mstch::map for the front page
     string hash_rate;
 
-    if (current_network_info.hash_rate > 1e6)
+    if(current_network_info.hash_rate > 1e6)
         hash_rate = fmt::format("{:0.3f} MH/s", current_network_info.hash_rate/1.0e6);
-    else if (current_network_info.hash_rate > 1e3)
+    else if(current_network_info.hash_rate > 1e3)
         hash_rate = fmt::format("{:0.3f} kH/s", current_network_info.hash_rate/1.0e3);
     else
         hash_rate = fmt::format("{:d} H/s", current_network_info.hash_rate);
 
-    pair<string, string> network_info_age = get_age(local_copy_server_timestamp,
-                                                    current_network_info.info_timestamp);
+    pair<string, string> network_info_age = get_age(local_copy_server_timestamp, current_network_info.info_timestamp);
 
     // if network info is younger than 2 minute, assume its current. No sense
     // showing that it is not current if its less then block time.
@@ -961,7 +953,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         current_network_info.current = true;
     }
 
-    std::string fee_type = height >= 10100 ? "byte" : "kb";
+    std::string fee_type = height >= 7000 ? "byte" : "kb";
 
     context["network_info"] = mstch::map {
             {"difficulty"        , current_network_info.difficulty},
@@ -986,8 +978,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
     string mempool_html {"Cant get mempool_pool"};
 
     // get mempool data for the front page, if ready. If not, then just skip.
-    std::future_status mempool_ftr_status = mempool_ftr.wait_for(
-            std::chrono::milliseconds(mempool_info_timeout));
+    std::future_status mempool_ftr_status = mempool_ftr.wait_for(std::chrono::milliseconds(mempool_info_timeout));
 
     if (mempool_ftr_status == std::future_status::ready)
     {
@@ -1001,8 +992,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
     if (CurrentBlockchainStatus::is_thread_running())
     {
-        CurrentBlockchainStatus::Emission current_values
-                = CurrentBlockchainStatus::get_emission();
+        CurrentBlockchainStatus::Emission current_values = CurrentBlockchainStatus::get_emission();
 
         string emission_blk_no   = std::to_string(current_values.blk_no - 1);
         string emission_coinbase = arq_amount_to_str(current_values.coinbase, "{:0.9f}");
@@ -1132,9 +1122,7 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
         });
     }
 
-    context.insert({"mempool_size_kB",
-                    fmt::format("{:0.4f}",
-                                static_cast<double>(mempool_size_bytes)/1024.0)});
+    context.insert({"mempool_size_kB", fmt::format("{:0.4f}", static_cast<double>(mempool_size_bytes)/1024.0)});
 
     if (add_header_and_footer)
     {
@@ -1230,8 +1218,7 @@ show_block(uint64_t _blk_height)
 
     //cout << "_blk_height: " << _blk_height << endl;
 
-    uint64_t current_blockchain_height
-            =  core_storage->get_current_blockchain_height();
+    uint64_t current_blockchain_height = core_storage->get_current_blockchain_height();
 
     if (_blk_height > current_blockchain_height)
     {
@@ -1239,8 +1226,7 @@ show_block(uint64_t _blk_height)
              << " since its higher than current blockchain height"
              << " i.e., " <<  current_blockchain_height
              << endl;
-        return fmt::format("Cant get block {:d} since its higher than current blockchain height!",
-                           _blk_height);
+        return fmt::format("Cant get block {:d} since its higher than current blockchain height!", _blk_height);
     }
 
 
@@ -1311,8 +1297,7 @@ show_block(uint64_t _blk_height)
     uint64_t sum_fees = 0;
 
     // get tx details for the coinbase tx, i.e., miners reward
-    tx_details txd_coinbase = get_tx_details(blk.miner_tx, true,
-                                             _blk_height, current_blockchain_height);
+    tx_details txd_coinbase = get_tx_details(blk.miner_tx, true, _blk_height, current_blockchain_height);
 
     // initalise page tempate map with basic info about blockchain
 
@@ -1340,8 +1325,7 @@ show_block(uint64_t _blk_height)
             {"age_format"           , age.second},
             {"major_ver"            , std::to_string(blk.major_version)},
             {"minor_ver"            , std::to_string(blk.minor_version)},
-            {"blk_size"             , fmt::format("{:0.4f}",
-                                                  static_cast<double>(blk_size) / 1024.0)},
+            {"blk_size"             , fmt::format("{:0.4f}", static_cast<double>(blk_size) / 1024.0)},
     };
     context.emplace("coinbase_txs", mstch::array{{txd_coinbase.get_mstch_map()}});
     context.emplace("blk_txs"     , mstch::array());
@@ -1352,7 +1336,7 @@ show_block(uint64_t _blk_height)
 
     // now process nomral transactions
     // get reference to blocks template map to be field below
-    mstch::array& txs = boost::get<mstch::array>(context["blk_txs"]);
+    mstch::array &txs = boost::get<mstch::array>(context["blk_txs"]);
 
     // timescale representation for each tx in the block
     vector<string> mixin_timescales_str;
@@ -1361,7 +1345,7 @@ show_block(uint64_t _blk_height)
     for (size_t i = 0; i < blk.tx_hashes.size(); ++i)
     {
         // get transaction info of the tx in the mempool
-        const crypto::hash& tx_hash = blk.tx_hashes.at(i);
+        const crypto::hash &tx_hash = blk.tx_hashes.at(i);
 
         // remove "<" and ">" from the hash string
         string tx_hash_str = pod_to_hex(tx_hash);
@@ -1395,12 +1379,10 @@ show_block(uint64_t _blk_height)
 
 
     // add total fees in the block to the context
-    context["sum_fees"]
-            = xmreg::arq_amount_to_str(sum_fees, "{:0.9f}", false);
+    context["sum_fees"] = xmreg::arq_amount_to_str(sum_fees, "{:0.9f}", false);
 
     // get arq in the block reward
-    context["blk_reward"]
-            = xmreg::arq_amount_to_str(txd_coinbase.arq_outputs - sum_fees, "{:0.9f}");
+    context["blk_reward"] = xmreg::arq_amount_to_str(txd_coinbase.arq_outputs - sum_fees, "{:0.9f}");
 
     add_css_style(context);
 
@@ -1475,13 +1457,11 @@ show_tx(string tx_hash_str, uint16_t with_ring_signatures = 0)
             // since its tx in mempool, it has no blk yet
             // so use its recive_time as timestamp to show
 
-            uint64_t tx_recieve_timestamp
-                    = found_txs.at(0).receive_time;
+            uint64_t tx_recieve_timestamp = found_txs.at(0).receive_time;
 
             blk_timestamp = xmreg::timestamp_to_str_gm(tx_recieve_timestamp);
 
-            age = get_age(server_timestamp, tx_recieve_timestamp,
-                          FULL_AGE_FORMAT);
+            age = get_age(server_timestamp, tx_recieve_timestamp, FULL_AGE_FORMAT);
 
             // for mempool tx, we dont show more details, e.g., json tx representation
             // so no need for the link
@@ -1505,8 +1485,7 @@ show_tx(string tx_hash_str, uint16_t with_ring_signatures = 0)
         // tx context from cashe. just for fun, to see if cache is any faster.
         auto start = std::chrono::steady_clock::now();
 
-        const tx_info_cache& tx_info_cashed
-                = tx_context_cache.Get({tx_hash, static_cast<bool>(with_ring_signatures)});
+        const tx_info_cache &tx_info_cashed = tx_context_cache.Get({tx_hash, static_cast<bool>(with_ring_signatures)});
 
         tx_context = tx_info_cashed.tx_map;
 
@@ -1732,8 +1711,7 @@ show_block_hex(size_t block_height, bool complete_blk)
                 return string {"Failed to obtain complete block data"};
             }
 
-            return epee::string_tools
-                    ::buff_to_hex_nodelimer(complete_block_data_str);
+            return epee::string_tools::buff_to_hex_nodelimer(complete_block_data_str);
         }
     }
     catch (std::exception const& e)
@@ -1759,7 +1737,7 @@ show_ringmembers_hex(string const& tx_hash_str)
     std::map<vector<uint64_t>, vector<string>> all_mixin_outputs;
 
        // make timescale maps for mixins in input
-    for (txin_to_key const& in_key: input_key_imgs)
+    for (txin_to_key const &in_key: input_key_imgs)
     {
         // get absolute offsets of mixins
         std::vector<uint64_t> absolute_offsets
@@ -1776,15 +1754,14 @@ show_ringmembers_hex(string const& tx_hash_str)
             // the amount and absolute offset
             // check how many outputs there are for that amount
             // go to next input if a too large offset was found
-            if (are_absolute_offsets_good(absolute_offsets, in_key)
-                    == false)
+            if (are_absolute_offsets_good(absolute_offsets, in_key) == false)
                 continue;
 
             core_storage->get_db().get_output_key(epee::span<const uint64_t>(&in_key.amount, 1),
                                                   absolute_offsets,
                                                   mixin_outputs);
         }
-        catch (OUTPUT_DNE const& e)
+        catch (OUTPUT_DNE const &e)
         {
             cerr << "get_output_keys: " << e.what() << endl;
             continue;
@@ -1794,7 +1771,7 @@ show_ringmembers_hex(string const& tx_hash_str)
         // between same offsets, but for different amounts
         absolute_offsets.push_back(in_key.amount);
 
-        for (auto const& mo: mixin_outputs)
+        for (auto const &mo: mixin_outputs)
             all_mixin_outputs[absolute_offsets].emplace_back(pod_to_hex(mo));
 
     } // for (txin_to_key const& in_key: input_key_imgs)
@@ -1808,18 +1785,17 @@ show_ringmembers_hex(string const& tx_hash_str)
     archive << all_mixin_outputs;
 
     // return as all_mixin_outputs vector hex
-    return epee::string_tools
-            ::buff_to_hex_nodelimer(oss.str());
+    return epee::string_tools::buff_to_hex_nodelimer(oss.str());
 }
 
 string
-show_ringmemberstx_hex(string const& tx_hash_str)
+show_ringmemberstx_hex(string const &tx_hash_str)
 {
     transaction tx;
     crypto::hash tx_hash;
 
     if (!get_tx(tx_hash_str, tx, tx_hash))
-        return string {"Cant get tx: "} +  tx_hash_str;
+        return string {"Cant get tx: "} + tx_hash_str;
 
     vector<txin_to_key> input_key_imgs = xmreg::get_key_images(tx);
 
@@ -1830,7 +1806,7 @@ show_ringmemberstx_hex(string const& tx_hash_str)
     // transaction hash and output index represent tx_out_index
     std::map<string, vector<string>> all_mixin_txs;
 
-    for (txin_to_key const& in_key: input_key_imgs)
+    for (txin_to_key const &in_key: input_key_imgs)
     {
         // get absolute offsets of mixins
         std::vector<uint64_t> absolute_offsets
@@ -1849,7 +1825,7 @@ show_ringmemberstx_hex(string const& tx_hash_str)
             core_storage->get_db().get_output_tx_and_index(
                         in_key.amount, absolute_offsets, indices);
         }
-        catch (exception const& e)
+        catch (exception const &e)
         {
 
             string out_msg = fmt::format(
@@ -1863,14 +1839,14 @@ show_ringmemberstx_hex(string const& tx_hash_str)
 
         string map_key = std::to_string(in_key.amount);
 
-        for (auto const& ao: absolute_offsets)
+        for (auto const &ao: absolute_offsets)
             map_key += std::to_string(ao);
 
         // serialize each mixin tx
-        for (auto const& txi : indices)
+        for (auto const &txi : indices)
         {
-           auto const& mixin_tx_hash = txi.first;
-           auto const& output_index_in_tx = txi.second;
+           auto const &mixin_tx_hash = txi.first;
+           auto const &output_index_in_tx = txi.second;
 
            transaction mixin_tx;
 
@@ -1901,8 +1877,7 @@ show_ringmemberstx_hex(string const& tx_hash_str)
     archive << all_mixin_txs;
 
     // return as all_mixin_outputs vector hex
-    return epee::string_tools
-            ::buff_to_hex_nodelimer(oss.str());
+    return epee::string_tools::buff_to_hex_nodelimer(oss.str());
 }
 
 /**
@@ -1916,13 +1891,13 @@ show_ringmemberstx_hex(string const& tx_hash_str)
  * @return
  */
 json
-show_ringmemberstx_jsonhex(string const& tx_hash_str)
+show_ringmemberstx_jsonhex(string const &tx_hash_str)
 {
     transaction tx;
     crypto::hash tx_hash;
 
     if (!get_tx(tx_hash_str, tx, tx_hash))
-        return string {"Cant get tx: "} +  tx_hash_str;
+        return string {"Cant get tx: "} + tx_hash_str;
 
     vector<txin_to_key> input_key_imgs = xmreg::get_key_images(tx);
 
@@ -1934,7 +1909,7 @@ show_ringmemberstx_jsonhex(string const& tx_hash_str)
     {
         tx_hex = tx_to_hex(tx);
     }
-    catch (std::exception const& e)
+    catch (std::exception const &e)
     {
         cerr << e.what() << endl;
         return json {"error", "Failed to obtain hex of tx"};
@@ -2030,8 +2005,7 @@ show_ringmemberstx_jsonhex(string const& tx_hash_str)
     tx_json["payment_id8"] = pod_to_hex(txd.payment_id8);
     tx_json["payment_id8e"] = pod_to_hex(txd.payment_id8);
 
-    tx_json["block"] = epee::string_tools
-             ::buff_to_hex_nodelimer(complete_block_data_str);
+    tx_json["block"] = epee::string_tools::buff_to_hex_nodelimer(complete_block_data_str);
 
     tx_json["block_version"] = json {blk.major_version, blk.minor_version};
 
@@ -2045,7 +2019,7 @@ show_ringmemberstx_jsonhex(string const& tx_hash_str)
     // transaction hash and output index represent tx_out_index
     std::map<string, vector<string>> all_mixin_txs;
 
-    for (txin_to_key const& in_key: input_key_imgs)
+    for (txin_to_key const &in_key: input_key_imgs)
     {
         // get absolute offsets of mixins
         std::vector<uint64_t> absolute_offsets
@@ -2071,7 +2045,7 @@ show_ringmemberstx_jsonhex(string const& tx_hash_str)
                         absolute_offsets,
                         mixin_outputs);
         }
-        catch (exception const& e)
+        catch (exception const &e)
         {
 
             string out_msg = fmt::format(
@@ -2103,8 +2077,8 @@ show_ringmemberstx_jsonhex(string const& tx_hash_str)
         for (size_t i = 0; i < indices.size(); ++i)
         {
 
-           tx_out_index const& txi = indices[i];
-           output_data_t const& mo = mixin_outputs[i];
+           tx_out_index const &txi = indices[i];
+           output_data_t const &mo = mixin_outputs[i];
 
            auto const& mixin_tx_hash = txi.first;
            auto const& output_index_in_tx = txi.second;
@@ -2193,7 +2167,7 @@ show_my_outputs(string tx_hash_str,
     // parse string representing given monero address
     cryptonote::address_parse_info address_info;
 
-    if (!xmreg::parse_str_address(arq_address_str,  address_info, nettype))
+    if (!xmreg::parse_str_address(arq_address_str, address_info, nettype))
     {
         cerr << "Cant parse string address: " << arq_address_str << endl;
         return string("Cant parse arq address: " + arq_address_str);
@@ -2370,8 +2344,7 @@ show_my_outputs(string tx_hash_str,
             {"viewkey"              , viewkey_str_partial},
             {"tx_pub_key"           , pod_to_hex(txd.pk)},
             {"blk_height"           , tx_blk_height_str},
-            {"tx_size"              , fmt::format("{:0.4f}",
-                                                  static_cast<double>(txd.size) / 1024.0)},
+            {"tx_size"              , fmt::format("{:0.4f}", static_cast<double>(txd.size) / 1024.0)},
             {"tx_fee"               , xmreg::arq_amount_to_str(txd.fee, "{:0.9f}", true)},
             {"blk_timestamp"        , blk_timestamp},
             {"delta_time"           , age.first},
@@ -2453,7 +2426,7 @@ show_my_outputs(string tx_hash_str,
 
     uint64_t output_idx {0};
 
-    for (pair<txout_to_key, uint64_t>& outp: txd.output_pub_keys)
+    for (pair<txout_to_key, uint64_t> &outp: txd.output_pub_keys)
     {
 
         // get the tx output public key
@@ -2476,8 +2449,7 @@ show_my_outputs(string tx_hash_str,
 
         bool with_additional = false;
 
-        if (!mine_output && txd.additional_pks.size()
-                == txd.output_pub_keys.size())
+        if (!mine_output && txd.additional_pks.size() == txd.output_pub_keys.size())
         {
             derive_public_key(additional_derivations[output_idx],
                               output_idx,
@@ -2563,7 +2535,7 @@ show_my_outputs(string tx_hash_str,
     //                     public_key    , amount
     std::vector<std::pair<crypto::public_key, uint64_t>> all_possible_mixins;
 
-    for (const txin_to_key& in_key: input_key_imgs)
+    for (const txin_to_key &in_key: input_key_imgs)
     {
         // get absolute offsets of mixins
         std::vector<uint64_t> absolute_offsets
@@ -2599,7 +2571,7 @@ show_my_outputs(string tx_hash_str,
                 make_pair(string("mixins"), mstch::array{})
         });
 
-        mstch::array& mixins = boost::get<mstch::array>(
+        mstch::array &mixins = boost::get<mstch::array>(
                 boost::get<mstch::map>(inputs.back())["mixins"]
         );
 
@@ -2625,7 +2597,7 @@ show_my_outputs(string tx_hash_str,
         size_t no_of_output_matches_found {0};
 
         // for each found output public key check if its ours or not
-        for (const uint64_t& abs_offset: absolute_offsets)
+        for (const uint64_t &abs_offset: absolute_offsets)
         {
 
             // get basic information about mixn's output
@@ -2733,12 +2705,12 @@ show_my_outputs(string tx_hash_str,
                     {"has_found_outputs", false}
             });
 
-            mstch::array& found_outputs = boost::get<mstch::array>(
+            mstch::array &found_outputs = boost::get<mstch::array>(
                     boost::get<mstch::map>(
                             mixin_outputs.back())["found_outputs"]
             );
 
-            mstch::node& has_found_outputs
+            mstch::node &has_found_outputs
                     = boost::get<mstch::map>(
                         mixin_outputs.back())["has_found_outputs"];
 
@@ -2746,10 +2718,10 @@ show_my_outputs(string tx_hash_str,
 
             // for each output in mixin tx, find the one from key_image
             // and check if its ours.
-            for (const auto& mix_out: output_pub_keys)
+            for (const auto &mix_out: output_pub_keys)
             {
 
-                txout_to_key const& txout_k      = std::get<0>(mix_out);
+                txout_to_key const &txout_k = std::get<0>(mix_out);
                 uint64_t amount           = std::get<1>(mix_out);
                 uint64_t output_idx_in_tx = std::get<2>(mix_out);
 
@@ -2926,8 +2898,7 @@ show_my_outputs(string tx_hash_str,
 
     context["show_inputs"]   = show_key_images;
     context["inputs_no"]     = static_cast<uint64_t>(inputs.size());
-    context["sum_mixin_arq"] = xmreg::arq_amount_to_str(
-            sum_mixin_arq, "{:0.9f}", false);
+    context["sum_mixin_arq"] = xmreg::arq_amount_to_str(sum_mixin_arq, "{:0.9f}", false);
 
 
     uint64_t possible_spending  {0};
@@ -2938,7 +2909,7 @@ show_my_outputs(string tx_hash_str,
     // of possible mixins
     uint64_t all_possible_mixins_amount1  {0};
 
-    for (auto& p: all_possible_mixins)
+    for (auto &p: all_possible_mixins)
         all_possible_mixins_amount1 += p.second;
 
     //cout << "\all_possible_mixins_amount: " << all_possible_mixins_amount1 << '\n';
@@ -2959,8 +2930,7 @@ show_my_outputs(string tx_hash_str,
         possible_spending = (sum_mixin_arq - sum_arq) - txd.fee;
     }
 
-    context["possible_spending"] = xmreg::arq_amount_to_str(
-            possible_spending, "{:0.9f}", false);
+    context["possible_spending"] = xmreg::arq_amount_to_str(possible_spending, "{:0.9f}", false);
 
     add_css_style(context);
 
@@ -2972,7 +2942,7 @@ string
 show_prove(string tx_hash_str,
            string arq_address_str,
            string tx_prv_key_str,
-           string const& raw_tx_data,
+           string const &raw_tx_data,
            string domain)
 {
 
@@ -3061,13 +3031,13 @@ show_checkrawtx(string raw_tx_data, string action)
 
         if (r)
         {
-            mstch::array& txs = boost::get<mstch::array>(context["txs"]);
+            mstch::array &txs = boost::get<mstch::array>(context["txs"]);
 
-            for (const ::tools::wallet2::tx_construction_data& tx_cd: exported_txs.txes)
+            for (const ::tools::wallet2::tx_construction_data &tx_cd: exported_txs.txes)
             {
                 size_t no_of_sources = tx_cd.sources.size();
 
-                const tx_destination_entry& tx_change   = tx_cd.change_dts;
+                const tx_destination_entry &tx_change = tx_cd.change_dts;
 
                 crypto::hash payment_id   = null_hash;
                 crypto::hash8 payment_id8 = null_hash8;
@@ -3091,10 +3061,10 @@ show_checkrawtx(string raw_tx_data, string action)
                 tx_cd_data.emplace("dest_sources" , mstch::array{});
                 tx_cd_data.emplace("dest_infos"   , mstch::array{});
 
-                mstch::array& dest_sources = boost::get<mstch::array>(tx_cd_data["dest_sources"]);
-                mstch::array& dest_infos = boost::get<mstch::array>(tx_cd_data["dest_infos"]);
+                mstch::array &dest_sources = boost::get<mstch::array>(tx_cd_data["dest_sources"]);
+                mstch::array &dest_infos = boost::get<mstch::array>(tx_cd_data["dest_infos"]);
 
-                for (const tx_destination_entry& a_dest: tx_cd.splitted_dsts)
+                for (const tx_destination_entry &a_dest: tx_cd.splitted_dsts)
                 {
                     mstch::map dest_info {
                             {"dest_address"  , get_account_address_as_str(
@@ -3113,7 +3083,7 @@ show_checkrawtx(string raw_tx_data, string action)
                 for (size_t i = 0; i < no_of_sources; ++i)
                 {
 
-                    const tx_source_entry&  tx_source = tx_cd.sources.at(i);
+                    const tx_source_entry &tx_source = tx_cd.sources.at(i);
 
                     mstch::map single_dest_source {
                             {"output_amount"              , xmreg::arq_amount_to_str(tx_source.amount)},
@@ -3175,13 +3145,13 @@ show_checkrawtx(string raw_tx_data, string action)
                     //cout << "real_txd.pk: "      << pod_to_hex(real_txd.pk) << endl;
                     //cout << "real_out_pub_key: " << pod_to_hex(real_out_pub_key) << endl;
 
-                    mstch::array& outputs = boost::get<mstch::array>(single_dest_source["outputs"]);
+                    mstch::array &outputs = boost::get<mstch::array>(single_dest_source["outputs"]);
 
                     vector<uint64_t> mixin_timestamps;
 
                     size_t output_i {0};
 
-                    for(const tx_source_entry::output_entry& oe: tx_source.outputs)
+                    for(const tx_source_entry::output_entry &oe: tx_source.outputs)
                     {
 
                         tx_out_index toi;
@@ -3422,7 +3392,7 @@ show_checkrawtx(string raw_tx_data, string action)
 
         context.insert({"txs", mstch::array{}});
 
-        for (tools::wallet2::pending_tx& ptx: ptxs)
+        for (tools::wallet2::pending_tx &ptx: ptxs)
         {
             mstch::map tx_context = construct_tx_context(ptx.tx, 1);
 
@@ -3431,14 +3401,14 @@ show_checkrawtx(string raw_tx_data, string action)
                 return boost::get<string>(tx_context["error_msg"]);
             }
 
-            tx_context["tx_prv_key"] =  fmt::format("{:s}", ptx.tx_key);
+            tx_context["tx_prv_key"] = fmt::format("{:s}", ptx.tx_key);
 
             mstch::array destination_addresses;
             vector<uint64_t> real_ammounts;
             uint64_t outputs_arq_sum {0};
 
             // destiantion address for this tx
-            for (tx_destination_entry& a_dest: ptx.construction_data.splitted_dsts)
+            for (tx_destination_entry &a_dest: ptx.construction_data.splitted_dsts)
             {
                 //stealth_address_amount.insert({dest.addr, dest.amount});
                 //cout << get_account_address_as_str(testnet, a_dest.addr) << endl;
@@ -3479,15 +3449,15 @@ show_checkrawtx(string raw_tx_data, string action)
             tx_context.insert({"dest_infos", destination_addresses});
 
             // get reference to inputs array created of the tx
-            mstch::array& outputs = boost::get<mstch::array>(tx_context["outputs"]);
+            mstch::array &outputs = boost::get<mstch::array>(tx_context["outputs"]);
 
             // show real output amount for ringct outputs.
             // otherwise its only 0.000000000
             for (size_t i = 0; i < outputs.size(); ++i)
             {
-                mstch::map& output_map = boost::get<mstch::map>(outputs.at(i));
+                mstch::map &output_map = boost::get<mstch::map>(outputs.at(i));
 
-                string& out_amount_str = boost::get<string>(output_map["amount"]);
+                string &out_amount_str = boost::get<string>(output_map["amount"]);
 
                 //cout << boost::get<string>(output_map["out_pub_key"])
                 //    <<", " <<  out_amount_str << endl;
@@ -3510,7 +3480,7 @@ show_checkrawtx(string raw_tx_data, string action)
 
             uint64_t inputs_arq_sum {0};
 
-            for (const tx_source_entry&  tx_source: ptx.construction_data.sources)
+            for (const tx_source_entry &tx_source: ptx.construction_data.sources)
             {
                 transaction real_source_tx;
 
@@ -3523,7 +3493,7 @@ show_checkrawtx(string raw_tx_data, string action)
                 try
                 {
                     // get tx of the real output
-                    real_toi =  core_storage->get_db()
+                    real_toi = core_storage->get_db()
                             .get_output_tx_and_index(tx_source_amount, index_of_real_output);
                 }
                 catch (const OUTPUT_DNE& e)
@@ -3567,18 +3537,18 @@ show_checkrawtx(string raw_tx_data, string action)
             tx_context["inputs_arq_sum"] = xmreg::arq_amount_to_str(inputs_arq_sum);
 
             // get reference to inputs array created of the tx
-            mstch::array& inputs = boost::get<mstch::array>(tx_context["inputs"]);
+            mstch::array &inputs = boost::get<mstch::array>(tx_context["inputs"]);
 
             uint64_t input_idx {0};
 
             // mark which mixin is real in each input's mstch context
-            for (mstch::node& input_node: inputs)
+            for (mstch::node &input_node: inputs)
             {
 
-                mstch::map& input_map = boost::get<mstch::map>(input_node);
+                mstch::map &input_map = boost::get<mstch::map>(input_node);
 
                 // show input amount
-                string& amount = boost::get<string>(
+                string &amount = boost::get<string>(
                         boost::get<mstch::map>(input_node)["amount"]
                 );
 
@@ -3586,7 +3556,7 @@ show_checkrawtx(string raw_tx_data, string action)
 
                 // check if key images are spend or not
 
-                string& in_key_img_str = boost::get<string>(
+                string &in_key_img_str = boost::get<string>(
                         boost::get<mstch::map>(input_node)["in_key_img"]
                 );
 
@@ -3599,11 +3569,11 @@ show_checkrawtx(string raw_tx_data, string action)
 
                 // mark real mixings
 
-                mstch::array& mixins = boost::get<mstch::array>(
+                mstch::array &mixins = boost::get<mstch::array>(
                         boost::get<mstch::map>(input_node)["mixins"]
                 );
 
-                for (mstch::node& mixin_node: mixins)
+                for (mstch::node &mixin_node: mixins)
                 {
                     mstch::map& mixin = boost::get<mstch::map>(mixin_node);
 
@@ -3740,16 +3710,16 @@ show_pushrawtx(string raw_tx_data, string action)
 
     context.emplace("txs", mstch::array{});
 
-    mstch::array& txs = boost::get<mstch::array>(context["txs"]);
+    mstch::array &txs = boost::get<mstch::array>(context["txs"]);
 
     // actually commit the transactions
     while (!ptx_vector.empty())
     {
-        tools::wallet2::pending_tx& ptx = ptx_vector.back();
+        tools::wallet2::pending_tx &ptx = ptx_vector.back();
 
         tx_details txd = get_tx_details(ptx.tx);
 
-        string tx_hash_str  = REMOVE_HASH_BRAKETS(fmt::format("{:s}", txd.hash));
+        string tx_hash_str = REMOVE_HASH_BRAKETS(fmt::format("{:s}", txd.hash));
 
         mstch::map tx_cd_data {
                 {"tx_hash"          , tx_hash_str}
@@ -3786,7 +3756,7 @@ show_pushrawtx(string raw_tx_data, string action)
         // check if any key images of the tx to be submited are already spend
         vector<key_image> key_images_spent;
 
-        for (const txin_to_key& tx_in: txd.input_key_imgs)
+        for (const txin_to_key &tx_in: txd.input_key_imgs)
         {
             if (core_storage->have_tx_keyimg_as_spent(tx_in.k_image))
                 key_images_spent.push_back(tx_in.k_image);
@@ -3797,7 +3767,7 @@ show_pushrawtx(string raw_tx_data, string action)
             string error_msg = fmt::format("Tx with hash {:s} has already spent inputs\n",
                                            tx_hash_str);
 
-            for (key_image& k_img: key_images_spent)
+            for (key_image &k_img: key_images_spent)
             {
                 error_msg += REMOVE_HASH_BRAKETS(fmt::format("{:s}", k_img));
                 error_msg += "</br>";
@@ -3992,7 +3962,7 @@ show_checkrawkeyimgs(string raw_data, string viewkey_str)
 
     //vector<pair<crypto::key_image, crypto::signature>> signed_key_images;
 
-    mstch::array& key_imgs_ctx = boost::get<mstch::array>(context["key_imgs"]);
+    mstch::array &key_imgs_ctx = boost::get<mstch::array>(context["key_imgs"]);
 
     for (size_t n = 0; n < no_key_images; ++n)
     {
@@ -4104,7 +4074,7 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
 
 
     // header is public spend and keys
-    const size_t header_lenght    = 2 * sizeof(crypto::public_key);
+    const size_t header_lenght = 2 * sizeof(crypto::public_key);
 
     // get xmr address stored in this key image file
     const account_public_address* arq_address =
@@ -4120,7 +4090,7 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
     context.insert({"total_arq"      , string{}});
     context.insert({"output_keys"    , mstch::array{}});
 
-    mstch::array& output_keys_ctx = boost::get<mstch::array>(context["output_keys"]);
+    mstch::array &output_keys_ctx = boost::get<mstch::array>(context["output_keys"]);
 
 
     std::vector<tools::wallet2::transfer_details> outputs;
@@ -4152,10 +4122,10 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
 
     context["are_key_images_known"] = false;
 
-    for (const tools::wallet2::transfer_details& td: outputs)
+    for (const tools::wallet2::transfer_details &td: outputs)
     {
 
-        const transaction_prefix& txp = td.m_tx;
+        const transaction_prefix &txp = td.m_tx;
 
         txout_to_key txout_key = boost::get<txout_to_key>(
                 txp.vout[td.m_internal_output_index].target);
@@ -4216,8 +4186,7 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
 
         } // if (td.is_rct())
 
-        uint64_t blk_timestamp = core_storage
-                ->get_db().get_block_timestamp(td.m_block_height);
+        uint64_t blk_timestamp = core_storage->get_db().get_block_timestamp(td.m_block_height);
 
         const key_image* output_key_img;
 
@@ -4324,7 +4293,7 @@ search(string search_text)
     result_html = default_txt;
 
 
-    // check if monero address is given based on its length
+    // check if Arqma address is given based on its length
     // if yes, then we can only show its public components
     if (search_str_length == 97)
     {
@@ -4333,9 +4302,9 @@ search(string search_text)
 
         cryptonote::network_type nettype_addr {cryptonote::network_type::MAINNET};
 
-        if (search_text[0] == '9' || search_text[0] == 'A' || search_text[0] == 'B')
+        if (search_text[0] == 'a' && search_text[1] == 't')
             nettype_addr = cryptonote::network_type::TESTNET;
-        if (search_text[0] == '5' || search_text[0] == '7')
+        if (search_text[0] == 'a' && search_text[1] == 's')
             nettype_addr = cryptonote::network_type::STAGENET;
 
         if (!xmreg::parse_str_address(search_text, address_info, nettype_addr))
@@ -4348,7 +4317,7 @@ search(string search_text)
         return show_address_details(address_info, nettype_addr);
     }
 
-    // check if integrated monero address is given based on its length
+    // check if integrated Arqma address is given based on its length
     // if yes, then show its public components search tx based on encrypted id
     if (search_str_length == 109)
     {
@@ -4453,7 +4422,7 @@ search_txs(vector<transaction> txs, const string& search_text)
 
         vector<txin_to_key>::iterator it1 =
                 find_if(begin(txd.input_key_imgs), end(txd.input_key_imgs),
-                        [&](const txin_to_key& key_img)
+                        [&](const txin_to_key &key_img)
                         {
                             return pod_to_hex(key_img.k_image) == search_text;
                         });
@@ -4488,7 +4457,7 @@ search_txs(vector<transaction> txs, const string& search_text)
 
         vector<pair<txout_to_key, uint64_t>>::iterator it2 =
                 find_if(begin(txd.output_pub_keys), end(txd.output_pub_keys),
-                        [&](const pair<txout_to_key, uint64_t>& tx_out_pk)
+                        [&](const pair<txout_to_key, uint64_t> &tx_out_pk)
                         {
                             return pod_to_hex(tx_out_pk.first.key) == search_text;
                         });
@@ -4505,8 +4474,8 @@ search_txs(vector<transaction> txs, const string& search_text)
 }
 
 string
-show_search_results(const string& search_text,
-                    const vector<pair<string, vector<string>>>& all_possible_tx_hashes)
+show_search_results(const string &search_text,
+                    const vector<pair<string, vector<string>>> &all_possible_tx_hashes)
 {
 
     // initalise page tempate map with basic info about blockchain
@@ -4518,7 +4487,7 @@ show_search_results(const string& search_text,
             {"to_many_results" , false}
     };
 
-    for (const pair<string, vector<string>>& found_txs: all_possible_tx_hashes)
+    for (const pair<string, vector<string>> &found_txs: all_possible_tx_hashes)
     {
         // define flag, e.g., has_key_images denoting that
         // tx hashes for key_image searched were found
@@ -4527,7 +4496,7 @@ show_search_results(const string& search_text,
         // cout << "found_txs.first: " << found_txs.first << endl;
 
         // insert new array based on what we found to context if not exist
-        pair< mstch::map::iterator, bool> res
+        pair<mstch::map::iterator, bool> res
                 = context.insert({found_txs.first, mstch::array{}});
 
         if (!found_txs.second.empty())
@@ -4537,7 +4506,7 @@ show_search_results(const string& search_text,
 
             // for each found tx_hash, get the corresponding tx
             // and its details, and put into mstch for rendering
-            for (const string& tx_hash: found_txs.second)
+            for (const string &tx_hash: found_txs.second)
             {
 
                 crypto::hash tx_hash_pod;
@@ -4555,11 +4524,9 @@ show_search_results(const string& search_text,
                 {
 
                     // get timestamp of the tx's block
-                    blk_height    = core_storage
-                            ->get_db().get_tx_block_height(tx_hash_pod);
+                    blk_height = core_storage->get_db().get_tx_block_height(tx_hash_pod);
 
-                    blk_timestamp = core_storage
-                            ->get_db().get_block_timestamp(blk_height);
+                    blk_timestamp = core_storage->get_db().get_block_timestamp(blk_height);
 
                 }
                 else
@@ -4627,7 +4594,7 @@ show_search_results(const string& search_text,
 }
 
 string
-get_js_file(string const& fname)
+get_js_file(string const &fname)
 {
     if (template_file.count(fname))
         return template_file[fname];
@@ -4699,7 +4666,7 @@ json_transaction(string tx_hash_str)
 
             tx_timestamp = blk.timestamp;
         }
-        catch (const exception& e)
+        catch (const exception &e)
         {
             j_response["status"]  = "error";
             j_response["message"] = fmt::format("Tx does not exist in blockchain, "
@@ -4717,7 +4684,7 @@ json_transaction(string tx_hash_str)
 
     json outputs;
 
-    for (const auto& output: txd.output_pub_keys)
+    for (const auto &output: txd.output_pub_keys)
     {
         outputs.push_back(json {
                 {"public_key", pod_to_hex(output.first.key)},
@@ -4765,7 +4732,7 @@ json_transaction(string tx_hash_str)
 
         json& mixins = inputs.back()["mixins"];
 
-        for (const output_data_t& output_data: outputs)
+        for (const output_data_t &output_data: outputs)
         {
             mixins.push_back(json {
                     {"public_key"  , pod_to_hex(output_data.pubkey)},
@@ -4859,7 +4826,7 @@ json_rawtransaction(string tx_hash_str)
                 return j_response;
             }
         }
-        catch (const exception& e)
+        catch (const exception &e)
         {
             j_response["status"]  = "error";
             j_response["message"] = fmt::format("Tx does not exist in blockchain, "
@@ -4875,7 +4842,7 @@ json_rawtransaction(string tx_hash_str)
     {
         j_data = json::parse(obj_to_json_str(tx));
     }
-    catch (std::invalid_argument& e)
+    catch (std::invalid_argument &e)
     {
         j_response["status"]  = "error";
         j_response["message"] = "Faild parsing raw tx data into json";
@@ -4951,8 +4918,7 @@ json_block(string block_no_or_hash)
 
     nlohmann::json& j_data = j_response["data"];
 
-    uint64_t current_blockchain_height
-            =  core_storage->get_current_blockchain_height();
+    uint64_t current_blockchain_height = core_storage->get_current_blockchain_height();
 
     uint64_t block_height {0};
 
@@ -4967,7 +4933,7 @@ json_block(string block_no_or_hash)
         {
             block_height  = boost::lexical_cast<uint64_t>(block_no_or_hash);
         }
-        catch (const boost::bad_lexical_cast& e)
+        catch (const boost::bad_lexical_cast &e)
         {
             j_data["title"] = fmt::format(
                     "Cant parse block number: {:s}", block_no_or_hash);
@@ -5116,9 +5082,9 @@ json_rawblock(string block_no_or_hash)
         // we have something that seems to be a block number
         try
         {
-            block_height  = boost::lexical_cast<uint64_t>(block_no_or_hash);
+            block_height = boost::lexical_cast<uint64_t>(block_no_or_hash);
         }
-        catch (const boost::bad_lexical_cast& e)
+        catch (const boost::bad_lexical_cast &e)
         {
             j_data["title"] = fmt::format(
                     "Cant parse block number: {:s}", block_no_or_hash);
@@ -5165,13 +5131,13 @@ json_rawblock(string block_no_or_hash)
         return j_response;
     }
 
-    // get raw tx json as in monero
+    // get raw tx json as in Arqma
 
     try
     {
         j_data = json::parse(obj_to_json_str(blk));
     }
-    catch (std::invalid_argument& e)
+    catch (std::invalid_argument &e)
     {
         j_response["status"]  = "error";
         j_response["message"] = "Faild parsing raw blk data into json";
@@ -5208,7 +5174,7 @@ json_transactions(string _page, string _limit)
         page  = boost::lexical_cast<uint64_t>(_page);
         limit = boost::lexical_cast<uint64_t>(_limit);
     }
-    catch (const boost::bad_lexical_cast& e)
+    catch (const boost::bad_lexical_cast &e)
     {
         j_data["title"] = fmt::format(
                 "Cant parse page and/or limit numbers: {:s}, {:s}", _page, _limit);
@@ -5296,7 +5262,7 @@ json_transactions(string _page, string _limit)
         {
             const cryptonote::transaction &tx = *it;
 
-            const tx_details& txd = get_tx_details(tx, false, i, height);
+            const tx_details &txd = get_tx_details(tx, false, i, height);
 
             j_txs.push_back(get_tx_json(tx, txd));
         }
@@ -5340,7 +5306,7 @@ json_mempool(string _page, string _limit)
         page  = boost::lexical_cast<uint64_t>(_page);
         limit = boost::lexical_cast<uint64_t>(_limit);
     }
-    catch (const boost::bad_lexical_cast& e)
+    catch (const boost::bad_lexical_cast &e)
     {
         j_data["title"] = fmt::format(
                 "Cant parse page and/or limit numbers: {:s}, {:s}", _page, _limit);
@@ -5388,7 +5354,7 @@ json_mempool(string _page, string _limit)
         {
             mempool_tx = &(mempool_data.at(i));
         }
-        catch (const std::out_of_range& e)
+        catch (const std::out_of_range &e)
         {
             j_response["status"]  = "error";
             j_response["message"] = fmt::format("Getting mempool txs failed due to std::out_of_range");
@@ -5428,7 +5394,7 @@ json_mempool(string _page, string _limit)
  * https://labs.omniti.com/labs/jsend
  */
 json
-json_search(const string& search_text)
+json_search(const string &search_text)
 {
     json j_response {
             {"status", "fail"},
@@ -5626,7 +5592,7 @@ json_outputs(string tx_hash_str,
     j_data["outputs"] = json::array();
     json& j_outptus   = j_data["outputs"];
 
-    for (pair<txout_to_key, uint64_t>& outp: txd.output_pub_keys)
+    for (pair<txout_to_key, uint64_t> &outp: txd.output_pub_keys)
     {
 
         // get the tx output public key
@@ -5732,7 +5698,7 @@ json_outputsblocks(string _limit,
     {
         no_of_last_blocks = boost::lexical_cast<uint64_t>(_limit);
     }
-    catch (const boost::bad_lexical_cast& e)
+    catch (const boost::bad_lexical_cast &e)
     {
         j_data["title"] = fmt::format(
                 "Cant parse page and/or limit numbers: {:s}", _limit);
@@ -6016,8 +5982,8 @@ private:
 
 string
 get_payment_id_as_string(
-        tx_details const& txd,
-        secret_key const& prv_view_key)
+        tx_details const &txd,
+        secret_key const &prv_view_key)
 {
     string payment_id;
 
@@ -6042,21 +6008,21 @@ get_payment_id_as_string(
 template <typename Iterator>
 bool
 find_our_outputs(
-        account_public_address const& address,
-        secret_key const& prv_view_key,
-        uint64_t const& block_no,
-        bool const& is_mempool,
-        Iterator const& txs_begin,
-        Iterator const& txs_end,
-        json& j_outptus,
-        string& error_msg)
+        account_public_address const &address,
+        secret_key const &prv_view_key,
+        uint64_t const &block_no,
+        bool const &is_mempool,
+        Iterator const &txs_begin,
+        Iterator const &txs_end,
+        json &j_outptus,
+        string &error_msg)
 {
 
     // for each tx, perform output search using provided
     // address and viewkey
     for (auto it = txs_begin; it != txs_end; ++it)
     {
-        cryptonote::transaction const& tx = *it;
+        cryptonote::transaction const &tx = *it;
 
         tx_details txd = get_tx_details(tx);
 
@@ -6173,7 +6139,7 @@ find_our_outputs(
 }
 
 json
-get_tx_json(const transaction& tx, const tx_details& txd)
+get_tx_json(const transaction &tx, const tx_details &txd)
 {
 
     json j_tx {
@@ -6197,10 +6163,10 @@ get_tx_json(const transaction& tx, const tx_details& txd)
 
 
 bool
-find_tx(const crypto::hash& tx_hash,
-        transaction& tx,
-        bool& found_in_mempool,
-        uint64_t& tx_timestamp)
+find_tx(const crypto::hash &tx_hash,
+        transaction &tx,
+        bool &found_in_mempool,
+        uint64_t &tx_timestamp)
 {
 
     found_in_mempool = false;
@@ -6234,8 +6200,8 @@ find_tx(const crypto::hash& tx_hash,
 
 void
 mark_real_mixins_on_timescales(
-        const vector<uint64_t>& real_output_indices,
-        mstch::map& tx_context)
+        const vector<uint64_t> &real_output_indices,
+        mstch::map &tx_context)
 {
     // mark real mixing in the mixins timescale graph
     mstch::array& mixins_timescales
@@ -6243,7 +6209,7 @@ mark_real_mixins_on_timescales(
 
     uint64_t idx {0};
 
-    for (mstch::node& timescale_node: mixins_timescales)
+    for (mstch::node &timescale_node: mixins_timescales)
     {
 
         string& timescale = boost::get<string>(
@@ -6274,7 +6240,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 {
     tx_details txd = get_tx_details(tx);
 
-    const crypto::hash& tx_hash = txd.hash;
+    const crypto::hash &tx_hash = txd.hash;
 
     string tx_hash_str = pod_to_hex(tx_hash);
 
@@ -6358,8 +6324,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
             {"payment_id_as_ascii"   , remove_bad_chars(txd.payment_id_as_ascii)},
             {"payment_id8"           , pid8_str},
             {"extra"                 , txd.get_extra_str()},
-            {"with_ring_signatures"  , static_cast<bool>(
-                                               with_ring_signatures)},
+            {"with_ring_signatures"  , static_cast<bool>(with_ring_signatures)},
             {"tx_json"               , tx_json},
             {"is_ringct"             , (tx.version > 1)},
             {"rct_type"              , tx.rct_signatures.type},
@@ -6380,7 +6345,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
     string add_tx_pub_keys;
 
-    for (auto const& apk: txd.additional_pks)
+    for (auto const &apk: txd.additional_pks)
         add_tx_pub_keys += pod_to_hex(apk) + ";";
 
     context["add_tx_pub_keys"] = add_tx_pub_keys;
@@ -6445,7 +6410,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
                                                   absolute_offsets,
                                                   outputs);
         }
-        catch (const std::exception& e)
+        catch (const std::exception &e)
         {
             string out_msg = fmt::format(
                     "Outputs with amount {:d} do not exist and indexes ",
@@ -6493,14 +6458,14 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
         vector<uint64_t> mixin_timestamps;
 
         // get reference to mixins array created above
-        mstch::array& mixins = boost::get<mstch::array>(
+        mstch::array &mixins = boost::get<mstch::array>(
                 boost::get<mstch::map>(inputs.back())["mixins"]);
 
         // mixin counter
         size_t count = 0;
 
         // for each found output public key find its block to get timestamp
-        for (const uint64_t& i: absolute_offsets)
+        for (const uint64_t &i: absolute_offsets)
         {
             // get basic information about mixn's output
             cryptonote::output_data_t output_data = outputs.at(count);
@@ -6662,7 +6627,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
         }
 
     }
-    catch(const exception& e)
+    catch(const exception &e)
     {
         cerr << e.what() << endl;
     }
@@ -6673,7 +6638,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
     uint64_t outputs_arq_sum {0};
 
-    for (pair<txout_to_key, uint64_t>& outp: txd.output_pub_keys)
+    for (pair<txout_to_key, uint64_t> &outp: txd.output_pub_keys)
     {
 
         // total number of ouputs in the blockchain for this amount
@@ -6713,9 +6678,9 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
 pair<mstch::array, double>
 construct_mstch_mixin_timescales(
-        const vector<vector<uint64_t>>& mixin_timestamp_groups,
-        uint64_t& min_mix_timestamp,
-        uint64_t& max_mix_timestamp
+        const vector<vector<uint64_t>> &mixin_timestamp_groups,
+        uint64_t &min_mix_timestamp,
+        uint64_t &max_mix_timestamp
 )
 {
     mstch::array mixins_timescales;
@@ -6727,7 +6692,7 @@ construct_mstch_mixin_timescales(
     max_mix_timestamp = 0;
 
     // find min and maximum timestamps
-    for (const vector<uint64_t>& mixn_timestamps : mixin_timestamp_groups)
+    for (const vector<uint64_t> &mixn_timestamps : mixin_timestamp_groups)
     {
 
         uint64_t min_found = *min_element(mixn_timestamps.begin(), mixn_timestamps.end());
@@ -6745,7 +6710,7 @@ construct_mstch_mixin_timescales(
     max_mix_timestamp += 3600;
 
     // make timescale maps for mixins in input with adjusted range
-    for (auto& mixn_timestamps : mixin_timestamp_groups)
+    for (auto &mixn_timestamps : mixin_timestamp_groups)
     {
         // get mixins in time scale for visual representation
         pair<string, double> mixin_times_scale = xmreg::timestamps_time_scale(
@@ -6768,7 +6733,7 @@ construct_mstch_mixin_timescales(
 
 
 tx_details
-get_tx_details(const transaction& tx,
+get_tx_details(const transaction &tx,
                bool coinbase = false,
                uint64_t blk_height = 0,
                uint64_t bc_height = 0)
@@ -6787,7 +6752,7 @@ get_tx_details(const transaction& tx,
 
 
     // sum xmr in inputs and ouputs in the given tx
-    const array<uint64_t, 4>& sum_data = summary_of_in_out_rct(
+    const array<uint64_t, 4> &sum_data = summary_of_in_out_rct(
             tx, txd.output_pub_keys, txd.input_key_imgs);
 
     txd.arq_outputs       = sum_data[0];
@@ -6797,7 +6762,7 @@ get_tx_details(const transaction& tx,
 
     txd.fee = 0;
 
-    if (!coinbase &&  tx.vin.size() > 0)
+    if (!coinbase && tx.vin.size() > 0)
     {
         // check if not miner tx
         // i.e., for blocks without any user transactions
@@ -6870,7 +6835,7 @@ get_tx_details(const transaction& tx,
 }
 
 void
-clean_post_data(string& raw_tx_data)
+clean_post_data(string &raw_tx_data)
 {
     // remove white characters
     boost::trim(raw_tx_data);
@@ -6886,11 +6851,11 @@ clean_post_data(string& raw_tx_data)
 
 bool
 find_tx_for_json(
-        string const& tx_hash_str,
-        transaction& tx,
-        bool& found_in_mempool,
-        uint64_t& tx_timestamp,
-        string& error_message)
+        string const &tx_hash_str,
+        transaction &tx,
+        bool &found_in_mempool,
+        uint64_t &tx_timestamp,
+        string &error_message)
 {
     // parse tx hash string to hash object
     crypto::hash tx_hash;
@@ -6912,7 +6877,7 @@ find_tx_for_json(
 
 bool
 search_mempool(crypto::hash tx_hash,
-               vector<MempoolStatus::mempool_tx>& found_txs)
+               vector<MempoolStatus::mempool_tx> &found_txs)
 {
     // if tx_hash == null_hash then this method
     // will just return the vector containing all
@@ -6930,7 +6895,7 @@ search_mempool(crypto::hash tx_hash,
     for (size_t i = 0; i < mempool_txs.size(); ++i)
     {
         // get transaction info of the tx in the mempool
-        const MempoolStatus::mempool_tx& mempool_tx = mempool_txs.at(i);
+        const MempoolStatus::mempool_tx &mempool_tx = mempool_txs.at(i);
 
         if (tx_hash == mempool_tx.tx_hash || tx_hash == null_hash)
         {
@@ -6988,7 +6953,7 @@ get_age(uint64_t timestamp1, uint64_t timestamp2, bool full_format = 0)
 
 
 string
-get_full_page(const string& middle)
+get_full_page(const string &middle)
 {
     return template_file["header"]
            + middle
@@ -6996,7 +6961,7 @@ get_full_page(const string& middle)
 }
 
 bool
-get_arqma_network_info(json& j_info)
+get_arqma_network_info(json &j_info)
 {
     MempoolStatus::network_info local_copy_network_info
         = MempoolStatus::current_network_info;
@@ -7031,7 +6996,7 @@ get_arqma_network_info(json& j_info)
 }
 
 bool
-get_dynamic_per_kb_fee_estimate(uint64_t& fee_estimated)
+get_dynamic_per_kb_fee_estimate(uint64_t &fee_estimated)
 {
 
     string error_msg;
@@ -7051,8 +7016,8 @@ get_dynamic_per_kb_fee_estimate(uint64_t& fee_estimated)
 
 bool
 are_absolute_offsets_good(
-        std::vector<uint64_t> const& absolute_offsets,
-        txin_to_key const& in_key)
+        std::vector<uint64_t>const &absolute_offsets,
+        txin_to_key const &in_key)
 {
     // before proceeding with geting the outputs based on the amount and absolute offset
     // check how many outputs there are for that amount
@@ -7115,9 +7080,9 @@ add_css_style(mstch::map& context)
 }
 
 bool
-get_tx(string const& tx_hash_str,
-       transaction& tx,
-       crypto::hash& tx_hash)
+get_tx(string const &tx_hash_str,
+       transaction &tx,
+       crypto::hash &tx_hash)
 {
     if (!epee::string_tools::hex_to_pod(tx_hash_str, tx_hash))
     {
@@ -7150,9 +7115,9 @@ get_tx(string const& tx_hash_str,
 }
 
 void
-add_js_files(mstch::map& context)
+add_js_files(mstch::map &context)
 {
-    context["js_files"] = mstch::lambda{[&](const std::string& text) -> mstch::node {
+    context["js_files"] = mstch::lambda{[&](const std::string &text) -> mstch::node {
         //return this->js_html_files;
         return this->js_html_files_all_in_one;
     }};
@@ -7161,7 +7126,6 @@ add_js_files(mstch::map& context)
 public:
     string get_css() { return template_file["css_styles"]; }
     string get_blockchain_js() { return template_file["blockchain_js"]; }
-
 };
 }
 

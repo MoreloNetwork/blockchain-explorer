@@ -108,6 +108,7 @@ set(LIBRARIES
         cryptonote_core
         cryptonote_protocol
         cryptonote_basic
+        blocks
         net
         multisig
         daemonizer

@@ -109,7 +109,7 @@ main(int ac, const char* av[])
     bool show_cache_times             {*show_cache_times_opt};
 
 
-    // set  monero log output level
+    // set Arqma log output level
     uint32_t log_level = 0;
     mlog_configure("", true);
 
@@ -174,8 +174,7 @@ main(int ac, const char* av[])
     cryptonote::Blockchain* core_storage;
 
     // initialize mcore and core_storage
-    if (!xmreg::init_blockchain(blockchain_path.string(),
-                               mcore, core_storage, nettype))
+    if (!xmreg::init_blockchain(blockchain_path.string(), mcore, core_storage, nettype))
     {
         cerr << "Error accessing blockchain." << endl;
         return EXIT_FAILURE;
@@ -206,25 +205,21 @@ main(int ac, const char* av[])
     {
         // This starts new thread, which aim is
         // to calculate, store and monitor
-        // current total Monero emission amount.
+        // current total Arqma emission amount.
 
         // This thread stores the current emission
         // which it has caluclated in
         // <blockchain_path>/emission_amount.txt file,
-        // e.g., ~/.bitmonero/lmdb/emission_amount.txt.
+        // e.g., ~/.arqma/lmdb/emission_amount.txt.
         // So instead of calcualting the emission
         // from scrach whenever the explorer is started,
         // the thread is initalized with the values
         // found in emission_amount.txt file.
 
-        xmreg::CurrentBlockchainStatus::blockchain_path
-                = blockchain_path;
-        xmreg::CurrentBlockchainStatus::nettype
-                = nettype;
-        xmreg::CurrentBlockchainStatus::deamon_url
-                = deamon_url;
-        xmreg::CurrentBlockchainStatus::set_blockchain_variables(
-                &mcore, core_storage);
+        xmreg::CurrentBlockchainStatus::blockchain_path = blockchain_path;
+        xmreg::CurrentBlockchainStatus::nettype = nettype;
+        xmreg::CurrentBlockchainStatus::deamon_url = deamon_url;
+        xmreg::CurrentBlockchainStatus::set_blockchain_variables(&mcore, core_storage);
 
         // launch the status monitoring thread so that it keeps track of blockchain
         // info, e.g., current height. Information from this thread is used
@@ -234,14 +229,10 @@ main(int ac, const char* av[])
     }
 
 
-    xmreg::MempoolStatus::blockchain_path
-            = blockchain_path;
-    xmreg::MempoolStatus::nettype
-            = nettype;
-    xmreg::MempoolStatus::deamon_url
-            = deamon_url;
-    xmreg::MempoolStatus::set_blockchain_variables(
-            &mcore, core_storage);
+    xmreg::MempoolStatus::blockchain_path = blockchain_path;
+    xmreg::MempoolStatus::nettype = nettype;
+    xmreg::MempoolStatus::deamon_url = deamon_url;
+    xmreg::MempoolStatus::set_blockchain_variables(&mcore, core_storage);
 
     xmreg::MempoolStatus::network_info initial_info;
     strcpy(initial_info.block_size_limit_str, "0.0");
@@ -256,7 +247,7 @@ main(int ac, const char* av[])
     catch (boost::bad_lexical_cast &e)
     {
         cout << "Cant cast " << (*mempool_refresh_time_opt)
-             <<" into number. Using default value."
+             << " into number. Using default value."
              << endl;
     }
 
@@ -293,7 +284,8 @@ main(int ac, const char* av[])
     crow::SimpleApp app;
 
     // get domian url based on the request
-    auto get_domain = [&use_ssl](crow::request const& req) {
+    auto get_domain = [&use_ssl](crow::request const& req)
+    {
         auto frontend_host = req.get_header_value("X-Forwarded-Host");
         auto frontend_ssl = req.get_header_value("X-Forwarded-Proto");
 

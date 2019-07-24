@@ -126,7 +126,7 @@ MempoolStatus::read_mempool()
 
      // so we sort it here.
 
-     std::sort(mempool_tx_info.begin(), mempool_tx_info.end(), [](tx_info& t1, tx_info& t2)
+     std::sort(mempool_tx_info.begin(), mempool_tx_info.end(), [](tx_info &t1, tx_info &t2)
      {
          return t1.receive_time > t2.receive_time;
      });
@@ -140,7 +140,7 @@ MempoolStatus::read_mempool()
     for (size_t i = 0; i < mempool_tx_info.size(); ++i)
     {
         // get transaction info of the tx in the mempool
-        const tx_info& _tx_info = mempool_tx_info.at(i);
+        const tx_info &_tx_info = mempool_tx_info.at(i);
 
         transaction tx;
         crypto::hash tx_hash;
@@ -157,7 +157,7 @@ MempoolStatus::read_mempool()
 
         local_copy_of_mempool_txs.push_back(mempool_tx{});
 
-        mempool_tx& last_tx = local_copy_of_mempool_txs.back();
+        mempool_tx &last_tx = local_copy_of_mempool_txs.back();
 
         last_tx.tx_hash = tx_hash;
         last_tx.tx = tx;
@@ -169,11 +169,11 @@ MempoolStatus::read_mempool()
         vector<pair<txout_to_key, uint64_t>> output_pub_keys;
 
         // sum arq in inputs and ouputs in the given tx
-        const array<uint64_t, 4>& sum_data = summary_of_in_out_rct(
+        const array<uint64_t, 4> &sum_data = summary_of_in_out_rct(
                tx, output_pub_keys, input_key_imgs);
 
 
-        double tx_size =  static_cast<double>(_tx_info.blob_size)/1024.0;
+        double tx_size = static_cast<double>(_tx_info.blob_size)/1024.0;
 
         double payed_for_kB = ARQ_AMOUNT(_tx_info.fee) / tx_size;
 
@@ -289,14 +289,12 @@ MempoolStatus::read_network_info()
 
 
     strncpy(local_copy.block_size_limit_str, fmt::format("{:0.2f}",
-                                             static_cast<double>(
-                                             local_copy.block_size_limit ) / 2.0 / 1024.0).c_str(),
+                                             static_cast<double>(local_copy.block_size_limit) / 2.0 / 1024.0).c_str(),
                                              sizeof(local_copy.block_size_limit_str));
 
 
     strncpy(local_copy.block_size_median_str, fmt::format("{:0.2f}",
-                                              static_cast<double>(
-                                              local_copy.block_size_median) / 1024.0).c_str(),
+                                              static_cast<double>(local_copy.block_size_median) / 1024.0).c_str(),
                                               sizeof(local_copy.block_size_median_str));
 
     epee::string_tools::hex_to_pod(rpc_network_info.top_block_hash,

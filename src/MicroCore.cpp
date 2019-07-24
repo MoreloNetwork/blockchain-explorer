@@ -35,7 +35,7 @@ MicroCore::MicroCore():
  * Initialize m_blockchain_storage with the BlockchainLMDB object.
  */
 bool
-MicroCore::init(const string& _blockchain_path, network_type nt)
+MicroCore::init(const string &_blockchain_path, network_type nt)
 {
     int db_flags = 0;
 
@@ -54,7 +54,7 @@ MicroCore::init(const string& _blockchain_path, network_type nt)
         // try opening lmdb database files
         db->open(blockchain_path, db_flags);
     }
-    catch (const std::exception& e)
+    catch (const std::exception &e)
     {
         cerr << "Error opening database: " << e.what();
         return false;
@@ -92,13 +92,13 @@ MicroCore::get_mempool()
  * returns true if success
  */
 bool
-MicroCore::get_block_by_height(const uint64_t& height, block& blk)
+MicroCore::get_block_by_height(const uint64_t &height, block &blk)
 {
     try
     {
         blk = m_blockchain_storage.get_db().get_block_from_height(height);
     }
-    catch (const BLOCK_DNE& e)
+    catch (const BLOCK_DNE &e)
     {
         cerr << "Block of height " << height
              << " not found in the blockchain!"
@@ -107,7 +107,7 @@ MicroCore::get_block_by_height(const uint64_t& height, block& blk)
 
         return false;
     }
-    catch (const DB_ERROR& e)
+    catch (const DB_ERROR &e)
     {
         cerr << "Blockchain access error when getting block " << height
              << e.what()
@@ -128,13 +128,13 @@ MicroCore::get_block_by_height(const uint64_t& height, block& blk)
 
 /** Get the difficulty at the given height */
 bool
-MicroCore::get_diff_at_height(const uint64_t& height, uint64_t& diff)
+MicroCore::get_diff_at_height(const uint64_t &height, uint64_t &diff)
 {
     try
     {
         diff = m_blockchain_storage.get_db().get_block_difficulty(height);
     }
-    catch (const BLOCK_DNE& e)
+    catch (const BLOCK_DNE &e)
     {
         cerr << "Block of height " << height
              << " not found in the blockchain!"
@@ -143,7 +143,7 @@ MicroCore::get_diff_at_height(const uint64_t& height, uint64_t& diff)
 
         return false;
     }
-    catch (const DB_ERROR& e)
+    catch (const DB_ERROR &e)
     {
         cerr << "Blockchain access error when getting block " << height
              << e.what()
@@ -166,7 +166,7 @@ MicroCore::get_diff_at_height(const uint64_t& height, uint64_t& diff)
  * Get transaction tx from the blockchain using it hash
  */
 bool
-MicroCore::get_tx(const crypto::hash& tx_hash, transaction& tx)
+MicroCore::get_tx(const crypto::hash &tx_hash, transaction &tx)
 {
     if (m_blockchain_storage.have_tx(tx_hash))
     {
@@ -184,7 +184,7 @@ MicroCore::get_tx(const crypto::hash& tx_hash, transaction& tx)
 }
 
 bool
-MicroCore::get_tx(const string& tx_hash_str, transaction& tx)
+MicroCore::get_tx(const string &tx_hash_str, transaction &tx)
 {
 
     // parse tx hash string to hash object
@@ -213,10 +213,10 @@ MicroCore::get_tx(const string& tx_hash_str, transaction& tx)
  * Find output with given public key in a given transaction
  */
 bool
-MicroCore::find_output_in_tx(const transaction& tx,
-                             const public_key& output_pubkey,
-                             tx_out& out,
-                             size_t& output_index)
+MicroCore::find_output_in_tx(const transaction &tx,
+                             const public_key &output_pubkey,
+                             tx_out &out,
+                             size_t &output_index)
 {
 
     size_t idx {0};
@@ -225,9 +225,9 @@ MicroCore::find_output_in_tx(const transaction& tx,
     // search in the ouputs for an output which
     // public key matches to what we want
     auto it = std::find_if(tx.vout.begin(), tx.vout.end(),
-                           [&](const tx_out& o)
+                           [&](const tx_out &o)
                            {
-                               const txout_to_key& tx_in_to_key
+                               const txout_to_key &tx_in_to_key
                                        = boost::get<txout_to_key>(o.target);
 
                                ++idx;
@@ -280,9 +280,9 @@ MicroCore::~MicroCore()
 
 
 bool
-init_blockchain(const string& path,
-                MicroCore& mcore,
-                Blockchain*& core_storage,
+init_blockchain(const string &path,
+                MicroCore &mcore,
+                Blockchain* &core_storage,
                 network_type nt)
 {
 
@@ -302,7 +302,7 @@ init_blockchain(const string& path,
 
 
 bool
-MicroCore::get_block_complete_entry(block const& b, block_complete_entry& bce)
+MicroCore::get_block_complete_entry(block const &b, block_complete_entry &bce)
 {
     bce.block = cryptonote::block_to_blob(b);
 
@@ -313,7 +313,7 @@ MicroCore::get_block_complete_entry(block const& b, block_complete_entry& bce)
       if (!get_tx(tx_hash, tx))
         return false;
 
-      cryptonote::blobdata txblob =  tx_to_blob(tx);
+      cryptonote::blobdata txblob = tx_to_blob(tx);
 
       bce.txs.push_back(txblob);
     }

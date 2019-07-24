@@ -99,7 +99,7 @@ namespace xmreg
      */
     template<typename T>
     boost::optional<T>
-    CmdLineOptions::get_option(const string & opt_name) const
+    CmdLineOptions::get_option(const string &opt_name) const
     {
 
         if (!vm.count(opt_name))
@@ -113,12 +113,12 @@ namespace xmreg
 
     // explicit instantiations of get_option template function
     template  boost::optional<string>
-    CmdLineOptions::get_option<string>(const string & opt_name) const;
+    CmdLineOptions::get_option<string>(const string &opt_name) const;
 
     template  boost::optional<bool>
-            CmdLineOptions::get_option<bool>(const string & opt_name) const;
+            CmdLineOptions::get_option<bool>(const string &opt_name) const;
 
     template  boost::optional<size_t>
-            CmdLineOptions::get_option<size_t>(const string & opt_name) const;
+            CmdLineOptions::get_option<size_t>(const string &opt_name) const;
 
 }

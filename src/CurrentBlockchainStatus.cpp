@@ -144,7 +144,7 @@ CurrentBlockchainStatus::calculate_emission_in_blocks(
 
         core_storage->get_transactions(blk.tx_hashes, txs, missed_txs);
 
-        for(const auto& tx: txs)
+        for(const auto &tx: txs)
         {
             tx_fee_amount += get_tx_fee(tx);
         }
@@ -305,18 +305,18 @@ string CurrentBlockchainStatus::output_file {"emission_amount.txt"};
 
 string CurrentBlockchainStatus::deamon_url {"http://127.0.0.1:19994"};
 
-uint64_t  CurrentBlockchainStatus::blockchain_chunk_size {10000};
+uint64_t CurrentBlockchainStatus::blockchain_chunk_size {10000};
 
-uint64_t  CurrentBlockchainStatus::blockchain_chunk_gap {3};
+uint64_t CurrentBlockchainStatus::blockchain_chunk_gap {3};
 
 atomic<uint64_t> CurrentBlockchainStatus::current_height {0};
 
 atomic<CurrentBlockchainStatus::Emission> CurrentBlockchainStatus::total_emission_atomic;
 
-boost::thread      CurrentBlockchainStatus::m_thread;
+boost::thread CurrentBlockchainStatus::m_thread;
 
-atomic<bool>     CurrentBlockchainStatus::is_running {false};
+atomic<bool> CurrentBlockchainStatus::is_running {false};
 
-Blockchain*       CurrentBlockchainStatus::core_storage {nullptr};
-xmreg::MicroCore*  CurrentBlockchainStatus::mcore {nullptr};
+Blockchain* CurrentBlockchainStatus::core_storage {nullptr};
+xmreg::MicroCore* CurrentBlockchainStatus::mcore {nullptr};
 }

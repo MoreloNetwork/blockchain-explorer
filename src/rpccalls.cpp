@@ -66,7 +66,7 @@ rpccalls::get_current_height()
 }
 
 bool
-rpccalls::get_mempool(vector<tx_info>& mempool_txs)
+rpccalls::get_mempool(vector<tx_info> &mempool_txs)
 {
 
     COMMAND_RPC_GET_TRANSACTION_POOL::request  req;
@@ -101,7 +101,7 @@ rpccalls::get_mempool(vector<tx_info>& mempool_txs)
     // so we sort it here.
 
     std::sort(mempool_txs.begin(), mempool_txs.end(),
-    [](tx_info& t1, tx_info& t2)
+    [](tx_info &t1, tx_info &t2)
     {
         return t1.receive_time > t2.receive_time;
     });
@@ -111,14 +111,12 @@ rpccalls::get_mempool(vector<tx_info>& mempool_txs)
 
 
 bool
-rpccalls::commit_tx(tools::wallet2::pending_tx& ptx, string& error_msg)
+rpccalls::commit_tx(tools::wallet2::pending_tx &ptx, string &error_msg)
 {
     COMMAND_RPC_SEND_RAW_TX::request  req;
     COMMAND_RPC_SEND_RAW_TX::response res;
 
-    req.tx_as_hex = epee::string_tools::buff_to_hex_nodelimer(
-            tx_to_blob(ptx.tx)
-    );
+    req.tx_as_hex = epee::string_tools::buff_to_hex_nodelimer(tx_to_blob(ptx.tx));
 
     req.do_not_relay = false;
 
@@ -146,13 +144,11 @@ rpccalls::commit_tx(tools::wallet2::pending_tx& ptx, string& error_msg)
 }
 
 bool
-rpccalls::get_network_info(COMMAND_RPC_GET_INFO::response& response)
+rpccalls::get_network_info(COMMAND_RPC_GET_INFO::response &response)
 {
 
-    epee::json_rpc::request<cryptonote::COMMAND_RPC_GET_INFO::request>
-            req_t = AUTO_VAL_INIT(req_t);
-    epee::json_rpc::response<cryptonote::COMMAND_RPC_GET_INFO::response, std::string>
-            resp_t = AUTO_VAL_INIT(resp_t);
+    epee::json_rpc::request<cryptonote::COMMAND_RPC_GET_INFO::request> req_t = AUTO_VAL_INIT(req_t);
+    epee::json_rpc::response<cryptonote::COMMAND_RPC_GET_INFO::response, std::string> resp_t = AUTO_VAL_INIT(resp_t);
 
     bool r {false};
 
@@ -208,11 +204,10 @@ rpccalls::get_network_info(COMMAND_RPC_GET_INFO::response& response)
 
 
 bool
-rpccalls::get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response& response)
+rpccalls::get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response &response)
 {
     epee::json_rpc::request<cryptonote::COMMAND_RPC_HARD_FORK_INFO::request> req_t = AUTO_VAL_INIT(req_t);
     epee::json_rpc::response<cryptonote::COMMAND_RPC_HARD_FORK_INFO::response, std::string> resp_t = AUTO_VAL_INIT(resp_t);
-
 
     bool r {false};
 
@@ -272,14 +267,11 @@ rpccalls::get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response& response)
 bool
 rpccalls::get_dynamic_per_kb_fee_estimate(
         uint64_t grace_blocks,
-        uint64_t& fee,
-        string& error_msg)
+        uint64_t &fee,
+        string &error_msg)
 {
-    epee::json_rpc::request<COMMAND_RPC_GET_BASE_FEE_ESTIMATE::request>
-            req_t = AUTO_VAL_INIT(req_t);
-    epee::json_rpc::response<COMMAND_RPC_GET_BASE_FEE_ESTIMATE::response, std::string>
-            resp_t = AUTO_VAL_INIT(resp_t);
-
+    epee::json_rpc::request<COMMAND_RPC_GET_BASE_FEE_ESTIMATE::request> req_t = AUTO_VAL_INIT(req_t);
+    epee::json_rpc::response<COMMAND_RPC_GET_BASE_FEE_ESTIMATE::response, std::string> resp_t = AUTO_VAL_INIT(resp_t);
 
     req_t.jsonrpc = "2.0";
     req_t.id = epee::serialization::storage_entry(0);
@@ -338,11 +330,10 @@ rpccalls::get_dynamic_per_kb_fee_estimate(
 
 
 bool
-rpccalls::get_block(string const& blk_hash, block& blk, string& error_msg)
+rpccalls::get_block(string const &blk_hash, block &blk, string &error_msg)
 {
     epee::json_rpc::request<COMMAND_RPC_GET_BLOCK::request> req_t;
     epee::json_rpc::response<COMMAND_RPC_GET_BLOCK::response, std::string> resp_t;
-
 
     req_t.jsonrpc = "2.0";
     req_t.id = epee::serialization::storage_entry(0);

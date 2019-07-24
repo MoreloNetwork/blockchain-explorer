@@ -17,7 +17,7 @@ namespace xmreg
  */
 template <typename T>
 bool
-parse_str_secret_key(const string& key_str, T& secret_key)
+parse_str_secret_key(const string &key_str, T &secret_key)
 {
 
     // hash and keys have same structure, so to parse string of
@@ -42,9 +42,9 @@ parse_str_secret_key(const string& key_str, T& secret_key)
 }
 
 // explicit instantiations of get template function
-template bool parse_str_secret_key<crypto::secret_key>(const string& key_str, crypto::secret_key& secret_key);
-template bool parse_str_secret_key<crypto::public_key>(const string& key_str, crypto::public_key& secret_key);
-template bool parse_str_secret_key<crypto::hash>(const string& key_str, crypto::hash& secret_key);
+template bool parse_str_secret_key<crypto::secret_key>(const string &key_str, crypto::secret_key &secret_key);
+template bool parse_str_secret_key<crypto::public_key>(const string &key_str, crypto::public_key &secret_key);
+template bool parse_str_secret_key<crypto::hash>(const string &key_str, crypto::hash &secret_key);
 
 /**
 * Get transaction tx using given tx hash. Hash is represent as string here,
@@ -52,7 +52,7 @@ template bool parse_str_secret_key<crypto::hash>(const string& key_str, crypto::
 * crypto::hash object.
 */
 bool
-get_tx_pub_key_from_str_hash(Blockchain& core_storage, const string& hash_str, transaction& tx)
+get_tx_pub_key_from_str_hash(Blockchain &core_storage, const string &hash_str, transaction &tx)
 {
     crypto::hash tx_hash;
     parse_hash256(hash_str, tx_hash);
@@ -76,8 +76,8 @@ get_tx_pub_key_from_str_hash(Blockchain& core_storage, const string& hash_str, t
 * cryptonote::account_public_address object
 */
 bool
-parse_str_address(const string& address_str,
-                  address_parse_info& address_info,
+parse_str_address(const string &address_str,
+                  address_parse_info &address_info,
                   cryptonote::network_type nettype)
 {
 
@@ -92,10 +92,10 @@ parse_str_address(const string& address_str,
 
 
 /**
-* Return string representation of monero address
+* Return string representation of Arqma address
 */
 string
-print_address(const address_parse_info& address_info, cryptonote::network_type nettype)
+print_address(const address_parse_info &address_info, cryptonote::network_type nettype)
 {
     return "<" + get_account_address_as_str(
             nettype, address_info.is_subaddress, address_info.address)
@@ -103,7 +103,7 @@ print_address(const address_parse_info& address_info, cryptonote::network_type n
 }
 
 string
-print_sig (const signature& sig)
+print_sig (const signature &sig)
 {
     stringstream ss;
 
@@ -131,7 +131,7 @@ is_separator(char c)
 * Remove trailinig path separator.
 */
 string
-remove_trailing_path_separator(const string& in_path)
+remove_trailing_path_separator(const string &in_path)
 {
     string new_string = in_path;
     if (!new_string.empty() && is_separator(new_string[new_string.size() - 1]))
@@ -140,7 +140,7 @@ remove_trailing_path_separator(const string& in_path)
 }
 
 bf::path
-remove_trailing_path_separator(const bf::path& in_path)
+remove_trailing_path_separator(const bf::path &in_path)
 {
 #ifdef WIN32
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
@@ -178,7 +178,7 @@ timestamp_to_str_gm(time_t timestamp, const char* format)
 }
 
 ostream&
-operator<< (ostream& os, const address_parse_info& addr_info)
+operator<< (ostream &os, const address_parse_info &addr_info)
 {
     os << get_account_address_as_str(network_type::MAINNET, addr_info.is_subaddress, addr_info.address);
     return os;
@@ -189,11 +189,11 @@ operator<< (ostream& os, const address_parse_info& addr_info)
 * Generate key_image of foran ith output
 */
 bool
-generate_key_image(const crypto::key_derivation& derivation,
+generate_key_image(const crypto::key_derivation &derivation,
                    const std::size_t i,
-                   const crypto::secret_key& sec_key,
-                   const crypto::public_key& pub_key,
-                   crypto::key_image& key_img)
+                   const crypto::secret_key &sec_key,
+                   const crypto::public_key &pub_key,
+                   crypto::key_image &key_img)
 {
 
     cryptonote::keypair in_ephemeral;
@@ -239,8 +239,8 @@ generate_key_image(const crypto::key_derivation& derivation,
 string
 get_default_lmdb_folder(cryptonote::network_type nettype)
 {
-    // default path to monero folder
-    // on linux this is /home/<username>/.bitmonero
+    // default path to arqma folder
+    // on linux this is /home/<username>/.arqma
     string default_arqma_dir = tools::get_default_data_dir();
 
     if (nettype == cryptonote::network_type::TESTNET)
@@ -261,12 +261,12 @@ get_default_lmdb_folder(cryptonote::network_type nettype)
 * If not given, provide default path
 */
 bool
-get_blockchain_path(const boost::optional<string>& bc_path,
-                    bf::path& blockchain_path,
+get_blockchain_path(const boost::optional<string> &bc_path,
+                    bf::path &blockchain_path,
                     cryptonote::network_type nettype)
 {
     // the default folder of the lmdb blockchain database
-    string default_lmdb_dir   = xmreg::get_default_lmdb_folder(nettype);
+    string default_lmdb_dir = xmreg::get_default_lmdb_folder(nettype);
 
     blockchain_path = bc_path
                       ? bf::path(*bc_path)
@@ -274,7 +274,7 @@ get_blockchain_path(const boost::optional<string>& bc_path,
 
     if (!bf::is_directory(blockchain_path))
     {
-        cerr << "Given path \"" << blockchain_path   << "\" "
+        cerr << "Given path \"" << blockchain_path << "\" "
              << "is not a folder or does not exist" << " "
              << endl;
 
@@ -288,11 +288,11 @@ get_blockchain_path(const boost::optional<string>& bc_path,
 
 
 uint64_t
-sum_money_in_outputs(const transaction& tx)
+sum_money_in_outputs(const transaction &tx)
 {
     uint64_t sum_arq {0};
 
-    for (const tx_out& txout: tx.vout)
+    for (const tx_out &txout: tx.vout)
     {
         sum_arq += txout.amount;
     }
@@ -301,9 +301,9 @@ sum_money_in_outputs(const transaction& tx)
 }
 
 pair<uint64_t, uint64_t>
-sum_money_in_outputs(const string& json_str)
+sum_money_in_outputs(const string &json_str)
 {
-    pair<uint64_t, uint64_t> sum_arq {0, 0};
+    pair<uint64_t, uint64_t> sum_arq {0,0};
 
     json j;
 
@@ -317,7 +317,7 @@ sum_money_in_outputs(const string& json_str)
         return sum_arq;
     }
 
-    for (json& vout: j["vout"])
+    for (json &vout: j["vout"])
     {
         sum_arq.first += vout["amount"].get<uint64_t>();
         ++sum_arq.second;
@@ -328,11 +328,11 @@ sum_money_in_outputs(const string& json_str)
 };
 
 pair<uint64_t, uint64_t>
-sum_money_in_outputs(const json& _json)
+sum_money_in_outputs(const json &_json)
 {
-    pair<uint64_t, uint64_t> sum_arq {0ULL, 0ULL};
+    pair<uint64_t, uint64_t> sum_arq {0ULL,0ULL};
 
-    for (const json& vout: _json["vout"])
+    for (const json &vout: _json["vout"])
     {
         sum_arq.first += vout["amount"].get<uint64_t>();
         ++sum_arq.second;
@@ -344,9 +344,9 @@ sum_money_in_outputs(const json& _json)
 
 array<uint64_t, 4>
 summary_of_in_out_rct(
-        const transaction& tx,
-        vector<pair<txout_to_key, uint64_t>>& output_pub_keys,
-        vector<txin_to_key>& input_key_imgs)
+        const transaction &tx,
+        vector<pair<txout_to_key, uint64_t>> &output_pub_keys,
+        vector<txin_to_key> &input_key_imgs)
 {
 
     uint64_t arq_outputs       {0};
@@ -355,7 +355,7 @@ summary_of_in_out_rct(
     uint64_t num_nonrct_inputs {0};
 
 
-    for (const tx_out& txout: tx.vout)
+    for (const tx_out &txout: tx.vout)
     {
         if (txout.target.type() != typeid(txout_to_key))
         {
@@ -365,8 +365,7 @@ summary_of_in_out_rct(
         }
 
         // get tx input key
-        const txout_to_key& txout_key
-                = boost::get<cryptonote::txout_to_key>(txout.target);
+        const txout_to_key &txout_key = boost::get<cryptonote::txout_to_key>(txout.target);
 
         output_pub_keys.push_back(make_pair(txout_key, txout.amount));
 
@@ -384,8 +383,7 @@ summary_of_in_out_rct(
         }
 
         // get tx input key
-        const cryptonote::txin_to_key& tx_in_to_key
-                = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
+        const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
         arq_inputs += tx_in_to_key.amount;
 
@@ -410,7 +408,7 @@ summary_of_in_out_rct(
 
 // this version for mempool txs from json
 array<uint64_t, 6>
-summary_of_in_out_rct(const json& _json)
+summary_of_in_out_rct(const json &_json)
 {
     uint64_t arq_outputs       {0};
     uint64_t arq_inputs        {0};
@@ -419,14 +417,14 @@ summary_of_in_out_rct(const json& _json)
     uint64_t mixin_no          {0};
     uint64_t num_nonrct_inputs {0};
 
-    for (const json& vout: _json["vout"])
+    for (const json &vout: _json["vout"])
     {
         arq_outputs += vout["amount"].get<uint64_t>();
     }
 
     no_outputs = _json["vout"].size();
 
-    for (const json& vin: _json["vin"])
+    for (const json &vin: _json["vin"])
     {
         uint64_t amount = vin["key"]["amount"].get<uint64_t>();
 
@@ -436,7 +434,7 @@ summary_of_in_out_rct(const json& _json)
             ++num_nonrct_inputs;
     }
 
-    no_inputs  = _json["vin"].size();
+    no_inputs = _json["vin"].size();
 
     mixin_no = _json["vin"].at(0)["key"]["key_offsets"].size() - 1;
 
@@ -445,7 +443,7 @@ summary_of_in_out_rct(const json& _json)
 
 
 uint64_t
-sum_money_in_inputs(const transaction& tx)
+sum_money_in_inputs(const transaction &tx)
 {
     uint64_t sum_arq {0};
 
@@ -460,8 +458,7 @@ sum_money_in_inputs(const transaction& tx)
         }
 
         // get tx input key
-        const cryptonote::txin_to_key& tx_in_to_key
-                = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
+        const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
         sum_arq += tx_in_to_key.amount;
     }
@@ -470,14 +467,14 @@ sum_money_in_inputs(const transaction& tx)
 }
 
 pair<uint64_t, uint64_t>
-sum_money_in_inputs(const string& json_str)
+sum_money_in_inputs(const string &json_str)
 {
-    pair<uint64_t, uint64_t> sum_arq {0, 0};
+    pair<uint64_t, uint64_t> sum_arq {0,0};
 
     json j;
     try
     {
-        j = json::parse( json_str);
+        j = json::parse(json_str);
     }
     catch (std::invalid_argument& e)
     {
@@ -485,7 +482,7 @@ sum_money_in_inputs(const string& json_str)
         return sum_arq;
     }
 
-    for (json& vin: j["vin"])
+    for (json &vin: j["vin"])
     {
         sum_arq.first += vin["key"]["amount"].get<uint64_t>();
         ++sum_arq.second;
@@ -496,11 +493,11 @@ sum_money_in_inputs(const string& json_str)
 
 
 pair<uint64_t, uint64_t>
-sum_money_in_inputs(const json& _json)
+sum_money_in_inputs(const json &_json)
 {
-    pair<uint64_t, uint64_t> sum_arq {0, 0};
+    pair<uint64_t, uint64_t> sum_arq {0,0};
 
-    for (const json& vin: _json["vin"])
+    for (const json &vin: _json["vin"])
     {
         sum_arq.first += vin["key"]["amount"].get<uint64_t>();
         ++sum_arq.second;
@@ -510,7 +507,7 @@ sum_money_in_inputs(const json& _json)
 };
 
 uint64_t
-count_nonrct_inputs(const transaction& tx)
+count_nonrct_inputs(const transaction &tx)
 {
     uint64_t num {0};
 
@@ -525,8 +522,7 @@ count_nonrct_inputs(const transaction& tx)
         }
 
         // get tx input key
-        const cryptonote::txin_to_key& tx_in_to_key
-                = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
+        const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
         if (tx_in_to_key.amount != 0)
             ++num;
@@ -536,14 +532,14 @@ count_nonrct_inputs(const transaction& tx)
 }
 
 uint64_t
-count_nonrct_inputs(const string& json_str)
+count_nonrct_inputs(const string &json_str)
 {
     uint64_t num {0};
 
     json j;
     try
     {
-        j = json::parse( json_str);
+        j = json::parse(json_str);
     }
     catch (std::invalid_argument& e)
     {
@@ -551,7 +547,7 @@ count_nonrct_inputs(const string& json_str)
         return num;
     }
 
-    for (json& vin: j["vin"])
+    for (json &vin: j["vin"])
     {
         uint64_t amount = vin["key"]["amount"].get<uint64_t>();
         if (amount != 0)
@@ -563,11 +559,11 @@ count_nonrct_inputs(const string& json_str)
 
 
 uint64_t
-count_nonrct_inputs(const json& _json)
+count_nonrct_inputs(const json &_json)
 {
     uint64_t num {0};
 
-    for (const json& vin: _json["vin"])
+    for (const json &vin: _json["vin"])
     {
         uint64_t amount = vin["key"]["amount"].get<uint64_t>();
         if (amount != 0)
@@ -578,7 +574,7 @@ count_nonrct_inputs(const json& _json)
 };
 
 array<uint64_t, 2>
-sum_money_in_tx(const transaction& tx)
+sum_money_in_tx(const transaction &tx)
 {
     array<uint64_t, 2> sum_arq;
 
@@ -590,11 +586,11 @@ sum_money_in_tx(const transaction& tx)
 
 
 array<uint64_t, 2>
-sum_money_in_txs(const vector<transaction>& txs)
+sum_money_in_txs(const vector<transaction> &txs)
 {
     array<uint64_t, 2> sum_arq {0,0};
 
-    for (const transaction& tx: txs)
+    for (const transaction &tx: txs)
     {
         sum_arq[0] += sum_money_in_inputs(tx);
         sum_arq[1] += sum_money_in_outputs(tx);
@@ -605,11 +601,11 @@ sum_money_in_txs(const vector<transaction>& txs)
 
 
 uint64_t
-sum_fees_in_txs(const vector<transaction>& txs)
+sum_fees_in_txs(const vector<transaction> &txs)
 {
     uint64_t fees_sum {0};
 
-    for (const transaction& tx: txs)
+    for (const transaction &tx: txs)
     {
         fees_sum += get_tx_fee(tx);
     }
@@ -620,11 +616,11 @@ sum_fees_in_txs(const vector<transaction>& txs)
 
 
 vector<pair<txout_to_key, uint64_t>>
-get_ouputs(const transaction& tx)
+get_ouputs(const transaction &tx)
 {
     vector<pair<txout_to_key, uint64_t>> outputs;
 
-    for (const tx_out& txout: tx.vout)
+    for (const tx_out &txout: tx.vout)
     {
         if (txout.target.type() != typeid(txout_to_key))
         {
@@ -634,8 +630,7 @@ get_ouputs(const transaction& tx)
         }
 
         // get tx input key
-        const txout_to_key& txout_key
-                = boost::get<cryptonote::txout_to_key>(txout.target);
+        const txout_to_key &txout_key = boost::get<cryptonote::txout_to_key>(txout.target);
 
         outputs.push_back(make_pair(txout_key, txout.amount));
     }
@@ -645,7 +640,7 @@ get_ouputs(const transaction& tx)
 };
 
 vector<tuple<txout_to_key, uint64_t, uint64_t>>
-get_ouputs_tuple(const transaction& tx)
+get_ouputs_tuple(const transaction &tx)
 {
     vector<tuple<txout_to_key, uint64_t, uint64_t>> outputs;
 
@@ -658,8 +653,7 @@ get_ouputs_tuple(const transaction& tx)
         }
 
         // get tx input key
-        const txout_to_key& txout_key
-                = boost::get<cryptonote::txout_to_key>(tx.vout[n].target);
+        const txout_to_key &txout_key = boost::get<cryptonote::txout_to_key>(tx.vout[n].target);
 
         outputs.push_back(make_tuple(txout_key, tx.vout[n].amount, n));
     }
@@ -668,7 +662,7 @@ get_ouputs_tuple(const transaction& tx)
 };
 
 uint64_t
-get_mixin_no(const transaction& tx)
+get_mixin_no(const transaction &tx)
 {
     uint64_t mixin_no {0};
 
@@ -683,8 +677,7 @@ get_mixin_no(const transaction& tx)
         }
 
         // get tx input key
-        const txin_to_key& tx_in_to_key
-                = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
+        const txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
         mixin_no = tx_in_to_key.key_offsets.size();
 
@@ -699,7 +692,7 @@ get_mixin_no(const transaction& tx)
     return mixin_no;
 }
 vector<uint64_t>
-get_mixin_no(const string& json_str)
+get_mixin_no(const string &json_str)
 {
     vector<uint64_t> mixin_no;
 
@@ -721,7 +714,7 @@ get_mixin_no(const string& json_str)
 }
 
 vector<uint64_t>
-get_mixin_no(const json& _json)
+get_mixin_no(const json &_json)
 {
     vector<uint64_t> mixin_no;
 
@@ -733,11 +726,11 @@ get_mixin_no(const json& _json)
 
 
 vector<uint64_t>
-get_mixin_no_in_txs(const vector<transaction>& txs)
+get_mixin_no_in_txs(const vector<transaction> &txs)
 {
     vector<uint64_t> mixin_no;
 
-    for (const transaction& tx: txs)
+    for (const transaction &tx: txs)
     {
         mixin_no.push_back(get_mixin_no(tx));
     }
@@ -747,7 +740,7 @@ get_mixin_no_in_txs(const vector<transaction>& txs)
 
 
 vector<txin_to_key>
-get_key_images(const transaction& tx)
+get_key_images(const transaction &tx)
 {
     vector<txin_to_key> key_images;
 
@@ -762,8 +755,7 @@ get_key_images(const transaction& tx)
         }
 
         // get tx input key
-        const txin_to_key& tx_in_to_key
-                = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
+        const txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
         key_images.push_back(tx_in_to_key);
     }
@@ -773,9 +765,9 @@ get_key_images(const transaction& tx)
 
 
 bool
-get_payment_id(const vector<uint8_t>& extra,
-               crypto::hash& payment_id,
-               crypto::hash8& payment_id8)
+get_payment_id(const vector<uint8_t> &extra,
+               crypto::hash &payment_id,
+               crypto::hash8 &payment_id8)
 {
     payment_id = null_hash;
     payment_id8 = null_hash8;
@@ -807,9 +799,9 @@ get_payment_id(const vector<uint8_t>& extra,
 
 
 bool
-get_payment_id(const transaction& tx,
-               crypto::hash& payment_id,
-               crypto::hash8& payment_id8)
+get_payment_id(const transaction &tx,
+               crypto::hash &payment_id,
+               crypto::hash8 &payment_id8)
 {
     return get_payment_id(tx.extra, payment_id, payment_id8);
 }
@@ -829,7 +821,7 @@ timestamp_difference(uint64_t t1, uint64_t t2)
 
     uint64_t time_diff_years = timestamp_diff / 31536000;
 
-    timestamp_diff -=  time_diff_years * 31536000;
+    timestamp_diff -= time_diff_years * 31536000;
 
     uint64_t time_diff_days = timestamp_diff / 86400;
 
@@ -867,12 +859,12 @@ read(string filename)
 }
 
 pair<string, double>
-timestamps_time_scale(const vector<uint64_t>& timestamps,
+timestamps_time_scale(const vector<uint64_t> &timestamps,
                       uint64_t timeN,
                       uint64_t resolution,
                       uint64_t time0)
 {
-    string empty_time =  string(resolution, '_');
+    string empty_time = string(resolution, '_');
 
     size_t time_axis_length = empty_time.size();
 
@@ -880,7 +872,7 @@ timestamps_time_scale(const vector<uint64_t>& timestamps,
 
     double scale = double(interval_length) / double(time_axis_length);
 
-    for (const auto& timestamp: timestamps)
+    for (const auto &timestamp: timestamps)
     {
 
         if (timestamp < time0 || timestamp > timeN)
@@ -889,8 +881,7 @@ timestamps_time_scale(const vector<uint64_t>& timestamps,
             continue;
         }
 
-        uint64_t timestamp_place = double(timestamp-time0)
-                                   / double(interval_length)*(time_axis_length - 1);
+        uint64_t timestamp_place = double(timestamp-time0) / double(interval_length)*(time_axis_length - 1);
 
         empty_time[timestamp_place + 1] = '*';
     }
@@ -899,12 +890,12 @@ timestamps_time_scale(const vector<uint64_t>& timestamps,
 }
 
 bool
-decode_ringct(const rct::rctSig& rv,
+decode_ringct(const rct::rctSig &rv,
               const crypto::public_key pub,
               const crypto::secret_key &sec,
               unsigned int i,
-              rct::key & mask,
-              uint64_t & amount)
+              rct::key &mask,
+              uint64_t &amount)
 {
     crypto::key_derivation derivation;
 
@@ -920,11 +911,11 @@ decode_ringct(const rct::rctSig& rv,
 }
 
 bool
-decode_ringct(rct::rctSig const& rv,
-              crypto::key_derivation const& derivation,
+decode_ringct(rct::rctSig const &rv,
+              crypto::key_derivation const &derivation,
               unsigned int i,
-              rct::key& mask,
-              uint64_t& amount)
+              rct::key &mask,
+              uint64_t &amount)
 {
     try
     {
@@ -966,7 +957,7 @@ decode_ringct(rct::rctSig const& rv,
 }
 
 bool
-url_decode(const std::string& in, std::string& out)
+url_decode(const std::string &in, std::string &out)
 {
     out.clear();
     out.reserve(in.size());
@@ -1006,7 +997,7 @@ url_decode(const std::string& in, std::string& out)
 }
 
 map<std::string, std::string>
-parse_crow_post_data(const string& req_body)
+parse_crow_post_data(const string &req_body)
 {
     map<std::string, std::string> body;
 
@@ -1040,8 +1031,7 @@ decrypt(const std::string &ciphertext,
         bool authenticated)
 {
 
-    const size_t prefix_size = sizeof(chacha_iv)
-                               + (authenticated ? sizeof(crypto::signature) : 0);
+    const size_t prefix_size = sizeof(chacha_iv) + (authenticated ? sizeof(crypto::signature) : 0);
     if (ciphertext.size() < prefix_size)
     {
         cerr <<  "Unexpected ciphertext size" << endl;
@@ -1064,9 +1054,7 @@ decrypt(const std::string &ciphertext,
         crypto::public_key pkey;
         crypto::secret_key_to_public_key(skey, pkey);
 
-        const crypto::signature &signature =
-                *(const crypto::signature*)&ciphertext[ciphertext.size()
-                                                       - sizeof(crypto::signature)];
+        const crypto::signature &signature = *(const crypto::signature*)&ciphertext[ciphertext.size() - sizeof(crypto::signature)];
 
         if (!crypto::check_signature(hash, pkey, signature))
         {
@@ -1133,11 +1121,11 @@ get_tx_pub_key_from_received_outs(const transaction &tx)
 * on our private view key and public spend key
 */
 bool
-is_output_ours(const size_t& output_index,
-               const transaction& tx,
-               const public_key& pub_tx_key,
-               const secret_key& private_view_key,
-               const public_key& public_spend_key)
+is_output_ours(const size_t &output_index,
+               const transaction &tx,
+               const public_key &pub_tx_key,
+               const secret_key &private_view_key,
+               const public_key &public_spend_key)
 {
     // public transaction key is combined with our viewkey
     // to create, so called, derived key.
@@ -1166,8 +1154,7 @@ is_output_ours(const size_t& output_index,
     //cout << "\n" << tx.vout.size() << " " << output_index << endl;
 
     // get tx output public key
-    const txout_to_key tx_out_to_key
-            = boost::get<txout_to_key>(tx.vout[output_index].target);
+    const txout_to_key tx_out_to_key = boost::get<txout_to_key>(tx.vout[output_index].target);
 
 
     if (tx_out_to_key.key == pubkey)
@@ -1180,22 +1167,19 @@ is_output_ours(const size_t& output_index,
 
 
 bool
-get_real_output_for_key_image(const key_image& ki,
-                              const transaction& tx,
-                              const secret_key& private_view_key,
-                              const public_key& public_spend_key,
+get_real_output_for_key_image(const key_image &ki,
+                              const transaction &tx,
+                              const secret_key &private_view_key,
+                              const public_key &public_spend_key,
                               uint64_t output_idx,
                               public_key output_pub_key)
 {
-
-
-
     return false;
 }
 
 
 string
-make_printable(const string& in_s)
+make_printable(const string &in_s)
 {
     string output;
 
@@ -1225,7 +1209,6 @@ make_printable(const string& in_s)
                     break;
             }
         }
-
     }
 
     return output;
@@ -1251,7 +1234,7 @@ get_human_readable_timestamp(uint64_t ts)
 }
 
 void
-pause_execution(uint64_t no_seconds, const string& text)
+pause_execution(uint64_t no_seconds, const string &text)
 {
 
     cout << "\nPausing " << text
@@ -1268,7 +1251,7 @@ pause_execution(uint64_t no_seconds, const string& text)
 }
 
 string
-tx_to_hex(transaction const& tx)
+tx_to_hex(transaction const &tx)
 {
     return epee::string_tools::buff_to_hex_nodelimer(t_serializable_object_to_blob(tx));
 }

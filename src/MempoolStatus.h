@@ -87,7 +87,7 @@ struct MempoolStatus
         bool current {false};
 
         static uint64_t
-        get_status_uint(const string& status)
+        get_status_uint(const string &status)
         {
             if (status == CORE_RPC_STATUS_OK)
                 return 1;
@@ -100,7 +100,7 @@ struct MempoolStatus
         }
 
         static string
-        get_status_string(const uint64_t& status)
+        get_status_string(const uint64_t &status)
         {
             if (status == 1)
                 return CORE_RPC_STATUS_OK;
