@@ -113,7 +113,6 @@ set(LIBRARIES
         multisig
         daemonizer
         cncrypto
-        blocks
         lmdb
         ringct
         ringct_basic
