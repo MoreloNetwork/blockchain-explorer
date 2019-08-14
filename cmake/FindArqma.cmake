@@ -28,9 +28,9 @@
 # (c) 2014-2016 cpp-ethereum contributors.
 #------------------------------------------------------------------------------
 
-set(LIBS common;cryptonote_basic;cryptonote_core;multisig;
-		cryptonote_protocol;daemonizer;mnemonics;epee;lmdb;device;
-		blockchain_db;ringct;wallet;cncrypto;easylogging;version;checkpoints)
+set(LIBS common;blocks;cryptonote_basic;cryptonote_core;multisig;net;
+         cryptonote_protocol;daemonizer;mnemonics;epee;lmdb;device;
+         blockchain_db;ringct;wallet;cncrypto;easylogging;version;checkpoints)
 
 set(Arqma_INCLUDE_DIRS "${CPP_ARQMA_DIR}")
 
@@ -71,7 +71,7 @@ message(STATUS ${ARQMA_SOURCE_DIR}/build)
 include_directories(
 		${ARQMA_SOURCE_DIR}/src
 		${ARQMA_SOURCE_DIR}/external
-		${ARQMA_SOURCE_DIR}/build/Linux/release-v0.2.2/release
+		${ARQMA_SOURCE_DIR}/build/Linux/release-v0.5/release
 		${ARQMA_SOURCE_DIR}/external/easylogging++
 		${ARQMA_SOURCE_DIR}/contrib/epee/include
 		${ARQMA_SOURCE_DIR}/external/db_drivers/liblmdb)

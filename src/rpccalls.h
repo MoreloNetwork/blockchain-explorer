@@ -81,32 +81,31 @@ class rpccalls
 
 public:
 
-    rpccalls(string _deamon_url = "http://127.0.0.1:19994",
-             uint64_t _timeout = 200000);
+    rpccalls(string _deamon_url = "http://127.0.0.1:19994", uint64_t _timeout = 200000);
 
     bool
-    connect_to_monero_deamon();
+    connect_to_arqma_deamon();
 
     uint64_t
     get_current_height();
 
     bool
-    get_mempool(vector<tx_info>& mempool_txs);
+    get_mempool(vector<tx_info> &mempool_txs);
 
     bool
-    commit_tx(tools::wallet2::pending_tx& ptx, string& error_msg);
+    commit_tx(tools::wallet2::pending_tx &ptx, string &error_msg);
 
     bool
-    get_network_info(COMMAND_RPC_GET_INFO::response& info);
+    get_network_info(COMMAND_RPC_GET_INFO::response &info);
 
     bool
-    get_hardfork_info( COMMAND_RPC_HARD_FORK_INFO::response& res);
+    get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response &res);
 
     bool
     get_dynamic_per_kb_fee_estimate(
             uint64_t grace_blocks,
-            uint64_t& fee,
-            string& error_msg);
+            uint64_t &fee,
+            string &error_msg);
 
 
     /**
@@ -130,7 +129,7 @@ public:
         {
             std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-            if (!connect_to_monero_deamon())
+            if (!connect_to_arqma_deamon())
             {
                 cerr << "get_alt_blocks: not connected to deamon" << endl;
                 return false;
@@ -156,14 +155,14 @@ public:
 
             if (!err.empty())
             {
-                cerr << "Error connecting to Monero deamon due to "
+                cerr << "Error connecting to Arqma deamon due to "
                      << err << endl;
                 return false;
             }
         }
         else
         {
-            cerr << "Error connecting to Monero deamon at "
+            cerr << "Error connecting to Arqma deamon at "
                  << deamon_url << endl;
             return false;
         }
@@ -184,7 +183,7 @@ public:
     }
 
     bool
-    get_block(string const& blk_hash, block& blk, string& error_msg);
+    get_block(string const &blk_hash, block &blk, string &error_msg);
 
 };
 

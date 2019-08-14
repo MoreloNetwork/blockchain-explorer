@@ -29,7 +29,7 @@ namespace xmreg
         CmdLineOptions(int acc, const char *avv[]);
 
     template<typename T>
-    boost::optional<T> get_option(const string & opt_name) const;
+    boost::optional<T> get_option(const string &opt_name) const;
     };
 }
 

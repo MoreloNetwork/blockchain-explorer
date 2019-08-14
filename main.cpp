@@ -66,6 +66,7 @@ main(int ac, const char* av[])
     auto enable_json_api_opt           = opts.get_option<bool>("enable-json-api");
     auto enable_as_hex_opt             = opts.get_option<bool>("enable-as-hex");
     auto enable_tx_cache_opt           = opts.get_option<bool>("enable-tx-cache");
+    auto concurrency_opt               = opts.get_option<size_t>("concurrency");
     auto enable_block_cache_opt        = opts.get_option<bool>("enable-block-cache");
     auto show_cache_times_opt          = opts.get_option<bool>("show-cache-times");
     auto enable_emission_monitor_opt   = opts.get_option<bool>("enable-emission-monitor");
@@ -99,7 +100,7 @@ main(int ac, const char* av[])
     bool show_cache_times             {*show_cache_times_opt};
 
 
-    // set  monero log output level
+    // set Arqma log output level
     uint32_t log_level = 0;
     mlog_configure("", true);
 
@@ -164,8 +165,7 @@ main(int ac, const char* av[])
     cryptonote::Blockchain* core_storage;
 
     // initialize mcore and core_storage
-    if (!xmreg::init_blockchain(blockchain_path.string(),
-                               mcore, core_storage, nettype))
+    if (!xmreg::init_blockchain(blockchain_path.string(), mcore, core_storage, nettype))
     {
         cerr << "Error accessing blockchain." << endl;
         return EXIT_FAILURE;
@@ -186,8 +186,7 @@ main(int ac, const char* av[])
     }
     catch (boost::bad_lexical_cast &e)
     {
-        cout << "Cant cast " << (*mempool_info_timeout_opt) <<" into numbers. Using default values."
-             << endl;
+        cout << "Cant cast " << (*mempool_info_timeout_opt) <<" into numbers. Using default values.\n";
     }
 
     uint64_t mempool_refresh_time {5};
@@ -197,25 +196,21 @@ main(int ac, const char* av[])
     {
         // This starts new thread, which aim is
         // to calculate, store and monitor
-        // current total Monero emission amount.
+        // current total Arqma emission amount.
 
         // This thread stores the current emission
         // which it has caluclated in
         // <blockchain_path>/emission_amount.txt file,
-        // e.g., ~/.bitmonero/lmdb/emission_amount.txt.
+        // e.g., ~/.arqma/lmdb/emission_amount.txt.
         // So instead of calcualting the emission
         // from scrach whenever the explorer is started,
         // the thread is initalized with the values
         // found in emission_amount.txt file.
 
-        xmreg::CurrentBlockchainStatus::blockchain_path
-                = blockchain_path;
-        xmreg::CurrentBlockchainStatus::nettype
-                = nettype;
-        xmreg::CurrentBlockchainStatus::deamon_url
-                = deamon_url;
-        xmreg::CurrentBlockchainStatus::set_blockchain_variables(
-                &mcore, core_storage);
+        xmreg::CurrentBlockchainStatus::blockchain_path = blockchain_path;
+        xmreg::CurrentBlockchainStatus::nettype = nettype;
+        xmreg::CurrentBlockchainStatus::deamon_url = deamon_url;
+        xmreg::CurrentBlockchainStatus::set_blockchain_variables(&mcore, core_storage);
 
         // launch the status monitoring thread so that it keeps track of blockchain
         // info, e.g., current height. Information from this thread is used
@@ -225,14 +220,10 @@ main(int ac, const char* av[])
     }
 
 
-    xmreg::MempoolStatus::blockchain_path
-            = blockchain_path;
-    xmreg::MempoolStatus::nettype
-            = nettype;
-    xmreg::MempoolStatus::deamon_url
-            = deamon_url;
-    xmreg::MempoolStatus::set_blockchain_variables(
-            &mcore, core_storage);
+    xmreg::MempoolStatus::blockchain_path = blockchain_path;
+    xmreg::MempoolStatus::nettype = nettype;
+    xmreg::MempoolStatus::deamon_url = deamon_url;
+    xmreg::MempoolStatus::set_blockchain_variables(&mcore, core_storage);
 
     xmreg::MempoolStatus::network_info initial_info;
     strcpy(initial_info.block_size_limit_str, "0.0");
@@ -247,7 +238,7 @@ main(int ac, const char* av[])
     catch (boost::bad_lexical_cast &e)
     {
         cout << "Cant cast " << (*mempool_refresh_time_opt)
-             <<" into number. Using default value."
+             << " into number. Using default value."
              << endl;
     }
 
@@ -284,7 +275,8 @@ main(int ac, const char* av[])
     crow::SimpleApp app;
 
     // get domian url based on the request
-    auto get_domain = [&use_ssl](crow::request const& req) {
+    auto get_domain = [&use_ssl](crow::request const& req)
+    {
         auto frontend_host = req.get_header_value("X-Forwarded-Host");
         auto frontend_ssl = req.get_header_value("X-Forwarded-Proto");
 
@@ -294,7 +286,7 @@ main(int ac, const char* av[])
 
     CROW_ROUTE(app, "/")
     ([&](const crow::request& req) {
-        return crow::response(arqblocks.index2());
+      return crow::response(arqblocks.index2());
     });
 
     CROW_ROUTE(app, "/page/<uint>")
@@ -375,9 +367,7 @@ main(int ac, const char* av[])
 
         string domain      =  get_domain(req);
 
-        return arqblocks.show_my_outputs(tx_hash, arq_address,
-                                         viewkey, raw_tx_data,
-                                         domain);
+        return arqblocks.show_my_outputs(tx_hash, arq_address, viewkey, raw_tx_data, domain);
     });
 
     CROW_ROUTE(app, "/myoutputs/<string>/<string>/<string>")
@@ -387,15 +377,11 @@ main(int ac, const char* av[])
 
         string domain = get_domain(req);
 
-        return arqblocks.show_my_outputs(remove_bad_chars(tx_hash),
-                                         remove_bad_chars(arq_address),
-                                         remove_bad_chars(viewkey),
-                                         string {},
-                                         domain);
+        return arqblocks.show_my_outputs(remove_bad_chars(tx_hash), remove_bad_chars(arq_address), remove_bad_chars(viewkey), string {}, domain);
     });
 
     CROW_ROUTE(app, "/prove").methods("POST"_method)
-        ([&](const crow::request& req) {
+        ([&](const crow::request& req){
 
             map<std::string, std::string> post_body
                     = xmreg::parse_crow_post_data(req.body);
@@ -418,11 +404,7 @@ main(int ac, const char* av[])
 
             string domain      = get_domain(req);
 
-            return arqblocks.show_prove(tx_hash,
-                                        arq_address,
-                                        tx_prv_key,
-                                        raw_tx_data,
-                                        domain);
+            return arqblocks.show_prove(tx_hash, arq_address, tx_prv_key, raw_tx_data, domain);
     });
 
 
@@ -432,11 +414,7 @@ main(int ac, const char* av[])
 
         string domain = get_domain(req);
 
-        return arqblocks.show_prove(remove_bad_chars(tx_hash),
-                                    remove_bad_chars(arq_address),
-                                    remove_bad_chars(tx_prv_key),
-                                    string {},
-                                    domain);
+        return arqblocks.show_prove(remove_bad_chars(tx_hash), remove_bad_chars(arq_address), remove_bad_chars(tx_prv_key), string {}, domain);
     });
 
     if (enable_pusher)
@@ -560,8 +538,6 @@ main(int ac, const char* av[])
         return text;
     });
 
-    // We can handle these, but if there's a proxy in front of this it's strongly recommended to
-    // have it serve them directly instead:
     CROW_ROUTE(app, "/blockchain.js")([&]() { return arqblocks.get_blockchain_js(); });
     CROW_ROUTE(app, "/css/style.css")([&]() { return arqblocks.get_css(); });
 
@@ -810,15 +786,21 @@ main(int ac, const char* av[])
     if (use_ssl)
     {
         cout << "Staring in ssl mode" << endl;
-        app.port(app_port).ssl_file(ssl_crt_file, ssl_key_file)
+        app.bindaddr(bindaddr).port(app_port).ssl_file(ssl_crt_file, ssl_key_file)
                 .multithreaded().run();
     }
     else
     {
         cout << "Staring in non-ssl mode" << endl;
-        app.port(app_port).multithreaded().run();
+        if (*concurrency_opt == 0)
+        {
+            app.bindaddr(bindaddr).port(app_port).multithreaded().run();
+        }
+        else
+        {
+            app.bindaddr(bindaddr).port(app_port).concurrency(*concurrency_opt).run();
+        }
     }
-
 
     if (enable_emission_monitor == true)
     {

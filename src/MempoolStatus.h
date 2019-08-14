@@ -38,7 +38,9 @@ struct MempoolStatus
         uint64_t mixin_no {0};
 
         string fee_str;
+        string fee_nano_str;
         string payed_for_kB_str;
+        string payed_for_kB_nano_str;
         string arq_inputs_str;
         string arq_outputs_str;
         string timestamp_str;
@@ -72,6 +74,7 @@ struct MempoolStatus
         uint64_t cumulative_difficulty  {0};
         uint64_t block_size_limit  {0};
         uint64_t block_size_median  {0};
+        uint64_t block_weight_limit {0};
         char block_size_limit_str[10];   // needs to be trivially copyable
         char block_size_median_str[10];  // std::string is not trivially copyable
         uint64_t start_time  {0};
@@ -84,7 +87,7 @@ struct MempoolStatus
         bool current {false};
 
         static uint64_t
-        get_status_uint(const string& status)
+        get_status_uint(const string &status)
         {
             if (status == CORE_RPC_STATUS_OK)
                 return 1;
@@ -97,7 +100,7 @@ struct MempoolStatus
         }
 
         static string
-        get_status_string(const uint64_t& status)
+        get_status_string(const uint64_t &status)
         {
             if (status == 1)
                 return CORE_RPC_STATUS_OK;

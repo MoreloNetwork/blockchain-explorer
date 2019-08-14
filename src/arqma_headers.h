@@ -5,7 +5,7 @@
 #ifndef XMREG01_ARQMA_HEADERS_H_H
 #define XMREG01_ARQMA_HEADERS_H_H
 
-#define DB_LMDB   3
+#define DB_LMDB 3
 #define BLOCKCHAIN_DB DB_LMDB
 
 

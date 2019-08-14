@@ -67,6 +67,8 @@ namespace xmreg
                  "maximum time, in milliseconds, to wait for mempool data for the front page")
                 ("mempool-refresh-time", value<string>()->default_value("5"),
                  "time, in seconds, for each refresh of mempool state")
+                ("concurrency,c", value<size_t>()->default_value(0),
+                 "number of threads handling http queries. Default is 0 which means it is based you on the cpu")
                 ("bc-path,b", value<string>(),
                  "path to lmdb folder of the blockchain, e.g., ~/.arqma/lmdb")
                 ("ssl-crt-file", value<string>(),
@@ -97,7 +99,7 @@ namespace xmreg
      */
     template<typename T>
     boost::optional<T>
-    CmdLineOptions::get_option(const string & opt_name) const
+    CmdLineOptions::get_option(const string &opt_name) const
     {
 
         if (!vm.count(opt_name))
@@ -111,12 +113,12 @@ namespace xmreg
 
     // explicit instantiations of get_option template function
     template  boost::optional<string>
-    CmdLineOptions::get_option<string>(const string & opt_name) const;
+    CmdLineOptions::get_option<string>(const string &opt_name) const;
 
     template  boost::optional<bool>
-            CmdLineOptions::get_option<bool>(const string & opt_name) const;
+            CmdLineOptions::get_option<bool>(const string &opt_name) const;
 
     template  boost::optional<size_t>
-            CmdLineOptions::get_option<size_t>(const string & opt_name) const;
+            CmdLineOptions::get_option<size_t>(const string &opt_name) const;
 
 }

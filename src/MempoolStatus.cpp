@@ -109,10 +109,11 @@ MempoolStatus::read_mempool()
 
     // get txs in the mempool
     std::vector<tx_info> mempool_tx_info;
-    //std::vector<tx_info> pool_tx_info;
 
+    //std::vector<tx_info> pool_tx_info;
     std::vector<spent_key_image_info> pool_key_image_info;
 
+    // get txpool from lmdb database instead of rpc call
     if (!mcore->get_mempool().get_transactions_and_spent_keys_info(mempool_tx_info, pool_key_image_info))
     {
         cerr << "Getting mempool failed " << endl;
@@ -125,7 +126,7 @@ MempoolStatus::read_mempool()
 
      // so we sort it here.
 
-     std::sort(mempool_tx_info.begin(), mempool_tx_info.end(), [](tx_info& t1, tx_info& t2)
+     std::sort(mempool_tx_info.begin(), mempool_tx_info.end(), [](tx_info &t1, tx_info &t2)
      {
          return t1.receive_time > t2.receive_time;
      });
@@ -139,7 +140,7 @@ MempoolStatus::read_mempool()
     for (size_t i = 0; i < mempool_tx_info.size(); ++i)
     {
         // get transaction info of the tx in the mempool
-        const tx_info& _tx_info = mempool_tx_info.at(i);
+        const tx_info &_tx_info = mempool_tx_info.at(i);
 
         transaction tx;
         crypto::hash tx_hash;
@@ -156,7 +157,7 @@ MempoolStatus::read_mempool()
 
         local_copy_of_mempool_txs.push_back(mempool_tx{});
 
-        mempool_tx& last_tx = local_copy_of_mempool_txs.back();
+        mempool_tx &last_tx = local_copy_of_mempool_txs.back();
 
         last_tx.tx_hash = tx_hash;
         last_tx.tx = tx;
@@ -164,16 +165,15 @@ MempoolStatus::read_mempool()
         // key images of inputs
         vector<txin_to_key> input_key_imgs;
 
-        // public keys and xmr amount of outputs
+        // public keys and arq amount of outputs
         vector<pair<txout_to_key, uint64_t>> output_pub_keys;
 
-        // sum xmr in inputs and ouputs in the given tx
-        const array<uint64_t, 4>& sum_data = summary_of_in_out_rct(
+        // sum arq in inputs and ouputs in the given tx
+        const array<uint64_t, 4> &sum_data = summary_of_in_out_rct(
                tx, output_pub_keys, input_key_imgs);
 
 
-
-        double tx_size =  static_cast<double>(_tx_info.blob_size)/1024.0;
+        double tx_size = static_cast<double>(_tx_info.blob_size)/1024.0;
 
         double payed_for_kB = ARQ_AMOUNT(_tx_info.fee) / tx_size;
 
@@ -186,15 +186,17 @@ MempoolStatus::read_mempool()
         last_tx.mixin_no          = sum_data[2];
         last_tx.num_nonrct_inputs = sum_data[3];
 
-        last_tx.fee_str          = xmreg::arq_amount_to_str(_tx_info.fee, "{:0.4f}", false);
-        last_tx.payed_for_kB_str = fmt::format("{:0.4f}", payed_for_kB);
-        last_tx.arq_inputs_str   = xmreg::arq_amount_to_str(last_tx.sum_inputs , "{:0.3f}");
-        last_tx.arq_outputs_str  = xmreg::arq_amount_to_str(last_tx.sum_outputs, "{:0.3f}");
-        last_tx.timestamp_str    = xmreg::timestamp_to_str_gm(_tx_info.receive_time);
+        last_tx.fee_str               = xmreg::arq_amount_to_str(_tx_info.fee, "{:0.4f}", false);
+        last_tx.fee_nano_str          = xmreg::arq_amount_to_str(_tx_info.fee*1.0e6, "{:04.0f}", false);
+        last_tx.payed_for_kB_str      = fmt::format("{:0.4f}", payed_for_kB);
+        last_tx.payed_for_kB_nano_str = fmt::format("{:04.0f}", payed_for_kB*1.0e6);
+        last_tx.arq_inputs_str        = xmreg::arq_amount_to_str(last_tx.sum_inputs , "{:0.3f}");
+        last_tx.arq_outputs_str       = xmreg::arq_amount_to_str(last_tx.sum_outputs, "{:0.3f}");
+        last_tx.timestamp_str         = xmreg::timestamp_to_str_gm(_tx_info.receive_time);
 
-        last_tx.txsize           = fmt::format("{:0.2f}", tx_size);
+        last_tx.txsize                = fmt::format("{:0.2f}", tx_size);
 
-        last_tx.pID              = '-';
+        last_tx.pID                   = '-';
 
         crypto::hash payment_id;
         crypto::hash8 payment_id8;
@@ -282,18 +284,17 @@ MempoolStatus::read_network_info()
     local_copy.cumulative_difficulty      = rpc_network_info.cumulative_difficulty;
     local_copy.block_size_limit           = rpc_network_info.block_size_limit;
     local_copy.block_size_median          = rpc_network_info.block_size_median;
+    local_copy.block_weight_limit         = rpc_network_info.block_weight_limit;
     local_copy.start_time                 = rpc_network_info.start_time;
 
 
     strncpy(local_copy.block_size_limit_str, fmt::format("{:0.2f}",
-                                             static_cast<double>(
-                                             local_copy.block_size_limit ) / 2.0 / 1024.0).c_str(),
+                                             static_cast<double>(local_copy.block_size_limit) / 2.0 / 1024.0).c_str(),
                                              sizeof(local_copy.block_size_limit_str));
 
 
     strncpy(local_copy.block_size_median_str, fmt::format("{:0.2f}",
-                                              static_cast<double>(
-                                              local_copy.block_size_median) / 1024.0).c_str(),
+                                              static_cast<double>(local_copy.block_size_median) / 1024.0).c_str(),
                                               sizeof(local_copy.block_size_median_str));
 
     epee::string_tools::hex_to_pod(rpc_network_info.top_block_hash,
