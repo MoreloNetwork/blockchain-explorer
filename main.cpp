@@ -566,6 +566,9 @@ main(int ac, const char* av[])
                       "Disallow: ";
         return text;
     });
+    
+    CROW_ROUTE(app, "/blockchain.js")([&]() { return arqblocks.get_blockchain_js(); });
+    CROW_ROUTE(app, "/css/style.css")([&]() { return arqblocks.get_css(); });
 
     if (enable_js)
     {
@@ -587,7 +590,7 @@ main(int ac, const char* av[])
         });
 
         CROW_ROUTE(app, "/js/crypto.js")
-        ([&](c) {
+        ([&]() {
             return arqblocks.get_js_file("crypto.js");
         });
 

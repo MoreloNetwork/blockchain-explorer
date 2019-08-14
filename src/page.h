@@ -274,7 +274,7 @@ struct tx_details
                 {"tx_fee_short"      , fee_short_str},
                 {"fee_nano"          , fee_nano_str},
                 {"payed_for_kB"      , payed_for_kB_str},
-                {"payed_for_kB_nano" , payed_for_kB_nano},
+                {"payed_for_kB_nano" , payed_for_kB_nano_str},
                 {"sum_inputs"        , arq_amount_to_str(arq_inputs , "{:0.9f}")},
                 {"sum_outputs"       , arq_amount_to_str(arq_outputs, "{:0.9f}")},
                 {"sum_inputs_short"  , arq_amount_to_str(arq_inputs , "{:0.9f}")},
@@ -953,7 +953,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         current_network_info.current = true;
     }
 
-    std::string fee_type = height >= 7000 ? "byte" : "kb";
+    std::string fee_type = height >= 248200 ? "byte" : "kb";
 
     context["network_info"] = mstch::map {
             {"difficulty"        , current_network_info.difficulty},

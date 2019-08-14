@@ -136,6 +136,12 @@ CurrentBlockchainStatus::calculate_emission_in_blocks(
         mcore->get_block_by_height(start_blk, blk);
 
         uint64_t coinbase_amount = get_outs_money_amount(blk.miner_tx);
+        
+        if(start_blk == 0)
+        {
+          coinbase_amount -= config::blockchain_settings::PREMINE_BURN;
+        }
+
 
         vector<transaction> txs;
         vector<crypto::hash> missed_txs;
