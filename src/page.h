@@ -38,6 +38,7 @@
 #define TMPL_DIR                    "./templates"
 #define TMPL_PARIALS_DIR            TMPL_DIR "/partials"
 #define TMPL_CSS_STYLES             TMPL_DIR "/css/style.css"
+#define TMPL_BLOCKCHAIN_JS          TMPL_DIR "/blockchain.js"
 #define TMPL_INDEX                  TMPL_DIR "/index.html"
 #define TMPL_INDEX2                 TMPL_DIR "/index2.html"
 #define TMPL_MEMPOOL                TMPL_DIR "/mempool.html"
@@ -469,6 +470,7 @@ page(MicroCore* _mcore,
     // into template_file map
 
     template_file["css_styles"]      = xmreg::read(TMPL_CSS_STYLES);
+    template_file["blockchain_js"]   = xmreg::read(TMPL_BLOCKCHAIN_JS);
     template_file["header"]          = xmreg::read(TMPL_HEADER);
     template_file["footer"]          = get_footer();
     template_file["index2"]          = get_full_page(xmreg::read(TMPL_INDEX2));
