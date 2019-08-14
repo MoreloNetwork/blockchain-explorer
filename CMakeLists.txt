@@ -14,7 +14,7 @@ endif()
 
 
 if (NOT ARQMA_DIR)
-    set(ARQMA_DIR ~/stagenet/arqma)
+    set(ARQMA_DIR ~/arqma)
 endif()
 
 message(STATUS ARQMA_DIR ": ${ARQMA_DIR}")
