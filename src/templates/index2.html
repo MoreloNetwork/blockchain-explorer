@@ -45,7 +45,7 @@
             Network difficulty: <span id="network-info-diff">{{difficulty}}</span>
             | Hard fork: <span id="network-info-hardfork">v{{current_hf_version}}</span>
             | Hash rate: <span id="network-info-hashrate">{{hash_rate}}</span>
-            | Fee per {{fee_type}}: <span id="network-info-fee-kb">{{fee_per_kb}}</span>
+            | Fee per kb: <span id="network-info-fee-kb">{{fee_per_kb}}</span>
             | Median block size limit: <span id="network-info-block-limit">{{block_size_limit}}</span> kB
             {{^is_current_info}}
             <span id="network-info-old">| Data from {{age}} {{age_format}} ago</span>
@@ -87,6 +87,8 @@
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script type="application/javascript">function numOfLastBlocks() { return {{no_of_last_blocks}}; }</script>
+    <script src="/blockchain.js"></script>
+    <script src="/blockchain-custom.js"></script>
 
         <div id="block-list" class="center">
 
@@ -112,7 +114,7 @@
                     <td class="pool">{{#height}}<a class="find-pool" id="find-{{blk_hash}}"></a>{{/height}}</td>
                     <td class="size">{{blk_size}}</td>
                     <td class="hash"><a href="/{{block_or_tx}}/{{blk_or_tx_hash}}">{{blk_or_tx_hash}}</a></td>
-                    <td class="fees">{{tx_fee}}</td>
+                    <td class="fees">{{tx_fee_short}}</td>
                     <td class="outputs">{{sum_outputs_short}}</td>
                     <td class="inputs">{{no_inputs}}/{{no_outputs}}/{{pID}}</td>
                     <td class="mixin">{{mixin}}</td>
