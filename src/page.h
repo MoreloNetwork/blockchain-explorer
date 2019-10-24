@@ -8,6 +8,13 @@
 #include "mstch/mstch.hpp"
 
 #include "arqma_headers.h"
+#include "randomx.h"
+#include "common.hpp"
+#include "blake2/blake2.h"
+#include "virtual_machine.hpp"
+#include "program.hpp"
+#include "aes_hash.hpp"
+#include "assembly_generator_x86.hpp"
 
 #include "../gen/version.h"
 
@@ -27,7 +34,16 @@
 #include "../ext/vpetrigocaches/fifo_cache_policy.hpp"
 #include "../ext/mstch/src/visitor/render_node.hpp"
 
+extern "C" uint64_t rx_seedheight(const uint64_t height);
 
+extern "C" bool rx_needhash(const uint64_t height, uint64_t *seedheight);
+
+// Forked rx-slow-hash.c directly from Arqma
+extern "C" void rx_seedhash(const uint64_t height, const char *hash, const int miners);
+extern "C" void rx_slow_hash(const void *data, size_t length, char *hash, int miners);
+extern "C" void rx_reorg(const uint64_t split_height);
+
+static __thread randomx_vm *rx_vm = NULL;
 
 #include <algorithm>
 #include <limits>
@@ -47,6 +63,7 @@
 #define TMPL_HEADER                 TMPL_DIR "/header.html"
 #define TMPL_FOOTER                 TMPL_DIR "/footer.html"
 #define TMPL_BLOCK                  TMPL_DIR "/block.html"
+#define TMPL_RANDOMX                TMPL_DIR "/randomx.html"
 #define TMPL_TX                     TMPL_DIR "/tx.html"
 #define TMPL_ADDRESS                TMPL_DIR "/address.html"
 #define TMPL_MY_OUTPUTS             TMPL_DIR "/my_outputs.html"
@@ -70,7 +87,7 @@
 #define JS_SHA3     TMPL_DIR "/js/sha3.js"
 
 #define ARQMAEXPLORER_RPC_VERSION_MAJOR 2
-#define ARQMAEXPLORER_RPC_VERSION_MINOR 4
+#define ARQMAEXPLORER_RPC_VERSION_MINOR 5
 #define MAKE_ARQMAEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define ARQMAEXPLORER_RPC_VERSION \
     MAKE_ARQMAEXPLORER_RPC_VERSION(ARQMAEXPLORER_RPC_VERSION_MAJOR, ARQMAEXPLORER_RPC_VERSION_MINOR)
@@ -192,6 +209,69 @@ using namespace std;
 
 using epee::string_tools::pod_to_hex;
 using epee::string_tools::hex_to_pod;
+
+template< typename T >
+std::string as_hex(T i)
+{
+  std::stringstream ss;
+
+  ss << "0x" << setfill ('0') << setw(sizeof(T)*2) 
+         << hex << i;
+  return ss.str();
+}
+
+struct randomx_status
+{
+    randomx::Program prog;
+    randomx::RegisterFile reg_file;
+
+    randomx::AssemblyGeneratorX86 
+    get_asm() 
+    {
+        randomx::AssemblyGeneratorX86 asmX86;
+        asmX86.generateProgram(prog);
+    	return asmX86;
+    }
+
+    mstch::map
+    get_mstch() 
+    {
+        auto asmx86 = get_asm();
+
+        stringstream ss1, ss2;
+
+        ss1 << prog;
+        asmx86.printCode(ss2);
+
+        mstch::map rx_map {
+            {"rx_code" , ss1.str()},
+            {"rx_code_asm", ss2.str()}
+        };
+
+	for (size_t i = 0; i < randomx::RegistersCount; ++i)
+	{
+	    rx_map["r"+std::to_string(i)] = as_hex(reg_file.r[i]);
+	}
+
+	for (size_t i = 0; i < randomx::RegistersCount/2; ++i)
+	{
+	    rx_map["f"+std::to_string(i)] = rx_float_as_str(reg_file.f[i]);
+	    rx_map["e"+std::to_string(i)] = rx_float_as_str(reg_file.e[i]);
+	    rx_map["a"+std::to_string(i)] = rx_float_as_str(reg_file.a[i]);
+	}
+
+        return rx_map;
+    }
+
+    string
+    rx_float_as_str(randomx::fpu_reg_t fpu)
+    {
+	uint64_t* lo = reinterpret_cast<uint64_t*>(&fpu.lo);	
+	uint64_t* hi = reinterpret_cast<uint64_t*>(&fpu.hi);	
+
+	return 	 "{" + as_hex(*lo) + ", " + as_hex(*hi)+ "}";
+    }
+};
 
 /**
 * @brief The tx_details struct
@@ -479,6 +559,7 @@ page(MicroCore* _mcore,
     template_file["mempool_error"]   = xmreg::read(TMPL_MEMPOOL_ERROR);
     template_file["mempool_full"]    = get_full_page(template_file["mempool"]);
     template_file["block"]           = get_full_page(xmreg::read(TMPL_BLOCK));
+    template_file["randomx"]         = get_full_page(xmreg::read(TMPL_RANDOMX));
     template_file["tx"]              = get_full_page(xmreg::read(TMPL_TX));
     template_file["my_outputs"]      = get_full_page(xmreg::read(TMPL_MY_OUTPUTS));
     template_file["rawtx"]           = get_full_page(xmreg::read(TMPL_MY_RAWTX));
@@ -1265,6 +1346,19 @@ show_block(uint64_t _blk_height)
 
     // remove "<" and ">" from the hash string
     string blk_hash_str  = pod_to_hex(blk_hash);
+    
+    auto rx_code = get_randomx_code(_blk_height, blk, blk_hash);
+    
+    mstch::array rx_code_str = mstch::array();
+    int code_idx {1};
+    
+    for(auto& rxc: rx_code)
+    {
+      mstch::map rx_map = rxc.get_mstch();
+      rx_map["first_program"] = (code_idx == 1);
+      rx_map["rx_code_idx"] = code_idx++;
+      rx_code_str.push_back(rx_map);
+    }
 
     // get block timestamp in user friendly format
     string blk_timestamp = xmreg::timestamp_to_str_gm(blk.timestamp);
@@ -1303,17 +1397,15 @@ show_block(uint64_t _blk_height)
 
     // initalise page tempate map with basic info about blockchain
 
-    string blk_pow_hash_str = pod_to_hex(get_block_longhash(
-                core_storage, blk, _blk_height, 0));
-
-    cryptonote::difficulty_type blk_difficulty
-        = core_storage->get_db().get_block_difficulty(_blk_height);
+    string blk_pow_hash_str = pod_to_hex(get_block_longhash(core_storage, blk, _blk_height, 0));
+    uint64_t blk_difficulty = core_storage->get_db().get_block_difficulty(_blk_height);
 
     mstch::map context {
             {"testnet"              , testnet},
             {"stagenet"             , stagenet},
             {"blk_hash"             , blk_hash_str},
             {"blk_height"           , _blk_height},
+            {"rx_codes"             , rx_code_str},
             {"diff"                 , blk_diff},
             {"blk_timestamp"        , blk_timestamp},
             {"blk_timestamp_epoch"  , blk.timestamp},
@@ -1327,6 +1419,7 @@ show_block(uint64_t _blk_height)
             {"blk_age"              , age.first},
             {"delta_time"           , delta_time},
             {"blk_nonce"            , blk.nonce},
+            {"is_randomx"           , (blk.major_version >= 15)},
             {"age_format"           , age.second},
             {"major_ver"            , std::to_string(blk.major_version)},
             {"minor_ver"            , std::to_string(blk.minor_version)},
@@ -1365,9 +1458,7 @@ show_block(uint64_t _blk_height)
             continue;
         }
 
-        tx_details txd = get_tx_details(tx, false,
-                                        _blk_height,
-                                        current_blockchain_height);
+        tx_details txd = get_tx_details(tx, false, _blk_height, current_blockchain_height);
 
         // add fee to the rest
         sum_fees += txd.fee;
@@ -1420,6 +1511,47 @@ show_block(string _blk_hash)
     }
 
     return show_block(blk_height);
+}
+
+string
+show_randomx(uint64_t _blk_height)
+{
+    // get block at the given height i
+    block blk;
+
+    uint64_t current_blockchain_height = core_storage->get_current_blockchain_height();
+
+    if (_blk_height > current_blockchain_height)
+    {
+        cerr << "Cant get block: " << _blk_height
+             << " since its higher than current blockchain height"
+             << " i.e., " <<  current_blockchain_height
+             << endl;
+        return fmt::format("Cant get block {:d} since its higher than current blockchain height!",
+                           _blk_height);
+    }
+
+    if (!mcore->get_block_by_height(_blk_height, blk))
+    {
+        cerr << "Cant get block: " << _blk_height << endl;
+        return fmt::format("Cant get block {:d}!", _blk_height);
+    }
+
+    // get block's hash
+    crypto::hash blk_hash = core_storage->get_block_id_by_height(_blk_height);
+
+    string blk_hash_str  = pod_to_hex(blk_hash);
+
+    mstch::map context {
+            {"testnet"              , testnet},
+            {"stagenet"             , stagenet},
+            {"blk_hash"             , blk_hash_str},
+            {"blk_height"           , _blk_height},
+    };
+
+    add_css_style(context);
+
+    return mstch::render(template_file["randomx"], context);
 }
 
 string
@@ -7126,6 +7258,64 @@ add_js_files(mstch::map &context)
         //return this->js_html_files;
         return this->js_html_files_all_in_one;
     }};
+}
+
+vector<randomx_status>
+get_randomx_code(uint64_t blk_height, block const& blk, crypto::hash const& blk_hash)
+{
+  static std::mutex mtx;
+  
+  vector<randomx_status> rx_code;
+    
+  blobdata bd = get_block_hashing_blob(blk);
+  
+  std::lock_guard<std::mutex> lk {mtx};
+
+  if (!rx_vm)
+  {
+    // this will create rx_vm instance if one does not exist
+    get_block_longhash(core_storage, blk, blk_height, 0);
+    
+    if(!rx_vm)
+    {
+      cerr << "rx_vm is still NULL!";
+      return {};
+    }
+  }
+  
+  
+  // based on randomx calculate hash
+  // the hash is seed used to generated scrachtpad and program
+  alignas(16) uint64_t tempHash[8];
+  blake2b(tempHash, sizeof(tempHash), bd.data(), bd.size(), nullptr, 0); 
+
+  rx_vm->initScratchpad(&tempHash);
+  rx_vm->resetRoundingMode();
+  
+  for (int chain = 0; chain < RANDOMX_PROGRAM_COUNT - 1; ++chain) 
+  {
+    rx_vm->run(&tempHash);
+    
+    blake2b(tempHash, sizeof(tempHash), rx_vm->getRegisterFile(), sizeof(randomx::RegisterFile), nullptr, 0); 
+
+    rx_code.push_back({});
+    
+    rx_code.back().prog = rx_vm->getProgram();
+    rx_code.back().reg_file = *(rx_vm->getRegisterFile());
+  }   
+
+  rx_vm->run(&tempHash);
+  
+  rx_code.push_back({});
+  
+  rx_code.back().prog = rx_vm->getProgram();
+  rx_code.back().reg_file = *(rx_vm->getRegisterFile());
+  
+  // crypto::hash res2;
+  // rx_vm->getFinalResult(res2.data, RANDOMX_HASH_SIZE);
+  // cout << "pow2: " << pod_to_hex(res2) << endl;
+  
+  return rx_code;
 }
 
 public:
