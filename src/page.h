@@ -43,6 +43,7 @@ extern __thread randomx_vm *rx_vm;
 #include <limits>
 #include <ctime>
 #include <future>
+#include <type_traits>
 
 
 #define TMPL_DIR                    "./templates"
@@ -624,7 +625,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         pair<string, string> age = get_age(local_copy_server_timestamp, blk.timestamp);
 
         context["age_format"] = age.second;
-        
+ 
         // start measure time over here
         auto start = std::chrono::steady_clock::now();
         
@@ -639,10 +640,18 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
           continue;
         }
 
+        uint64_t blk_diff;
+
+        if(!mcore->get_diff_at_height(i, blk_diff))
+        {
+          cerr << "Cant get block diff: " << i << endl;
+          return fmt::format("Cant get block diff {:d}!", i); vector<pair<crypto::hash, mstch::node>> txd_pairs;
+        }
+
         uint64_t tx_i {0};
-        
+
         vector<pair<crypto::hash, mstch::node>> txd_pairs;
-        
+
         for(auto it = blk_txs.begin(); it != blk_txs.end(); ++it)
         {
           const cryptonote::transaction& tx = *it;
@@ -650,12 +659,12 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
           const tx_details& txd = get_tx_details(tx, false, i, height);
 
           mstch::map txd_map = txd.get_mstch_map();
-          
+
           std::string age_class = "";
           std::string age_title = "";
           if(tx_i == 0)
           {
-            if(age.first[0] == "-")
+            if(age.first[0] == '-')
             {
               age_class += " negative";
               age_title += "This block was observed with future (forged) timestamp";
@@ -6410,14 +6419,7 @@ get_tx_details(const transaction &tx,
     tx_details txd;
 
     // get tx hash
-    if(!pruned)
-    {
-      txd.hash = get_transaction_hash(tx);
-    }
-    else
-    {
-      txd.hash = get_pruned_transaction_hash(tx, tx.prunable_hash);
-    }
+    txd.hash = get_transaction_hash(tx);
 
     // get tx public key from extra
     // this check if there are two public keys
