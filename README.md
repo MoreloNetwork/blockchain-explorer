@@ -27,7 +27,6 @@ ArQmA C++ libraries, but also demonstrates how to use:
 The key features of the ArQmA Onion Blockchain Explorer are:
 
  - no cookies, no web analytics trackers, no images,
- - by default no JavaScript, but can be enabled for client side decoding and proving transactions,
  - open sourced,
  - made fully in C++,
  - showing encrypted payments ID,
@@ -62,12 +61,13 @@ sudo apt install git build-essential cmake pkg-config libboost-all-dev libssl-de
 # go to home folder
 cd ~
 
-git clone --recursive https://github.com/arqma/arqma
+git clone https://github.com/arqma/arqma
 
-cd arqma/
+cd arqma && git checkout release-v0.6.0
 
+git submodule init && git submodule update
 
-USE_SINGLE_BUILDDIR=1 make
+make
 ```
 
 ##### Compile and run the explorer
@@ -120,7 +120,7 @@ Example output:
 
 ```bash
 [arqma@us blockchain-explorer]$ ./arqblocks
-2016-May-28 10:04:49.160280 Blockchain initialized. last block: 1056761, d0.h0.m12.s47 time ago, current difficulty: 1517857750
+2016-May-28 10:04:49.160280 Blockchain initialized. last block: 105761, d0.h0.m12.s47 time ago, current difficulty: 1517857750
 (2016-05-28 02:04:49) [INFO    ] Crow/0.1 server is running, local port 8081
 ```
 
@@ -147,8 +147,6 @@ arqblocks, Arqma Onion Blockchain Explorer:
   --show-cache-times [=arg(=1)] (=0)    show times of getting data from cache
                                         vs no cache
   --enable-block-cache [=arg(=1)] (=0)  enable caching of block details
-  --enable-js [=arg(=1)] (=0)           enable checking outputs and proving txs
-                                        using JavaScript on client side
   --enable-autorefresh-option [=arg(=1)] (=0)
                                         enable users to have the index page on
                                         autorefresh
@@ -224,22 +222,13 @@ Every 10000 blocks, the thread will save current emission in a file, by default,
  displayed on the front page, e.g., :
 
 ```
-Arqma emission (fees) is 14485540.430 (52545.373) as of 1313448 block
+Arqma emission (fees) is 14485540.430 (52545.373) as of 131348 block
 ```
 
 The values given, can be checked using Arqma daemon's  `print_coinbase_tx_sum` command.
-For example, for the above example: `print_coinbase_tx_sum 0 1313449`.
+For example, for the above example: `print_coinbase_tx_sum 0 131349`.
 
 To disable the monitor, simply restart the explorer without `--enable-emission-monitor` flag.
-
-## Enable JavaScript for decoding proving transactions
-
-By default, decoding and proving tx's outputs are done on the server side. To do this on the client side
-(private view and tx keys are not send to the server) JavaScript-based decoding can be enabled:
-
-```
-arqblocks --enable-js
-```
 
 ## Enable SSL (https)
 

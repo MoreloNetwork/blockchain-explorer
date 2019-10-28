@@ -6,7 +6,7 @@ set(PROJECT_NAME
 
 project(${PROJECT_NAME})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj -O3")
@@ -14,7 +14,7 @@ endif()
 
 
 if (NOT ARQMA_DIR)
-    set(ARQMA_DIR ~/stagenet/arqma)
+    set(ARQMA_DIR ~/arqma)
 endif()
 
 message(STATUS ARQMA_DIR ": ${ARQMA_DIR}")
@@ -97,7 +97,6 @@ create_git_version()
 configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates ${CMAKE_CURRENT_BINARY_DIR}/templates)
 configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates/css ${CMAKE_CURRENT_BINARY_DIR}/templates/css)
 configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates/partials ${CMAKE_CURRENT_BINARY_DIR}/templates/partials)
-configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates/js ${CMAKE_CURRENT_BINARY_DIR}/templates/js)
 
 set(LIBRARIES
         myxrm
@@ -124,7 +123,6 @@ set(LIBRARIES
         checkpoints
         version
         epee
-        randomx
         sodium
         ${Boost_LIBRARIES}
         pthread

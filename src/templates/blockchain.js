@@ -1,4 +1,3 @@
-
 var COIN_FACTOR = 1e-9;
 
 function si_prefix(num) {
