@@ -29,9 +29,6 @@
 
 #include "../ext/json.hpp"
 
-#include "../ext/vpetrigocaches/cache.hpp"
-#include "../ext/vpetrigocaches/lru_cache_policy.hpp"
-#include "../ext/vpetrigocaches/fifo_cache_policy.hpp"
 #include "../ext/mstch/src/visitor/render_node.hpp"
 
 extern "C" uint64_t rx_seedheight(const uint64_t height);
@@ -73,64 +70,11 @@ extern __thread randomx_vm *rx_vm;
 #define TMPL_MY_RAWOUTPUTKEYS       TMPL_DIR "/rawoutputkeys.html"
 #define TMPL_MY_CHECKRAWOUTPUTKEYS  TMPL_DIR "/checkrawoutputkeys.html"
 
-#define JS_JQUERY   TMPL_DIR "/js/jquery.min.js"
-#define JS_CRC32    TMPL_DIR "/js/crc32.js"
-#define JS_BIGINT   TMPL_DIR "/js/biginteger.js"
-#define JS_CONFIG   TMPL_DIR "/js/config.js"
-#define JS_BASE58   TMPL_DIR "/js/base58.js"
-#define JS_CRYPTO   TMPL_DIR "/js/crypto.js"
-#define JS_CNUTIL   TMPL_DIR "/js/cn_util.js"
-#define JS_NACLFAST TMPL_DIR "/js/nacl-fast-cn.js"
-#define JS_SHA3     TMPL_DIR "/js/sha3.js"
-
 #define ARQMAEXPLORER_RPC_VERSION_MAJOR 2
 #define ARQMAEXPLORER_RPC_VERSION_MINOR 6
 #define MAKE_ARQMAEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
 #define ARQMAEXPLORER_RPC_VERSION \
     MAKE_ARQMAEXPLORER_RPC_VERSION(ARQMAEXPLORER_RPC_VERSION_MAJOR, ARQMAEXPLORER_RPC_VERSION_MINOR)
-
-
-// basic info about tx to be stored in cashe.
-// we need to store block_no and timestamp,
-// as this time and number of confirmation needs
-// to be updated between requests. Just cant
-// get it from cash, as it will be old very soon
-struct tx_info_cache
-{
-    uint64_t   block_no;
-    uint64_t   timestamp;
-    mstch::map tx_map;
-
-    // custom key for use in cache.
-    // cache uses unordeded map for keys
-    struct key
-    {
-        crypto::hash tx_hash;
-        bool detailed;
-
-        bool operator==(const key &other) const
-        {
-            return (tx_hash == other.tx_hash && detailed == other.detailed);
-        }
-    };
-};
-
-// indect overload of hash for tx_info_cache::key
-namespace std
-{
-    template<>
-    struct hash<tx_info_cache::key>
-    {
-        size_t operator()(const tx_info_cache::key &k) const
-        {
-            size_t const h1 ( std::hash<crypto::hash>{}(k.tx_hash) );
-            size_t const h2 ( std::hash<bool>{}(k.detailed) );
-            return h1 ^ (h2 << 1);
-        };
-    };
-}
-
-
 
 /**
  * visitor to produce json representations of
@@ -225,48 +169,48 @@ struct randomx_status
     randomx::AssemblyGeneratorX86 
     get_asm() 
     {
-        randomx::AssemblyGeneratorX86 asmX86;
-        asmX86.generateProgram(prog);
+      randomx::AssemblyGeneratorX86 asmX86;
+      asmX86.generateProgram(prog);
     	return asmX86;
     }
 
     mstch::map
     get_mstch() 
     {
-        auto asmx86 = get_asm();
+      auto asmx86 = get_asm();
 
-        stringstream ss1, ss2;
+      stringstream ss1, ss2;
 
-        ss1 << prog;
-        asmx86.printCode(ss2);
+      ss1 << prog;
+      asmx86.printCode(ss2);
 
-        mstch::map rx_map {
-            {"rx_code" , ss1.str()},
-            {"rx_code_asm", ss2.str()}
-        };
-
-	for (size_t i = 0; i < randomx::RegistersCount; ++i)
-	{
-	    rx_map["r"+std::to_string(i)] = as_hex(reg_file.r[i]);
-	}
-
-	for (size_t i = 0; i < randomx::RegistersCount/2; ++i)
-	{
-	    rx_map["f"+std::to_string(i)] = rx_float_as_str(reg_file.f[i]);
-	    rx_map["e"+std::to_string(i)] = rx_float_as_str(reg_file.e[i]);
-	    rx_map["a"+std::to_string(i)] = rx_float_as_str(reg_file.a[i]);
-	}
-
-        return rx_map;
+      mstch::map rx_map {
+          {"rx_code" , ss1.str()},
+          {"rx_code_asm", ss2.str()}
+      };
+      
+      for (size_t i = 0; i < randomx::RegistersCount; ++i)
+      {
+        rx_map["r"+std::to_string(i)] = as_hex(reg_file.r[i]);
+      }
+      
+      for (size_t i = 0; i < randomx::RegistersCount/2; ++i)
+      {
+        rx_map["f"+std::to_string(i)] = rx_float_as_str(reg_file.f[i]);
+        rx_map["e"+std::to_string(i)] = rx_float_as_str(reg_file.e[i]);
+        rx_map["a"+std::to_string(i)] = rx_float_as_str(reg_file.a[i]);
+      }
+      
+      return rx_map;
     }
 
     string
     rx_float_as_str(randomx::fpu_reg_t fpu)
     {
-	uint64_t* lo = reinterpret_cast<uint64_t*>(&fpu.lo);	
-	uint64_t* hi = reinterpret_cast<uint64_t*>(&fpu.hi);	
-
-	return 	 "{" + as_hex(*lo) + ", " + as_hex(*hi)+ "}";
+      uint64_t* lo = reinterpret_cast<uint64_t*>(&fpu.lo);
+      uint64_t* hi = reinterpret_cast<uint64_t*>(&fpu.hi);
+      
+      return 	 "{" + as_hex(*lo) + ", " + as_hex(*hi)+ "}";
     }
 };
 
@@ -462,14 +406,9 @@ bool enable_pusher;
 bool enable_key_image_checker;
 bool enable_output_key_checker;
 bool enable_mixins_details;
-bool enable_tx_cache;
-bool enable_block_cache;
 bool enable_as_hex;
-bool show_cache_times;
-
 
 bool enable_autorefresh_option;
-
 
 uint64_t no_of_mempool_tx_of_frontpage;
 uint64_t no_blocks_on_index;
@@ -489,24 +428,6 @@ string js_html_files_all_in_one;
 // read operation in OS
 map<string, string> template_file;
 
-
-// alias for easy class typing
-template <typename Key, typename Value>
-using lru_cache_t = caches::fixed_sized_cache<Key, Value, caches::LRUCachePolicy<Key>>;
-
-
-// alias for easy class typing
-template <typename Key, typename Value>
-using fifo_cache_t = caches::fixed_sized_cache<Key, Value, caches::FIFOCachePolicy<Key>>;
-
-// cache of txs_map of txs in blocks. this is useful for
-// index2 page, so that we dont parse txs in each block
-// for each request.
-fifo_cache_t<uint64_t, vector<pair<crypto::hash, mstch::node>>> block_tx_cache;
-
-lru_cache_t<tx_info_cache::key, tx_info_cache> tx_context_cache;
-
-
 public:
 
 page(MicroCore* _mcore,
@@ -519,9 +440,6 @@ page(MicroCore* _mcore,
      bool _enable_output_key_checker,
      bool _enable_autorefresh_option,
      bool _enable_mixins_details,
-     bool _enable_tx_cache,
-     bool _enable_block_cache,
-     bool _show_cache_times,
      uint64_t _no_blocks_on_index,
      uint64_t _mempool_info_timeout,
      string _testnet_url,
@@ -538,16 +456,11 @@ page(MicroCore* _mcore,
           enable_output_key_checker {_enable_output_key_checker},
           enable_autorefresh_option {_enable_autorefresh_option},
           enable_mixins_details {_enable_mixins_details},
-          enable_tx_cache {_enable_tx_cache},
-          enable_block_cache {_enable_block_cache},
-          show_cache_times {_show_cache_times},
           no_blocks_on_index {_no_blocks_on_index},
           mempool_info_timeout {_mempool_info_timeout},
           testnet_url {_testnet_url},
           stagenet_url {_stagenet_url},
-          mainnet_url {_mainnet_url},
-          block_tx_cache(200),
-          tx_context_cache(1000)
+          mainnet_url {_mainnet_url}
 {
     mainnet = nettype == cryptonote::network_type::MAINNET;
     testnet = nettype == cryptonote::network_type::TESTNET;
@@ -648,8 +561,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
             {"enable_pusher"            , enable_pusher},
             {"enable_key_image_checker" , enable_key_image_checker},
             {"enable_output_key_checker", enable_output_key_checker},
-            {"enable_autorefresh_option", enable_autorefresh_option},
-            {"show_cache_times"         , show_cache_times}
+            {"enable_autorefresh_option", enable_autorefresh_option}
     };
 
     context.emplace("txs", mstch::array()); // will keep tx to show
@@ -666,12 +578,6 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
     int64_t end_height = start_height + no_of_last_blocks - 1;
 
     vector<double> blk_sizes;
-
-    // measure time of cache based execution, and non-cached execution
-    double duration_cached     {0.0};
-    double duration_non_cached {0.0};
-    uint64_t cache_hits   {0};
-    uint64_t cache_misses {0};
 
     // loop index
     int64_t i = end_height;
@@ -718,233 +624,83 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         pair<string, string> age = get_age(local_copy_server_timestamp, blk.timestamp);
 
         context["age_format"] = age.second;
-
-
-        if (enable_block_cache && block_tx_cache.Contains(i))
+        
+        // start measure time over here
+        auto start = std::chrono::steady_clock::now();
+        
+        // get all transactions found in block and initialize the 1st list with transactions for block solving (i.e.: coinbase)
+        vector<cryptonote::transaction> blk_txs {blk.miner_tx};
+        vector<crypto::hash> missed_txs;
+        
+        if(!core_storage->get_transactions(blk.tx_hashes, blk_txs, missed_txs))
         {
-            // get txs info in the ith block from
-            // our cache
-
-            // start measure time here
-            auto start = std::chrono::steady_clock::now();
-
-            const vector<pair<crypto::hash, mstch::node>> &txd_pairs = block_tx_cache.Get(i);
-
-            // copy tx maps from txs_maps_tmp into txs array,
-            // that will go to templates
-            for (const pair<crypto::hash, mstch::node> &txd_pair: txd_pairs)
-            {
-                // we need to check if the given transaction is still
-                // in the same block as when it was cached. it is possible
-                // the block got orphaned, and this tx is in mempool
-                // or different block, and what we have in cache
-                // is thus wrong
-
-                // but we do this only for first top blocks. no sense
-                // doing it for all blocks
-
-                bool is_tx_still_in_block_as_expected {true};
-
-                if (i + config::tx_settings::ARQMA_TX_CONFIRMATIONS_REQUIRED > height)
-                {
-                    const crypto::hash& tx_hash = txd_pair.first;
-
-                    if (core_storage->have_tx(tx_hash))
-                    {
-                        try
-                        {
-                            uint64_t tx_height_in_blockchain = core_storage->get_db().get_tx_block_height(tx_hash);
-
-                            // check if height of the given tx that we have in cache,
-                            // denoted by i, is same as what is acctually stored
-                            // in blockchain
-                            if (tx_height_in_blockchain == i)
-                            {
-                                is_tx_still_in_block_as_expected = true;
-                            }
-                            else
-                            {
-                                // if no tx in the given block, just stop
-                                // any futher search. no need. we are going
-                                // to ditch the cache, in a monent
-                                is_tx_still_in_block_as_expected = false;
-                                break;
-                            }
-                        }
-                        catch (const TX_DNE& e)
-                        {
-                            cerr << "Tx from cache" << pod_to_hex(tx_hash)
-                                 << " is no longer in the blockchain "
-                                 << endl;
-
-                            is_tx_still_in_block_as_expected = false;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        is_tx_still_in_block_as_expected = false;
-                        break;
-                    }
-
-                } // if (i + CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE > height)
-
-
-                if (!is_tx_still_in_block_as_expected)
-                {
-                    // if some tx in cache is not in blockchain
-                    // where it should be, its probably better to
-                    // ditch entire cache, as redo it below.
-
-                    block_tx_cache.Clear();
-                    txs.clear();
-                    i = end_height;
-                    continue; // reado the main loop
-                }
-
-                // if we got to here, it means that everything went fine
-                // and no unexpeced things happended.
-                mstch::map txd_map = boost::get<mstch::map>(txd_pair.second);
-
-                // now we need to update age of txs from cashe
-                if (!boost::get<string>(txd_map["age"]).empty())
-                {
-                    txd_map["age"] = age.first;
-                }
-
-                if (forged) {
-                    auto &age_class = boost::get<std::string>(txd_map["age_class"]);
-                    if(age_class.find("out-of-order") == std::string::npos)
-                    {
-                        age_class += "out-of-order";
-                        auto &age_title = boost::get<std::string>(txd_map["age_title"]);
-                        if (!age_title.empty()) age_title += "&#xa;";
-                        age_title += "This block timestamp is probably forged: a later block has an earlier timestamp";
-                    }
-                }
-
-                txs.push_back(txd_map);
-
-            }  // for (const pair<crypto::hash, mstch::map>& txd_pair: txd_pairs)
-
-            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start);
-
-            // cout << "block_tx_json_cache from cache" << endl;
-
-            duration_cached += duration.count();
-
-            ++cache_hits;
+          cerr << "Can not get transactions in block: " << i << endl;
+          --i;
+          continue;
         }
-        else
+
+        uint64_t tx_i {0};
+        
+        vector<pair<crypto::hash, mstch::node>> txd_pairs;
+        
+        for(auto it = blk_txs.begin(); it != blk_txs.end(); ++it)
         {
-            // this is new block. not in cashe.
-            // need to process its txs and add to cache
+          const cryptonote::transaction& tx = *it;
+          
+          const tx_details& txd = get_tx_details(tx, false, i, height);
 
-            // start measure time here
-            auto start = std::chrono::steady_clock::now();
-
-            // get all transactions in the block found
-            // initialize the first list with transaction for solving
-            // the block i.e. coinbase.
-            vector<cryptonote::transaction> blk_txs {blk.miner_tx};
-            vector<crypto::hash> missed_txs;
-
-            if (!core_storage->get_transactions(blk.tx_hashes, blk_txs, missed_txs))
+          mstch::map txd_map = txd.get_mstch_map();
+          
+          std::string age_class = "";
+          std::string age_title = "";
+          if(tx_i == 0)
+          {
+            if(age.first[0] == "-")
             {
-                cerr << "Cant get transactions in block: " << i << endl;
-                --i;
-                continue;
+              age_class += " negative";
+              age_title += "This block was observed with future (forged) timestamp";
             }
-
-            uint64_t blk_diff;
-            if (!mcore->get_diff_at_height(i, blk_diff))
+            
+            block next_blk;
+            if(forged)
             {
-                cerr << "Cant get block diff: " << i << endl;
-                return fmt::format("Cant get block diff {:d}!", i);
+              age_class += " out-of-order";
+              if(!age_title.empty()) age_title += "&#xa;";
+              age_title += "This block timestamp is probably forged. Later block has an earlier timestamp";
             }
+          }
 
-            uint64_t tx_i {0};
+          // add age to the mstch map
+          txd_map.insert({"height"    , i});
+          txd_map.insert({"blk_hash"  , blk_hash_str});
+          txd_map.insert({"age"       , age.first});
+          txd_map.insert({"age_class" , age_class});
+          txd_map.insert({"age_title" , age_title});
+          txd_map.insert({"diff"      , blk_diff});
+          txd_map.insert({"is_ringct" , (tx.version > 1)});
+          txd_map.insert({"rct_type"  , tx.rct_signatures.type});
+          txd_map.insert({"blk_size"  , blk_size_str});
+          
+          // do not show block info for other than first tx in a block
+          if(tx_i > 0)
+          {
+            txd_map["height"]    = string("");
+            txd_map["age"]       = string("");
+            txd_map["blk_size"]  = string("");
+          }
 
-            // this vector will go into block_tx cache
-            //          tx_hash     , txd_map
-            vector<pair<crypto::hash, mstch::node>> txd_pairs;
+          txd_pairs.emplace_back(txd.hash, txd_map);
 
-            for(auto it = blk_txs.begin(); it != blk_txs.end(); ++it)
-            {
-                const cryptonote::transaction& tx = *it;
-
-                const tx_details &txd = get_tx_details(tx, false, i, height);
-
-                mstch::map txd_map = txd.get_mstch_map();
-
-                std::string age_class = "";
-                std::string age_title = "";
-                if(tx_i == 0)
-                {
-                  if (age.first[0] == '-')
-                  {
-                    age_class += " negative";
-                    age_title += "This block was observed with a (forged) future timestamp";
-                  }
-
-                  block next_blk;
-                  if(forged)
-                  {
-                    age_class += " out-of-order";
-                    if(!age_title.empty()) age_title += "&#xa;";
-                    age_title += "This block timestamp is probably forged: a later block has an earlier timestamp";
-                  }
-               }
-
-               //add age to the txd mstch map
-               txd_map.insert({"height"    , i});
-               txd_map.insert({"blk_hash"  , blk_hash_str});
-               txd_map.insert({"blk_or_tx_hash", tx_i == 0 ? blk_hash_str : txd_map.at("hash")});
-               txd_map.insert({"block_or_tx", std::string(tx_i == 0 ? "block" : "tx")});
-               txd_map.insert({"age"       , age.first});
-               txd_map.insert({"age_class" , age_class});
-               txd_map.insert({"age_title" , age_title});
-               txd_map.insert({"diff"      , blk_diff});
-               txd_map.insert({"is_ringct" , (tx.version > 1)});
-               txd_map.insert({"rct_type"  , tx.rct_signatures.type});
-               txd_map.insert({"blk_size"  , blk_size_str});
-
-
-               // do not show block info for other than first tx in a block
-               if (tx_i > 0)
-               {
-                 txd_map["height"]     = string("");
-                 txd_map["age"]        = string("");
-                 txd_map["diff"]       = string("");
-                 txd_map["blk_size"]   = string("");
-               }
-
-               txd_pairs.emplace_back(txd.hash, txd_map);
-
-               ++tx_i;
-
-            } // for(list<cryptonote::transaction>::reverse_iterator rit = blk_txs.rbegin();
-
-            // copy tx maps from txs_maps_tmp into txs array,
-            // that will go to templates
-            for (const pair<crypto::hash, mstch::node> &txd_pair: txd_pairs)
-            {
-                txs.push_back(boost::get<mstch::map>(txd_pair.second));
-            }
-
-            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start);
-
-            duration_non_cached += duration.count();
-
-            ++cache_misses;
-
-            if (enable_block_cache)
-            {
-                // save in block_tx cache
-                block_tx_cache.Put(i, txd_pairs);
-            }
-
-        } // else if (block_tx_json_cache.Contains(i))
+          ++tx_i;
+        }
+        
+        // copy tx maps from tx_maps_tmp into txs array which will go to template
+        for(const pair<crypto::hash, mstch::node>& txd_pair: txd_pairs)
+        {
+          txs.push_back(boost::get<mstch::map>(txd_pair.second));
+        }
+        
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start);
 
         --i; // go to next block number
 
@@ -952,18 +708,6 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
     // calculate median size of the blocks shown
     //double blk_size_median = xmreg::calc_median(blk_sizes.begin(), blk_sizes.end());
-
-    // save computational times for disply in the frontend
-
-    context["construction_time_cached"] = fmt::format("{:0.4f}", duration_cached/1.0e6);
-
-    context["construction_time_non_cached"] = fmt::format("{:0.4f}", duration_non_cached/1.0e6);
-
-    context["construction_time_total"] = fmt::format("{:0.4f}", (duration_non_cached+duration_cached)/1.0e6);
-
-    context["cache_hits"]   = cache_hits;
-    context["cache_misses"] = cache_misses;
-
 
     // get current network info from MemoryStatus thread.
     MempoolStatus::network_info current_network_info = MempoolStatus::current_network_info;
@@ -1089,7 +833,6 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
     // initalise page tempate map with basic info about mempool
     mstch::map context {
             {"mempool_size"          , static_cast<uint64_t>(total_no_of_mempool_tx)}, // total no of mempool txs
-            {"show_cache_times"      , show_cache_times},
             {"mempool_refresh_time"  , MempoolStatus::mempool_refresh_time}
     };
 
@@ -1097,11 +840,6 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
 
     // get reference to blocks template map to be field below
     mstch::array& txs = boost::get<mstch::array>(context["mempooltxs"]);
-
-    double duration_cached     {0.0};
-    double duration_non_cached {0.0};
-    uint64_t cache_hits   {0};
-    uint64_t cache_misses {0};
 
     uint64_t local_copy_server_timestamp = server_timestamp;
 
@@ -1124,7 +862,7 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
                                      delta_hours,
                                      delta_time[3], delta_time[4]);
 
-        // if more than 99 hourse, change formating
+        // if more than 99 hours, change formating
         // for the template
         if (delta_hours > 99)
         {
@@ -1132,8 +870,6 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
                                   delta_hours,
                                   delta_time[3], delta_time[4]);
         }
-
-        // cout << "block_tx_json_cache from cache" << endl;
 
         // set output page template map
         txs.push_back(mstch::map {
@@ -1566,148 +1302,7 @@ show_tx(string tx_hash_str, uint16_t with_ring_signatures = 0)
 
     mstch::map tx_context;
 
-    if (enable_tx_cache && tx_context_cache.Contains({tx_hash, static_cast<bool>(with_ring_signatures)}))
-    {
-        // with_ring_signatures == 0 means that cache is not used
-        // when obtaining detailed information about tx is requested.
-
-        // we are going to measure time for the construction of the
-        // tx context from cashe. just for fun, to see if cache is any faster.
-        auto start = std::chrono::steady_clock::now();
-
-        const tx_info_cache &tx_info_cashed = tx_context_cache.Get({tx_hash, static_cast<bool>(with_ring_signatures)});
-
-        tx_context = tx_info_cashed.tx_map;
-
-        //cout << "get tx from cash: " << tx_hash_str <<endl;
-        //cout << " - tx_blk_height: " << boost::get<uint64_t>(tx_context["tx_blk_height"]) <<endl;
-        //cout << " - blk_timestamp_uint: " << boost::get<uint64_t>(tx_context["blk_timestamp_uint"]) <<endl;
-
-        // now have to update age and confirmation numbers of the tx.
-
-        uint64_t tx_blk_height      = boost::get<uint64_t>(tx_context["tx_blk_height"]);
-        uint64_t blk_timestamp_uint = boost::get<uint64_t>(tx_context["blk_timestamp_uint"]);
-
-        if (tx_blk_height > 0)
-        {
-            // seems to be in blockchain. off course it could have been orphaned
-            // so double check if its for sure in blockchain
-
-            if (core_storage->have_tx(tx_hash))
-            {
-                // ok, it is still in blockchain
-                // update its age and number of confirmations
-
-                pair<string, string> age
-                        = get_age(std::time(nullptr),
-                                  blk_timestamp_uint,
-                                  FULL_AGE_FORMAT);
-
-                tx_context["delta_time"] = age.first;
-
-                uint64_t bc_height = core_storage->get_current_blockchain_height();
-
-                tx_context["confirmations"] = bc_height - (tx_blk_height - 1);
-
-                // marke it as from cashe. useful if we want to show
-                // info about cashed/not cashed in frontend.
-                tx_context["from_cache"] = true;
-
-                auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-                        (std::chrono::steady_clock::now() - start);
-
-                tx_context["construction_time"] = fmt::format(
-                        "{:0.4f}", static_cast<double>(duration.count())/1.0e6);
-
-                // normally we should update this into in the cache.
-                // but since we make this check all the time,
-                // we can skip updating cashed version
-
-            } // if (core_storage->have_tx(tx_hash))
-            else
-            {
-                // its not in blockchain, but it was there when we cashed it.
-                // so we update it in cash, as it should be back in mempool
-
-                tx_context = construct_tx_context(tx, static_cast<bool>(with_ring_signatures));
-
-                tx_context_cache.Put(
-                        {tx_hash, static_cast<bool>(with_ring_signatures)},
-                        tx_info_cache {
-                                boost::get<uint64_t>(tx_context["tx_blk_height"]),
-                                boost::get<uint64_t>(tx_context["blk_timestamp_uint"]),
-                                tx_context}
-                );
-            }
-        } //  if (tx_blk_height > 0)
-        else
-        {
-            // the tx was cashed when in mempool.
-            // since then, it might have been included in some block.
-            // so we check it.
-
-            if (core_storage->have_tx(tx_hash))
-            {
-                // checking if in blockchain already
-                // it was before in mempool, but now maybe already in blockchain
-
-                tx_context = construct_tx_context(tx, static_cast<bool>(with_ring_signatures));
-
-                tx_context_cache.Put(
-                        {tx_hash, static_cast<bool>(with_ring_signatures)},
-                        tx_info_cache {
-                                boost::get<uint64_t>(tx_context["tx_blk_height"]),
-                                boost::get<uint64_t>(tx_context["blk_timestamp_uint"]),
-                                tx_context});
-
-
-            } // if (core_storage->have_tx(tx_hash))
-            else
-            {
-                // still seems to be in mempool only.
-                // so just get its time duration, as its read only
-                // from cache
-
-                tx_context["from_cache"] = true;
-
-                auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-                        (std::chrono::steady_clock::now() - start);
-
-                tx_context["construction_time"] = fmt::format(
-                        "{:0.4f}", static_cast<double>(duration.count())/1.0e6);
-
-            }
-
-        }  // else if (tx_blk_height > 0)
-
-    } // if (tx_context_cache.Contains(tx_hash))
-    else
-    {
-
-        // we are going to measure time for the construction of the
-        // tx context. just for fun, to see if cache is any faster.
-        auto start = std::chrono::steady_clock::now();
-
-        tx_context = construct_tx_context(tx, static_cast<bool>(with_ring_signatures));
-
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-                (std::chrono::steady_clock::now() - start);
-
-        if (enable_tx_cache)
-        {
-            tx_context_cache.Put(
-                    {tx_hash, static_cast<bool>(with_ring_signatures)},
-                    tx_info_cache {
-                            boost::get<uint64_t>(tx_context["tx_blk_height"]),
-                            boost::get<uint64_t>(tx_context["blk_timestamp_uint"]),
-                            tx_context});
-        }
-
-        tx_context["construction_time"] = fmt::format(
-                "{:0.4f}", static_cast<double>(duration.count())/1.0e6);
-
-    } // else if (tx_context_cache.Contains(tx_hash))
-
+    tx_context = construct_tx_context(tx, static_cast<bool>(with_ring_signatures));
 
     tx_context["show_more_details_link"] = show_more_details_link;
 
@@ -1719,7 +1314,6 @@ show_tx(string tx_hash_str, uint16_t with_ring_signatures = 0)
     mstch::map context {
             {"testnet"          , this->testnet},
             {"stagenet"         , this->stagenet},
-            {"show_cache_times" , show_cache_times},
             {"txs"              , mstch::array{}}
     };
 
@@ -4827,11 +4421,6 @@ json_transaction(string tx_hash_str)
         no_confirmations = txd.no_confirmations;
     }
 
-    // get tx from tx fetched. can be use to double check
-    // if what we return in the json response agrees with
-    // what tx_hash was requested
-    string tx_hash_str_again = pod_to_hex(get_transaction_hash(tx));
-
     // get basic tx info
     j_data = get_tx_json(tx, txd);
 
@@ -6413,7 +6002,6 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
             {"error_msg"             , string("")},
             {"have_raw_tx"           , false},
             {"show_more_details_link", true},
-            {"from_cache"            , false},
             {"construction_time"     , string {}},
     };
 
@@ -6822,7 +6410,14 @@ get_tx_details(const transaction &tx,
     tx_details txd;
 
     // get tx hash
-    txd.hash = get_transaction_hash(tx);
+    if(!pruned)
+    {
+      txd.hash = get_transaction_hash(tx);
+    }
+    else
+    {
+      txd.hash = get_pruned_transaction_hash(tx, tx.prunable_hash);
+    }
 
     // get tx public key from extra
     // this check if there are two public keys
