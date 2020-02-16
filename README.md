@@ -80,7 +80,7 @@ as follows:
 cd ~
 
 # download the source code
-git clone https://github.com/ElSamaritan/explorer-galaxia.git
+git clone https://github.com/ElSamaritan/blockchain-explorer.git
 
 # enter the downloaded sourced code folder
 cd explorer-galaxia
