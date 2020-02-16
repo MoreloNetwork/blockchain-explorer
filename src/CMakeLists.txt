@@ -5,7 +5,7 @@ project(myxrm)
 set(SOURCE_HEADERS
   MicroCore.h
   tools.h
-  arqma_headers.h
+  galaxia_headers.h
   CurrentBlockchainStatus.h)
 
 set(SOURCE_FILES
@@ -13,14 +13,18 @@ set(SOURCE_FILES
   tools.cpp
   CmdLineOptions.cpp
   page.h
-  rpccalls.cpp 
+  rpccalls.cpp
   rpccalls.h
   version.h.in
   CurrentBlockchainStatus.cpp
   MempoolStatus.cpp
   MempoolStatus.h)
 
+#add_subdirectory(crypto)
+
 # make static library called libmyxrm
 # that we are going to link to
 # in the root CMakeLists.txt file
 add_library(myxrm STATIC ${SOURCE_FILES})
+
+#target_link_libraries(myxrm mycrypto)

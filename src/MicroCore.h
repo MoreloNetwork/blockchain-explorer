@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "arqma_headers.h"
+#include "galaxia_headers.h"
 #include "tools.h"
 
 namespace xmreg

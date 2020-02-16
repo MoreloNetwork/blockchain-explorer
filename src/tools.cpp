@@ -92,7 +92,7 @@ parse_str_address(const string &address_str,
 
 
 /**
-* Return string representation of Arqma address
+* Return string representation of Galaxia address
 */
 string
 print_address(const address_parse_info &address_info, cryptonote::network_type nettype)
@@ -239,19 +239,19 @@ generate_key_image(const crypto::key_derivation &derivation,
 string
 get_default_lmdb_folder(cryptonote::network_type nettype)
 {
-    // default path to arqma folder
-    // on linux this is /home/<username>/.arqma
-    string default_arqma_dir = tools::get_default_data_dir();
+    // default path to galaxia folder
+    // on linux this is /home/<username>/.galaxia
+    string default_galaxia_dir = tools::get_default_data_dir();
 
     if (nettype == cryptonote::network_type::TESTNET)
-        default_arqma_dir += "/testnet";
+        default_galaxia_dir += "/testnet";
     if (nettype == cryptonote::network_type::STAGENET)
-        default_arqma_dir += "/stagenet";
+        default_galaxia_dir += "/stagenet";
 
 
     // the default folder of the lmdb blockchain database
     // is therefore as follows
-    return default_arqma_dir + string("/lmdb");
+    return default_galaxia_dir + string("/lmdb");
 }
 
 
@@ -290,20 +290,20 @@ get_blockchain_path(const boost::optional<string> &bc_path,
 uint64_t
 sum_money_in_outputs(const transaction &tx)
 {
-    uint64_t sum_arq {0};
+    uint64_t sum_gxi {0};
 
     for (const tx_out &txout: tx.vout)
     {
-        sum_arq += txout.amount;
+        sum_gxi += txout.amount;
     }
 
-    return sum_arq;
+    return sum_gxi;
 }
 
 pair<uint64_t, uint64_t>
 sum_money_in_outputs(const string &json_str)
 {
-    pair<uint64_t, uint64_t> sum_arq {0,0};
+    pair<uint64_t, uint64_t> sum_gxi {0,0};
 
     json j;
 
@@ -314,31 +314,31 @@ sum_money_in_outputs(const string &json_str)
     catch (std::invalid_argument& e)
     {
         cerr << "sum_money_in_outputs: " << e.what() << endl;
-        return sum_arq;
+        return sum_gxi;
     }
 
     for (json &vout: j["vout"])
     {
-        sum_arq.first += vout["amount"].get<uint64_t>();
-        ++sum_arq.second;
+        sum_gxi.first += vout["amount"].get<uint64_t>();
+        ++sum_gxi.second;
     }
 
 
-    return sum_arq;
+    return sum_gxi;
 };
 
 pair<uint64_t, uint64_t>
 sum_money_in_outputs(const json &_json)
 {
-    pair<uint64_t, uint64_t> sum_arq {0ULL,0ULL};
+    pair<uint64_t, uint64_t> sum_gxi {0ULL,0ULL};
 
     for (const json &vout: _json["vout"])
     {
-        sum_arq.first += vout["amount"].get<uint64_t>();
-        ++sum_arq.second;
+        sum_gxi.first += vout["amount"].get<uint64_t>();
+        ++sum_gxi.second;
     }
 
-    return sum_arq;
+    return sum_gxi;
 };
 
 
@@ -349,8 +349,8 @@ summary_of_in_out_rct(
         vector<txin_to_key> &input_key_imgs)
 {
 
-    uint64_t arq_outputs       {0};
-    uint64_t arq_inputs        {0};
+    uint64_t gxi_outputs       {0};
+    uint64_t gxi_inputs        {0};
     uint64_t mixin_no          {0};
     uint64_t num_nonrct_inputs {0};
 
@@ -369,7 +369,7 @@ summary_of_in_out_rct(
 
         output_pub_keys.push_back(make_pair(txout_key, txout.amount));
 
-        arq_outputs += txout.amount;
+        gxi_outputs += txout.amount;
     }
 
     size_t input_no = tx.vin.size();
@@ -385,7 +385,7 @@ summary_of_in_out_rct(
         // get tx input key
         const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
-        arq_inputs += tx_in_to_key.amount;
+        gxi_inputs += tx_in_to_key.amount;
 
         if (tx_in_to_key.amount != 0)
         {
@@ -402,7 +402,7 @@ summary_of_in_out_rct(
     } //  for (size_t i = 0; i < input_no; ++i)
 
 
-    return {arq_outputs, arq_inputs, mixin_no, num_nonrct_inputs};
+    return {gxi_outputs, gxi_inputs, mixin_no, num_nonrct_inputs};
 };
 
 
@@ -410,8 +410,8 @@ summary_of_in_out_rct(
 array<uint64_t, 6>
 summary_of_in_out_rct(const json &_json)
 {
-    uint64_t arq_outputs       {0};
-    uint64_t arq_inputs        {0};
+    uint64_t gxi_outputs       {0};
+    uint64_t gxi_inputs        {0};
     uint64_t no_outputs        {0};
     uint64_t no_inputs         {0};
     uint64_t mixin_no          {0};
@@ -419,7 +419,7 @@ summary_of_in_out_rct(const json &_json)
 
     for (const json &vout: _json["vout"])
     {
-        arq_outputs += vout["amount"].get<uint64_t>();
+        gxi_outputs += vout["amount"].get<uint64_t>();
     }
 
     no_outputs = _json["vout"].size();
@@ -428,7 +428,7 @@ summary_of_in_out_rct(const json &_json)
     {
         uint64_t amount = vin["key"]["amount"].get<uint64_t>();
 
-        arq_inputs += amount;
+        gxi_inputs += amount;
 
         if (amount != 0)
             ++num_nonrct_inputs;
@@ -438,14 +438,14 @@ summary_of_in_out_rct(const json &_json)
 
     mixin_no = _json["vin"].at(0)["key"]["key_offsets"].size() - 1;
 
-    return {arq_outputs, arq_inputs, no_outputs, no_inputs, mixin_no, num_nonrct_inputs};
+    return {gxi_outputs, gxi_inputs, no_outputs, no_inputs, mixin_no, num_nonrct_inputs};
 };
 
 
 uint64_t
 sum_money_in_inputs(const transaction &tx)
 {
-    uint64_t sum_arq {0};
+    uint64_t sum_gxi {0};
 
     size_t input_no = tx.vin.size();
 
@@ -460,16 +460,16 @@ sum_money_in_inputs(const transaction &tx)
         // get tx input key
         const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
-        sum_arq += tx_in_to_key.amount;
+        sum_gxi += tx_in_to_key.amount;
     }
 
-    return sum_arq;
+    return sum_gxi;
 }
 
 pair<uint64_t, uint64_t>
 sum_money_in_inputs(const string &json_str)
 {
-    pair<uint64_t, uint64_t> sum_arq {0,0};
+    pair<uint64_t, uint64_t> sum_gxi {0,0};
 
     json j;
     try
@@ -479,31 +479,31 @@ sum_money_in_inputs(const string &json_str)
     catch (std::invalid_argument& e)
     {
         cerr << "sum_money_in_outputs: " << e.what() << endl;
-        return sum_arq;
+        return sum_gxi;
     }
 
     for (json &vin: j["vin"])
     {
-        sum_arq.first += vin["key"]["amount"].get<uint64_t>();
-        ++sum_arq.second;
+        sum_gxi.first += vin["key"]["amount"].get<uint64_t>();
+        ++sum_gxi.second;
     }
 
-    return sum_arq;
+    return sum_gxi;
 };
 
 
 pair<uint64_t, uint64_t>
 sum_money_in_inputs(const json &_json)
 {
-    pair<uint64_t, uint64_t> sum_arq {0,0};
+    pair<uint64_t, uint64_t> sum_gxi {0,0};
 
     for (const json &vin: _json["vin"])
     {
-        sum_arq.first += vin["key"]["amount"].get<uint64_t>();
-        ++sum_arq.second;
+        sum_gxi.first += vin["key"]["amount"].get<uint64_t>();
+        ++sum_gxi.second;
     }
 
-    return sum_arq;
+    return sum_gxi;
 };
 
 uint64_t
@@ -576,27 +576,27 @@ count_nonrct_inputs(const json &_json)
 array<uint64_t, 2>
 sum_money_in_tx(const transaction &tx)
 {
-    array<uint64_t, 2> sum_arq;
+    array<uint64_t, 2> sum_gxi;
 
-    sum_arq[0] = sum_money_in_inputs(tx);
-    sum_arq[1] = sum_money_in_outputs(tx);
+    sum_gxi[0] = sum_money_in_inputs(tx);
+    sum_gxi[1] = sum_money_in_outputs(tx);
 
-    return sum_arq;
+    return sum_gxi;
 };
 
 
 array<uint64_t, 2>
 sum_money_in_txs(const vector<transaction> &txs)
 {
-    array<uint64_t, 2> sum_arq {0,0};
+    array<uint64_t, 2> sum_gxi {0,0};
 
     for (const transaction &tx: txs)
     {
-        sum_arq[0] += sum_money_in_inputs(tx);
-        sum_arq[1] += sum_money_in_outputs(tx);
+        sum_gxi[0] += sum_money_in_inputs(tx);
+        sum_gxi[1] += sum_money_in_outputs(tx);
     }
 
-    return sum_arq;
+    return sum_gxi;
 };
 
 
@@ -1143,7 +1143,7 @@ is_output_ours(const size_t &output_index,
 
     // get the tx output public key
     // that normally would be generated for us,
-    // if someone had sent us some arq.
+    // if someone had sent us some gxi.
     public_key pubkey;
 
     derive_public_key(derivation,
