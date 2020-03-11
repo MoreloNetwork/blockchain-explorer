@@ -25,7 +25,7 @@ rpccalls::rpccalls(string _deamon_url,
 }
 
 bool
-rpccalls::connect_to_galaxia_deamon()
+rpccalls::connect_to_morelo_deamon()
 {
     //std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
@@ -45,7 +45,7 @@ rpccalls::get_current_height()
 
     std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-    if (!connect_to_galaxia_deamon())
+    if (!connect_to_morelo_deamon())
     {
         cerr << "get_current_height: not connected to deamon" << endl;
         return false;
@@ -57,7 +57,7 @@ rpccalls::get_current_height()
 
     if (!r)
     {
-        cerr << "Error connecting to Galaxia deamon at "
+        cerr << "Error connecting to Morelo deamon at "
              << deamon_url << endl;
         return 0;
     }
@@ -77,7 +77,7 @@ rpccalls::get_mempool(vector<tx_info> &mempool_txs)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_galaxia_deamon())
+        if (!connect_to_morelo_deamon())
         {
             cerr << "get_mempool: not connected to deamon" << endl;
             return false;
@@ -90,7 +90,7 @@ rpccalls::get_mempool(vector<tx_info> &mempool_txs)
 
     if (!r || res.status != CORE_RPC_STATUS_OK)
     {
-        cerr << "Error connecting to Galaxia deamon at "
+        cerr << "Error connecting to Morelo deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -122,7 +122,7 @@ rpccalls::commit_tx(tools::wallet2::pending_tx &ptx, string &error_msg)
 
     std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-    if (!connect_to_galaxia_deamon())
+    if (!connect_to_morelo_deamon())
     {
         cerr << "commit_tx: not connected to deamon" << endl;
         return false;
@@ -159,7 +159,7 @@ rpccalls::get_network_info(COMMAND_RPC_GET_INFO::response &response)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_galaxia_deamon())
+        if (!connect_to_morelo_deamon())
         {
             cerr << "get_network_info: not connected to deamon" << endl;
             return false;
@@ -185,14 +185,14 @@ rpccalls::get_network_info(COMMAND_RPC_GET_INFO::response &response)
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Galaxia deamon due to "
+            cerr << "Error connecting to Morelo deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "Error connecting to Galaxia deamon at "
+        cerr << "Error connecting to Morelo deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -218,7 +218,7 @@ rpccalls::get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response &response)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_galaxia_deamon())
+        if (!connect_to_morelo_deamon())
         {
             cerr << "get_hardfork_info: not connected to deamon" << endl;
             return false;
@@ -245,14 +245,14 @@ rpccalls::get_hardfork_info(COMMAND_RPC_HARD_FORK_INFO::response &response)
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Galaxia deamon due to "
+            cerr << "Error connecting to Morelo deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "Error connecting to Galaxia deamon at "
+        cerr << "Error connecting to Morelo deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -283,7 +283,7 @@ rpccalls::get_dynamic_per_kb_fee_estimate(
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_galaxia_deamon())
+        if (!connect_to_morelo_deamon())
         {
             cerr << "get_dynamic_per_kb_fee_estimate: not connected to deamon" << endl;
             return false;
@@ -310,14 +310,14 @@ rpccalls::get_dynamic_per_kb_fee_estimate(
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Galaxia deamon due to "
+            cerr << "Error connecting to Morelo deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "Error connecting to Galaxia deamon at "
+        cerr << "Error connecting to Morelo deamon at "
              << deamon_url << endl;
         return false;
     }
@@ -345,7 +345,7 @@ rpccalls::get_block(string const &blk_hash, block &blk, string &error_msg)
     {
         std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-        if (!connect_to_galaxia_deamon())
+        if (!connect_to_morelo_deamon())
         {
             cerr << "get_block: not connected to deamon" << endl;
             return false;
@@ -372,14 +372,14 @@ rpccalls::get_block(string const &blk_hash, block &blk, string &error_msg)
 
         if (!err.empty())
         {
-            cerr << "Error connecting to Galaxia deamon due to "
+            cerr << "Error connecting to Morelo deamon due to "
                  << err << endl;
             return false;
         }
     }
     else
     {
-        cerr << "get_block: error connecting to Galaxia deamon at "
+        cerr << "get_block: error connecting to Morelo deamon at "
              << deamon_url << endl;
         return false;
     }

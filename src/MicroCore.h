@@ -2,12 +2,12 @@
 // Created by mwo on 5/11/15.
 //
 
-#ifndef XMREG01_MICROCORE_H
-#define XMREG01_MICROCORE_H
+#ifndef MRLEG01_MICROCORE_H
+#define MRLEG01_MICROCORE_H
 
 #include <iostream>
 
-#include "galaxia_headers.h"
+#include "morelo_headers.h"
 #include "tools.h"
 
 namespace xmreg
@@ -93,4 +93,4 @@ namespace xmreg
 
 
 
-#endif //XMREG01_MICROCORE_H
+#endif //MRLEG01_MICROCORE_H

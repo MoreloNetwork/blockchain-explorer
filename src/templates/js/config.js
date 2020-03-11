@@ -4,12 +4,12 @@ var config = {
     coinUnitPlaces: 9,
     txMinConfirms: 4, // corresponds to CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE in Monero
     txCoinbaseMinConfirms: 18, // corresponds to CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW in Monero
-    coinSymbol: 'GXI',
-    openAliasPrefix: "gxi",
-    coinName: 'Galaxia',
-    coinUriPrefix: 'galaxia:',
+    coinSymbol: 'MRL',
+    openAliasPrefix: "mrl",
+    coinName: 'Morelo',
+    coinUriPrefix: 'morelo:',
     addressPrefix: 0x786e, // gx...MainNET
-    integratedAddressPrefix: 0x1cf46e, // gxi...MainNET
+    integratedAddressPrefix: 0x1cf46e, // mrl...MainNET
     subAddressPrefix: 0x77ee, // gxx...MainNET
     addressPrefixTestnet: 0x186d, // gg...testnet
     integratedAddressPrefixTestnet: 0x72ee, // gxa...testnet

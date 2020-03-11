@@ -2,12 +2,12 @@
 // Created by mwo on 5/11/15.
 //
 
-#ifndef XMREG01_TOOLS_H
-#define XMREG01_TOOLS_H
+#ifndef MRLEG01_TOOLS_H
+#define MRLEG01_TOOLS_H
 
 #define PATH_SEPARARTOR '/'
 
-#define GXI_AMOUNT(value) \
+#define MRL_AMOUNT(value) \
     static_cast<double>(value) / 1e9
 
 #define REMOVE_HASH_BRAKETS(a_hash) \
@@ -15,7 +15,7 @@
 
 
 
-#include "galaxia_headers.h"
+#include "morelo_headers.h"
 
 #include "../ext/fmt/ostream.h"
 #include "../ext/fmt/format.h"
@@ -222,7 +222,7 @@ get_payment_id(const transaction &tx,
 
 
 inline double
-get_gxi(uint64_t core_amount)
+get_mrl(uint64_t core_amount)
 {
     return static_cast<double>(core_amount) / 1e9;
 }
@@ -270,7 +270,7 @@ decrypt(const std::string &ciphertext,
 public_key
 get_tx_pub_key_from_received_outs(const transaction &tx);
 
-static string gxi_amount_to_str(const uint64_t &gxi_amount,
+static string mrl_amount_to_str(const uint64_t &mrl_amount,
                   string _format="{:0.9f}",
                   bool zero_to_question_mark = true)
 {
@@ -278,13 +278,13 @@ static string gxi_amount_to_str(const uint64_t &gxi_amount,
 
     if (!zero_to_question_mark)
     {
-        amount_str = fmt::format(_format, GXI_AMOUNT(gxi_amount));
+        amount_str = fmt::format(_format, MRL_AMOUNT(mrl_amount));
     }
     else
     {
-        if (gxi_amount > 0 && zero_to_question_mark == true)
+        if (mrl_amount > 0 && zero_to_question_mark == true)
         {
-            amount_str = fmt::format(_format, GXI_AMOUNT(gxi_amount));
+            amount_str = fmt::format(_format, MRL_AMOUNT(mrl_amount));
         }
     }
 
@@ -372,4 +372,4 @@ tx_to_hex(transaction const& tx);
 
 }
 
-#endif //XMREG01_TOOLS_H
+#endif //MRLEG01_TOOLS_H

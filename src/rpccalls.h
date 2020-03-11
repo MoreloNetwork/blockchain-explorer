@@ -3,10 +3,10 @@
 //
 
 
-#ifndef CROWXMR_RPCCALLS_H
-#define CROWXMR_RPCCALLS_H
+#ifndef CROWMRL_RPCCALLS_H
+#define CROWMRL_RPCCALLS_H
 
-#include "galaxia_headers.h"
+#include "morelo_headers.h"
 
 #include <mutex>
 #include <utility>
@@ -84,7 +84,7 @@ public:
     rpccalls(string _deamon_url = "http://127.0.0.1:42462", uint64_t _timeout = 200000);
 
     bool
-    connect_to_galaxia_deamon();
+    connect_to_morelo_deamon();
 
     uint64_t
     get_current_height();
@@ -129,7 +129,7 @@ public:
         {
             std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-            if (!connect_to_galaxia_deamon())
+            if (!connect_to_morelo_deamon())
             {
                 cerr << "get_alt_blocks: not connected to deamon" << endl;
                 return false;
@@ -155,14 +155,14 @@ public:
 
             if (!err.empty())
             {
-                cerr << "Error connecting to Galaxia deamon due to "
+                cerr << "Error connecting to Morelo deamon due to "
                      << err << endl;
                 return false;
             }
         }
         else
         {
-            cerr << "Error connecting to Galaxia deamon at "
+            cerr << "Error connecting to Morelo deamon at "
                  << deamon_url << endl;
             return false;
         }
@@ -192,4 +192,4 @@ public:
 
 
 
-#endif //CROWXMR_RPCCALLS_H
+#endif //CROWMRL_RPCCALLS_H

@@ -2,17 +2,17 @@
 // Created by mwo on 5/11/15.
 //
 
-#ifndef XMREG01_GALAXIA_HEADERS_H_H
-#define XMREG01_GALAXIA_HEADERS_H_H
+#ifndef MRLEG01_MORELO_HEADERS_H_H
+#define MRLEG01_MORELO_HEADERS_H_H
 
 #define DB_LMDB 3
 #define BLOCKCHAIN_DB DB_LMDB
 
 
-#define UNSIGNED_TX_PREFIX "Galaxia unsigned tx set\003"
-#define SIGNED_TX_PREFIX "Galaxia signed tx set\003"
-#define KEY_IMAGE_EXPORT_FILE_MAGIC "Galaxia key image export\002"
-#define OUTPUT_EXPORT_FILE_MAGIC "Galaxia output export\003"
+#define UNSIGNED_TX_PREFIX "Morelo unsigned tx set\003"
+#define SIGNED_TX_PREFIX "Morelo signed tx set\003"
+#define KEY_IMAGE_EXPORT_FILE_MAGIC "Morelo key image export\002"
+#define OUTPUT_EXPORT_FILE_MAGIC "Morelo output export\003"
 
 #define FEE_ESTIMATE_GRACE_BLOCKS 10 // estimate fee valid for that many blocks
 
@@ -41,4 +41,4 @@
 #include "string_coding.h"
 
 
-#endif //XMREG01_GALAXIA_HEADERS_H_H
+#endif //MRLEG01_MORELO_HEADERS_H_H

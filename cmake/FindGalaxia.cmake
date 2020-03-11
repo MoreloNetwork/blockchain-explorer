@@ -2,8 +2,8 @@
 # CMake helper for the majority of the cpp-ethereum modules.
 #
 # This module defines
-#     GALAXIA_XXX_LIBRARIES, the libraries needed to use ethereum.
-#     GALAXIA_FOUND, If false, do not try to use ethereum.
+#     MORELO_XXX_LIBRARIES, the libraries needed to use ethereum.
+#     MORELO_FOUND, If false, do not try to use ethereum.
 #
 # File addetped from cpp-ethereum
 #
@@ -32,7 +32,7 @@ set(LIBS common;blocks;cryptonote_basic;cryptonote_core;multisig;net;
          cryptonote_protocol;daemonizer;mnemonics;epee;lmdb;device;
          blockchain_db;ringct;wallet;cncrypto;easylogging;version;checkpoints;randomx)
 
-set(Galaxia_INCLUDE_DIRS "${CPP_GALAXIA_DIR}")
+set(Morelo_INCLUDE_DIRS "${CPP_MORELO_DIR}")
 
 # if the project is a subset of main cpp-ethereum project
 # use same pattern for variables as Boost uses
@@ -41,38 +41,38 @@ foreach (l ${LIBS})
 
 	string(TOUPPER ${l} L)
 
-	find_library(Galaxia_${L}_LIBRARY
+	find_library(Morelo_${L}_LIBRARY
 		NAMES ${l}
 		PATHS ${CMAKE_LIBRARY_PATH}
 		PATH_SUFFIXES "/src/${l}" "/src/" "/external/db_drivers/lib${l}" "/lib" "/src/crypto" "/contrib/epee/src" "/external/easylogging++/" "/external/randomarq"
 		NO_DEFAULT_PATH
 	)
 
-	set(Galaxia_${L}_LIBRARIES ${Galaxia_${L}_LIBRARY})
+	set(Morelo_${L}_LIBRARIES ${Morelo_${L}_LIBRARY})
 
-	message(STATUS FindGalaxia " Galaxia_${L}_LIBRARIES ${Galaxia_${L}_LIBRARY}")
+	message(STATUS FindMorelo " Morelo_${L}_LIBRARIES ${Morelo_${L}_LIBRARY}")
 
 	add_library(${l} STATIC IMPORTED)
-	set_property(TARGET ${l} PROPERTY IMPORTED_LOCATION ${Galaxia_${L}_LIBRARIES})
+	set_property(TARGET ${l} PROPERTY IMPORTED_LOCATION ${Morelo_${L}_LIBRARIES})
 
 endforeach()
 
-if (EXISTS ${GALAXIA_BUILD_DIR}/src/ringct/libringct_basic.a)
-	message(STATUS FindGalaxia " found libringct_basic.a")
+if (EXISTS ${MORELO_BUILD_DIR}/src/ringct/libringct_basic.a)
+	message(STATUS FindMorelo " found libringct_basic.a")
 	add_library(ringct_basic STATIC IMPORTED)
 	set_property(TARGET ringct_basic
-			PROPERTY IMPORTED_LOCATION ${GALAXIA_BUILD_DIR}/src/ringct/libringct_basic.a)
+			PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/src/ringct/libringct_basic.a)
 endif()
 
 
-message(STATUS ${GALAXIA_SOURCE_DIR}/build)
+message(STATUS ${MORELO_SOURCE_DIR}/build)
 
-# include galaxia headers
+# include morelo headers
 include_directories(
-		${GALAXIA_SOURCE_DIR}/src
-		${GALAXIA_SOURCE_DIR}/external
-		${GALAXIA_SOURCE_DIR}/external/randomarq/src
-		${GALAXIA_SOURCE_DIR}/build/release
-		${GALAXIA_SOURCE_DIR}/external/easylogging++
-		${GALAXIA_SOURCE_DIR}/contrib/epee/include
-		${GALAXIA_SOURCE_DIR}/external/db_drivers/liblmdb)
+		${MORELO_SOURCE_DIR}/src
+		${MORELO_SOURCE_DIR}/external
+		${MORELO_SOURCE_DIR}/external/randomarq/src
+		${MORELO_SOURCE_DIR}/build/release
+		${MORELO_SOURCE_DIR}/external/easylogging++
+		${MORELO_SOURCE_DIR}/contrib/epee/include
+		${MORELO_SOURCE_DIR}/external/db_drivers/liblmdb)

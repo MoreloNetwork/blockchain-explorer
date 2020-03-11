@@ -5,7 +5,7 @@ project(myxrm)
 set(SOURCE_HEADERS
   MicroCore.h
   tools.h
-  galaxia_headers.h
+  morelo_headers.h
   CurrentBlockchainStatus.h)
 
 set(SOURCE_FILES

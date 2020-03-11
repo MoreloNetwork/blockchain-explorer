@@ -2,8 +2,8 @@
 // Created by mwo on 28/05/17.
 //
 
-#ifndef GXIBLOCKS_MEMPOOLSTATUS_H
-#define GXIBLOCKS_MEMPOOLSTATUS_H
+#ifndef MRLBLOCKS_MEMPOOLSTATUS_H
+#define MRLBLOCKS_MEMPOOLSTATUS_H
 
 
 #include "MicroCore.h"
@@ -41,8 +41,8 @@ struct MempoolStatus
         string fee_nano_str;
         string payed_for_kB_str;
         string payed_for_kB_nano_str;
-        string gxi_inputs_str;
-        string gxi_outputs_str;
+        string mrl_inputs_str;
+        string mrl_outputs_str;
         string timestamp_str;
         string txsize;
 
@@ -164,4 +164,4 @@ struct MempoolStatus
 };
 
 }
-#endif //GXIBLOCKS_MEMPOOLSTATUS_H
+#endif //MRLBLOCKS_MEMPOOLSTATUS_H

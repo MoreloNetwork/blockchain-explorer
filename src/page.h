@@ -2,12 +2,12 @@
 // Created by mwo on 8/04/16.
 //
 
-#ifndef CROWXMR_PAGE_H
-#define CROWXMR_PAGE_H
+#ifndef CROWMRL_PAGE_H
+#define CROWMRL_PAGE_H
 
 #include "mstch/mstch.hpp"
 
-#include "galaxia_headers.h"
+#include "morelo_headers.h"
 #include "randomx.h"
 #include "common.hpp"
 #include "blake2/blake2.h"
@@ -38,7 +38,7 @@ extern "C" uint64_t rx_seedheight(const uint64_t height);
 
 extern "C" bool rx_needhash(const uint64_t height, uint64_t *seedheight);
 
-// Forked rx-slow-hash.c directly from Galaxia
+// Forked rx-slow-hash.c directly from Morelo
 extern "C" void rx_seedhash(const uint64_t height, const char *hash, const int miners);
 extern "C" void rx_slow_hash(const void *data, size_t length, char *hash, int miners);
 extern "C" void rx_reorg(const uint64_t split_height);
@@ -88,11 +88,11 @@ extern __thread randomx_vm *rx_vm;
 #define JS_NACLFAST TMPL_DIR "/js/nacl-fast-cn.js"
 #define JS_SHA3     TMPL_DIR "/js/sha3.js"
 
-#define GALAXIAEXPLORER_RPC_VERSION_MAJOR 2
-#define GALAXIAEXPLORER_RPC_VERSION_MINOR 6
-#define MAKE_GALAXIAEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
-#define GALAXIAEXPLORER_RPC_VERSION \
-    MAKE_GALAXIAEXPLORER_RPC_VERSION(GALAXIAEXPLORER_RPC_VERSION_MAJOR, GALAXIAEXPLORER_RPC_VERSION_MINOR)
+#define MORELOEXPLORER_RPC_VERSION_MAJOR 2
+#define MORELOEXPLORER_RPC_VERSION_MINOR 6
+#define MAKE_MORELOEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
+#define MORELOEXPLORER_RPC_VERSION \
+    MAKE_MORELOEXPLORER_RPC_VERSION(MORELOEXPLORER_RPC_VERSION_MAJOR, MORELOEXPLORER_RPC_VERSION_MINOR)
 
 
 // basic info about tx to be stored in cashe.
@@ -304,8 +304,8 @@ struct tx_details
     crypto::hash prefix_hash;
     crypto::public_key pk;
     std::vector<crypto::public_key> additional_pks;
-    uint64_t gxi_inputs;
-    uint64_t gxi_outputs;
+    uint64_t mrl_inputs;
+    uint64_t mrl_outputs;
     uint64_t num_nonrct_inputs;
     uint64_t fee;
     uint64_t mixin_no;
@@ -333,7 +333,7 @@ struct tx_details
     // key images of inputs
     vector<txin_to_key> input_key_imgs;
 
-    // public keys and gxi amount of outputs
+    // public keys and mrl amount of outputs
     vector<pair<txout_to_key, uint64_t>> output_pub_keys;
 
     mstch::map
@@ -347,7 +347,7 @@ struct tx_details
         string fee_nano_str {"N/A"};
         string payed_for_kB_nano_str {"N/A"};
 
-        const double& gxi_amount = GXI_AMOUNT(fee);
+        const double& mrl_amount = MRL_AMOUNT(fee);
 
         // tx size in kB
         double tx_size =  static_cast<double>(size)/1024.0;
@@ -355,12 +355,12 @@ struct tx_details
 
         if (!input_key_imgs.empty())
         {
-            double payed_for_kB = gxi_amount / tx_size;
+            double payed_for_kB = mrl_amount / tx_size;
 
             mixin_str             = std::to_string(mixin_no);
-            fee_str               = fmt::format("{:0.9f}", gxi_amount);
-            fee_short_str         = fmt::format("{:0.9f}", gxi_amount);
-            fee_nano_str          = fmt::format("{:04.0f}", gxi_amount * 1e6);
+            fee_str               = fmt::format("{:0.9f}", mrl_amount);
+            fee_short_str         = fmt::format("{:0.9f}", mrl_amount);
+            fee_nano_str          = fmt::format("{:04.0f}", mrl_amount * 1e6);
             payed_for_kB_str      = fmt::format("{:0.4f}", payed_for_kB);
             payed_for_kB_nano_str = fmt::format("{:04.0f}", payed_for_kB * 1e6);
         }
@@ -375,10 +375,10 @@ struct tx_details
                 {"fee_nano"          , fee_nano_str},
                 {"payed_for_kB"      , payed_for_kB_str},
                 {"payed_for_kB_nano" , payed_for_kB_nano_str},
-                {"sum_inputs"        , gxi_amount_to_str(gxi_inputs , "{:0.9f}")},
-                {"sum_outputs"       , gxi_amount_to_str(gxi_outputs, "{:0.9f}")},
-                {"sum_inputs_short"  , gxi_amount_to_str(gxi_inputs , "{:0.9f}")},
-                {"sum_outputs_short" , gxi_amount_to_str(gxi_outputs, "{:0.9f}")},
+                {"sum_inputs"        , mrl_amount_to_str(mrl_inputs , "{:0.9f}")},
+                {"sum_outputs"       , mrl_amount_to_str(mrl_outputs, "{:0.9f}")},
+                {"sum_inputs_short"  , mrl_amount_to_str(mrl_inputs , "{:0.9f}")},
+                {"sum_outputs_short" , mrl_amount_to_str(mrl_outputs, "{:0.9f}")},
                 {"no_inputs"         , static_cast<uint64_t>(input_key_imgs.size())},
                 {"no_outputs"        , static_cast<uint64_t>(output_pub_keys.size())},
                 {"no_nonrct_inputs"  , num_nonrct_inputs},
@@ -673,7 +673,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
     {
         json j_info;
 
-        get_galaxia_network_info(j_info);
+        get_morelo_network_info(j_info);
 
         return j_info;
     });
@@ -814,7 +814,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
                 bool is_tx_still_in_block_as_expected {true};
 
-                if (i + config::tx_settings::GALAXIA_TX_CONFIRMATIONS_REQUIRED > height)
+                if (i + config::tx_settings::MORELO_TX_CONFIRMATIONS_REQUIRED > height)
                 {
                     const crypto::hash& tx_hash = txd_pair.first;
 
@@ -1098,8 +1098,8 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
         CurrentBlockchainStatus::Emission current_values = CurrentBlockchainStatus::get_emission();
 
         string emission_blk_no   = std::to_string(current_values.blk_no - 1);
-        string emission_coinbase = gxi_amount_to_str(current_values.coinbase, "{:0.9f}");
-        string emission_fee      = gxi_amount_to_str(current_values.fee, "{:0.9f}");
+        string emission_coinbase = mrl_amount_to_str(current_values.coinbase, "{:0.9f}");
+        string emission_fee      = mrl_amount_to_str(current_values.fee, "{:0.9f}");
         string emission_coinbase_human = fmt::format("{:n}", static_cast<int64_t>(current_values.coinbase/1e9));
         string emission_fee_human = fmt::format("{:n}", static_cast<int64_t>(current_values.fee/1e9));
 
@@ -1229,8 +1229,8 @@ mempool(bool add_header_and_footer = false, uint64_t no_of_mempool_tx = 50)
                 {"fee_nano"        , mempool_tx.fee_nano_str},
                 {"payed_for_kB"    , mempool_tx.payed_for_kB_str},
                 {"payed_for_kB_nano" , mempool_tx.payed_for_kB_nano_str},
-                {"gxi_inputs"      , mempool_tx.gxi_inputs_str},
-                {"gxi_outputs"     , mempool_tx.gxi_outputs_str},
+                {"mrl_inputs"      , mempool_tx.mrl_inputs_str},
+                {"mrl_outputs"     , mempool_tx.mrl_outputs_str},
                 {"no_inputs"       , mempool_tx.no_inputs},
                 {"no_outputs"      , mempool_tx.no_outputs},
                 {"pID"             , string {mempool_tx.pID}},
@@ -1498,10 +1498,10 @@ show_block(uint64_t _blk_height)
 
 
     // add total fees in the block to the context
-    context["sum_fees"] = xmreg::gxi_amount_to_str(sum_fees, "{:0.9f}", false);
+    context["sum_fees"] = xmreg::mrl_amount_to_str(sum_fees, "{:0.9f}", false);
 
-    // get gxi in the block reward
-    context["blk_reward"] = xmreg::gxi_amount_to_str(txd_coinbase.gxi_outputs - sum_fees, "{:0.9f}");
+    // get mrl in the block reward
+    context["blk_reward"] = xmreg::mrl_amount_to_str(txd_coinbase.mrl_outputs - sum_fees, "{:0.9f}");
 
     add_css_style(context);
 
@@ -2296,7 +2296,7 @@ show_ringmemberstx_jsonhex(string const &tx_hash_str)
 
 string
 show_my_outputs(string tx_hash_str,
-                string gxi_address_str,
+                string mrl_address_str,
                 string viewkey_str, /* or tx_prv_key_str when tx_prove == true */
                 string raw_tx_data,
                 string domain,
@@ -2305,7 +2305,7 @@ show_my_outputs(string tx_hash_str,
 
     // remove white characters
     boost::trim(tx_hash_str);
-    boost::trim(gxi_address_str);
+    boost::trim(mrl_address_str);
     boost::trim(viewkey_str);
     boost::trim(raw_tx_data);
 
@@ -2314,9 +2314,9 @@ show_my_outputs(string tx_hash_str,
         return string("tx hash not provided!");
     }
 
-    if (gxi_address_str.empty())
+    if (mrl_address_str.empty())
     {
-        return string("Galaxia address not provided!");
+        return string("Morelo address not provided!");
     }
 
     if (viewkey_str.empty())
@@ -2339,10 +2339,10 @@ show_my_outputs(string tx_hash_str,
     // parse string representing given monero address
     cryptonote::address_parse_info address_info;
 
-    if (!xmreg::parse_str_address(gxi_address_str, address_info, nettype))
+    if (!xmreg::parse_str_address(mrl_address_str, address_info, nettype))
     {
-        cerr << "Cant parse string address: " << gxi_address_str << endl;
-        return string("Cant parse gxi address: " + gxi_address_str);
+        cerr << "Cant parse string address: " << mrl_address_str << endl;
+        return string("Cant parse mrl address: " + mrl_address_str);
     }
 
     // parse string representing given private key
@@ -2496,7 +2496,7 @@ show_my_outputs(string tx_hash_str,
 
     string shortcut_url = tx_prove ? string("/prove") : string("/myoutputs")
                           + '/' + tx_hash_str
-                          + '/' + gxi_address_str
+                          + '/' + mrl_address_str
                           + '/' + viewkey_str;
 
 
@@ -2512,12 +2512,12 @@ show_my_outputs(string tx_hash_str,
             {"stagenet"             , stagenet},
             {"tx_hash"              , tx_hash_str},
             {"tx_prefix_hash"       , pod_to_hex(txd.prefix_hash)},
-            {"gxi_address"          , gxi_address_str},
+            {"mrl_address"          , mrl_address_str},
             {"viewkey"              , viewkey_str_partial},
             {"tx_pub_key"           , pod_to_hex(txd.pk)},
             {"blk_height"           , tx_blk_height_str},
             {"tx_size"              , fmt::format("{:0.4f}", static_cast<double>(txd.size) / 1024.0)},
-            {"tx_fee"               , xmreg::gxi_amount_to_str(txd.fee, "{:0.9f}", true)},
+            {"tx_fee"               , xmreg::mrl_amount_to_str(txd.fee, "{:0.9f}", true)},
             {"blk_timestamp"        , blk_timestamp},
             {"delta_time"           , age.first},
             {"outputs_no"           , static_cast<uint64_t>(txd.output_pub_keys.size())},
@@ -2590,7 +2590,7 @@ show_my_outputs(string tx_hash_str,
 
     mstch::array outputs;
 
-    uint64_t sum_gxi {0};
+    uint64_t sum_mrl {0};
 
     std::vector<uint64_t> money_transfered(tx.vout.size(), 0);
 
@@ -2668,12 +2668,12 @@ show_my_outputs(string tx_hash_str,
 
         if (mine_output)
         {
-            sum_gxi += outp.second;
+            sum_mrl += outp.second;
         }
 
         outputs.push_back(mstch::map {
                 {"out_pub_key"           , pod_to_hex(outp.first.key)},
-                {"amount"                , xmreg::gxi_amount_to_str(outp.second)},
+                {"amount"                , xmreg::mrl_amount_to_str(outp.second)},
                 {"mine_output"           , mine_output},
                 {"output_idx"            , fmt::format("{:02d}", output_idx)}
         });
@@ -2695,7 +2695,7 @@ show_my_outputs(string tx_hash_str,
 
     // to hold sum of xmr in matched mixins, those that
     // perfectly match mixin public key with outputs in mixn_tx.
-    uint64_t sum_mixin_gxi {0};
+    uint64_t sum_mixin_mrl {0};
 
     // this is used for the final check. we assument that number of
     // parefct matches must be equal to number of inputs in a tx.
@@ -2739,7 +2739,7 @@ show_my_outputs(string tx_hash_str,
 
         inputs.push_back(mstch::map{
                 {"key_image"       , pod_to_hex(in_key.k_image)},
-                {"key_image_amount", xmreg::gxi_amount_to_str(in_key.amount)},
+                {"key_image_amount", xmreg::mrl_amount_to_str(in_key.amount)},
                 make_pair(string("mixins"), mstch::array{})
         });
 
@@ -2979,7 +2979,7 @@ show_my_outputs(string tx_hash_str,
                         {"out_idx"         , output_idx_in_tx},
                         {"formed_output_pk", out_pub_key_str},
                         {"out_in_match"    , output_match},
-                        {"amount"          , xmreg::gxi_amount_to_str(amount)}
+                        {"amount"          , xmreg::mrl_amount_to_str(amount)}
                 });
 
                 //cout << "txout_k.key == output_data.pubkey" << endl;
@@ -3006,11 +3006,11 @@ show_my_outputs(string tx_hash_str,
                         // in amounts, not only in output public keys
                         if (mixin_tx.version < 2 && amount == in_key.amount)
                         {
-                            sum_mixin_gxi += amount;
+                            sum_mixin_mrl += amount;
                         }
                         else if (mixin_tx.version == 2) // ringct
                         {
-                            sum_mixin_gxi += amount;
+                            sum_mixin_mrl += amount;
                             ringct_amount += amount;
                         }
 
@@ -3063,14 +3063,14 @@ show_my_outputs(string tx_hash_str,
 
     context.emplace("outputs", outputs);
 
-    context["found_our_outputs"] = (sum_gxi > 0);
-    context["sum_gxi"]           = xmreg::gxi_amount_to_str(sum_gxi);
+    context["found_our_outputs"] = (sum_mrl > 0);
+    context["sum_mrl"]           = xmreg::mrl_amount_to_str(sum_mrl);
 
     context.emplace("inputs", inputs);
 
     context["show_inputs"]   = show_key_images;
     context["inputs_no"]     = static_cast<uint64_t>(inputs.size());
-    context["sum_mixin_gxi"] = xmreg::gxi_amount_to_str(sum_mixin_gxi, "{:0.9f}", false);
+    context["sum_mixin_mrl"] = xmreg::mrl_amount_to_str(sum_mixin_mrl, "{:0.9f}", false);
 
 
     uint64_t possible_spending  {0};
@@ -3095,14 +3095,14 @@ show_my_outputs(string tx_hash_str,
     // show spending only if sum of mixins is more than
     // what we get + fee, and number of perferctly matched
     // mixis is equal to number of inputs
-    if (sum_mixin_gxi > (sum_gxi + txd.fee)
+    if (sum_mixin_mrl > (sum_mrl + txd.fee)
         && no_of_matched_mixins == inputs.size())
     {
         //                  (outcoming    - incoming) - fee
-        possible_spending = (sum_mixin_gxi - sum_gxi) - txd.fee;
+        possible_spending = (sum_mixin_mrl - sum_mrl) - txd.fee;
     }
 
-    context["possible_spending"] = xmreg::gxi_amount_to_str(possible_spending, "{:0.9f}", false);
+    context["possible_spending"] = xmreg::mrl_amount_to_str(possible_spending, "{:0.9f}", false);
 
     add_css_style(context);
 
@@ -3112,13 +3112,13 @@ show_my_outputs(string tx_hash_str,
 
 string
 show_prove(string tx_hash_str,
-           string gxi_address_str,
+           string mrl_address_str,
            string tx_prv_key_str,
            string const &raw_tx_data,
            string domain)
 {
 
-    return show_my_outputs(tx_hash_str, gxi_address_str,
+    return show_my_outputs(tx_hash_str, mrl_address_str,
                            tx_prv_key_str, raw_tx_data,
                            domain, true);
 }
@@ -3224,7 +3224,7 @@ show_checkrawtx(string raw_tx_data, string action)
                 mstch::map tx_cd_data {
                         {"no_of_sources"      , static_cast<uint64_t>(no_of_sources)},
                         {"use_rct"            , tx_cd.use_rct},
-                        {"change_amount"      , xmreg::gxi_amount_to_str(tx_change.amount)},
+                        {"change_amount"      , xmreg::mrl_amount_to_str(tx_change.amount)},
                         {"has_payment_id"     , (payment_id  != null_hash)},
                         {"has_payment_id8"    , (payment_id8 != null_hash8)},
                         {"payment_id"         , pid_str},
@@ -3241,7 +3241,7 @@ show_checkrawtx(string raw_tx_data, string action)
                     mstch::map dest_info {
                             {"dest_address"  , get_account_address_as_str(
                                     nettype, a_dest.is_subaddress, a_dest.addr)},
-                            {"dest_amount"   , xmreg::gxi_amount_to_str(a_dest.amount)}
+                            {"dest_amount"   , xmreg::mrl_amount_to_str(a_dest.amount)}
                     };
 
                     dest_infos.push_back(dest_info);
@@ -3258,7 +3258,7 @@ show_checkrawtx(string raw_tx_data, string action)
                     const tx_source_entry &tx_source = tx_cd.sources.at(i);
 
                     mstch::map single_dest_source {
-                            {"output_amount"              , xmreg::gxi_amount_to_str(tx_source.amount)},
+                            {"output_amount"              , xmreg::mrl_amount_to_str(tx_source.amount)},
                             {"real_output"                , static_cast<uint64_t>(tx_source.real_output)},
                             {"real_out_tx_key"            , pod_to_hex(tx_source.real_out_tx_key)},
                             {"real_output_in_tx_index"    , static_cast<uint64_t>(tx_source.real_output_in_tx_index)},
@@ -3400,7 +3400,7 @@ show_checkrawtx(string raw_tx_data, string action)
                 } //  for (size_t i = 0; i < no_of_sources; ++i)
 
                 tx_cd_data.insert({"sum_outputs_amounts" ,
-                                   xmreg::gxi_amount_to_str(sum_outputs_amounts)});
+                                   xmreg::mrl_amount_to_str(sum_outputs_amounts)});
 
 
                 uint64_t min_mix_timestamp;
@@ -3577,7 +3577,7 @@ show_checkrawtx(string raw_tx_data, string action)
 
             mstch::array destination_addresses;
             vector<uint64_t> real_ammounts;
-            uint64_t outputs_gxi_sum {0};
+            uint64_t outputs_mrl_sum {0};
 
             // destiantion address for this tx
             for (tx_destination_entry &a_dest: ptx.construction_data.splitted_dsts)
@@ -3590,12 +3590,12 @@ show_checkrawtx(string raw_tx_data, string action)
                         mstch::map {
                                 {"dest_address"   , get_account_address_as_str(
                                         nettype, a_dest.is_subaddress, a_dest.addr)},
-                                {"dest_amount"    , xmreg::gxi_amount_to_str(a_dest.amount)},
+                                {"dest_amount"    , xmreg::mrl_amount_to_str(a_dest.amount)},
                                 {"is_this_change" , false}
                         }
                 );
 
-                outputs_gxi_sum += a_dest.amount;
+                outputs_mrl_sum += a_dest.amount;
 
                 real_ammounts.push_back(a_dest.amount);
             }
@@ -3608,7 +3608,7 @@ show_checkrawtx(string raw_tx_data, string action)
                                 {"dest_address"   , get_account_address_as_str(
                                         nettype, ptx.construction_data.change_dts.is_subaddress, ptx.construction_data.change_dts.addr)},
                                 {"dest_amount"    ,
-                                        xmreg::gxi_amount_to_str(ptx.construction_data.change_dts.amount)},
+                                        xmreg::mrl_amount_to_str(ptx.construction_data.change_dts.amount)},
                                 {"is_this_change" , true}
                         }
                 );
@@ -3616,7 +3616,7 @@ show_checkrawtx(string raw_tx_data, string action)
                 real_ammounts.push_back(ptx.construction_data.change_dts.amount);
             };
 
-            tx_context["outputs_gxi_sum"] = xmreg::gxi_amount_to_str(outputs_gxi_sum);
+            tx_context["outputs_mrl_sum"] = xmreg::mrl_amount_to_str(outputs_mrl_sum);
 
             tx_context.insert({"dest_infos", destination_addresses});
 
@@ -3640,7 +3640,7 @@ show_checkrawtx(string raw_tx_data, string action)
                 {
                     if (output_amount == 0)
                     {
-                        out_amount_str = xmreg::gxi_amount_to_str(real_ammounts.at(i));
+                        out_amount_str = xmreg::mrl_amount_to_str(real_ammounts.at(i));
                     }
                 }
             }
@@ -3650,7 +3650,7 @@ show_checkrawtx(string raw_tx_data, string action)
             vector<uint64_t> real_output_indices;
             vector<uint64_t> real_amounts;
 
-            uint64_t inputs_gxi_sum {0};
+            uint64_t inputs_mrl_sum {0};
 
             for (const tx_source_entry &tx_source: ptx.construction_data.sources)
             {
@@ -3699,14 +3699,14 @@ show_checkrawtx(string raw_tx_data, string action)
                 real_output_indices.push_back(tx_source.real_output);
                 real_amounts.push_back(tx_source.amount);
 
-                inputs_gxi_sum += tx_source.amount;
+                inputs_mrl_sum += tx_source.amount;
             }
 
             // mark that we have signed tx data for use in mstch
             tx_context["have_raw_tx"] = true;
 
             // provide total mount of inputs xmr
-            tx_context["inputs_gxi_sum"] = xmreg::gxi_amount_to_str(inputs_gxi_sum);
+            tx_context["inputs_mrl_sum"] = xmreg::mrl_amount_to_str(inputs_mrl_sum);
 
             // get reference to inputs array created of the tx
             mstch::array &inputs = boost::get<mstch::array>(tx_context["inputs"]);
@@ -3724,7 +3724,7 @@ show_checkrawtx(string raw_tx_data, string action)
                         boost::get<mstch::map>(input_node)["amount"]
                 );
 
-                amount = xmreg::gxi_amount_to_str(real_amounts.at(input_idx));
+                amount = xmreg::mrl_amount_to_str(real_amounts.at(input_idx));
 
                 // check if key images are spend or not
 
@@ -4114,19 +4114,19 @@ show_checkrawkeyimgs(string raw_data, string viewkey_str)
     }
 
     // get xmr address stored in this key image file
-    const account_public_address* gxi_address =
+    const account_public_address* mrl_address =
             reinterpret_cast<const account_public_address*>(
                     decoded_raw_data.data());
 
-    address_parse_info address_info {*gxi_address, false};
+    address_parse_info address_info {*mrl_address, false};
 
 
     context.insert({"address"        , REMOVE_HASH_BRAKETS(
             xmreg::print_address(address_info, nettype))});
     context.insert({"viewkey"        , REMOVE_HASH_BRAKETS(
             fmt::format("{:s}", prv_view_key))});
-    context.insert({"has_total_gxi"  , false});
-    context.insert({"total_gxi"      , string{}});
+    context.insert({"has_total_mrl"  , false});
+    context.insert({"total_mrl"      , string{}});
     context.insert({"key_imgs"       , mstch::array{}});
 
 
@@ -4249,17 +4249,17 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
     const size_t header_lenght = 2 * sizeof(crypto::public_key);
 
     // get xmr address stored in this key image file
-    const account_public_address* gxi_address =
+    const account_public_address* mrl_address =
             reinterpret_cast<const account_public_address*>(
                     decoded_raw_data.data());
 
-    address_parse_info address_info {*gxi_address, false, false, crypto::null_hash8};
+    address_parse_info address_info {*mrl_address, false, false, crypto::null_hash8};
 
     context.insert({"address"        , REMOVE_HASH_BRAKETS(
             xmreg::print_address(address_info, nettype))});
     context.insert({"viewkey"        , pod_to_hex(prv_view_key)});
-    context.insert({"has_total_gxi"  , false});
-    context.insert({"total_gxi"      , string{}});
+    context.insert({"has_total_mrl"  , false});
+    context.insert({"total_mrl"      , string{}});
     context.insert({"output_keys"    , mstch::array{}});
 
     mstch::array &output_keys_ctx = boost::get<mstch::array>(context["output_keys"]);
@@ -4289,7 +4289,7 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
         return mstch::render(full_page, context);
     }
 
-    uint64_t total_gxi {0};
+    uint64_t total_mrl {0};
     uint64_t output_no {0};
 
     context["are_key_images_known"] = false;
@@ -4302,7 +4302,7 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
         txout_to_key txout_key = boost::get<txout_to_key>(
                 txp.vout[td.m_internal_output_index].target);
 
-        uint64_t gxi_amount = td.amount();
+        uint64_t mrl_amount = td.amount();
 
         // if the output is RingCT, i.e., tx version is 2
         // need to decode its amount
@@ -4334,13 +4334,13 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
                                        prv_view_key,
                                        td.m_internal_output_index,
                                        tx.rct_signatures.ecdhInfo[td.m_internal_output_index].mask,
-                                       gxi_amount);
+                                       mrl_amount);
                 r = r || decode_ringct(tx.rct_signatures,
                                        additional_tx_pub_keys[td.m_internal_output_index],
                                        prv_view_key,
                                        td.m_internal_output_index,
                                        tx.rct_signatures.ecdhInfo[td.m_internal_output_index].mask,
-                                       gxi_amount);
+                                       mrl_amount);
 
                 if (!r)
                 {
@@ -4378,7 +4378,7 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
         mstch::map output_info {
                 {"output_no"           , fmt::format("{:03d}", output_no)},
                 {"output_pub_key"      , REMOVE_HASH_BRAKETS(fmt::format("{:s}", txout_key.key))},
-                {"amount"              , xmreg::gxi_amount_to_str(gxi_amount)},
+                {"amount"              , xmreg::mrl_amount_to_str(mrl_amount)},
                 {"tx_hash"             , REMOVE_HASH_BRAKETS(fmt::format("{:s}", td.m_txid))},
                 {"timestamp"           , xmreg::timestamp_to_str_gm(blk_timestamp)},
                 {"is_spent"            , is_output_spent},
@@ -4389,16 +4389,16 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
 
         if (!is_output_spent)
         {
-            total_gxi += gxi_amount;
+            total_mrl += mrl_amount;
         }
 
         output_keys_ctx.push_back(output_info);
     }
 
-    if (total_gxi > 0)
+    if (total_mrl > 0)
     {
-        context["has_total_gxi"] = true;
-        context["total_gxi"] = xmreg::gxi_amount_to_str(total_gxi);
+        context["has_total_mrl"] = true;
+        context["total_mrl"] = xmreg::mrl_amount_to_str(total_mrl);
     }
 
     return mstch::render(full_page, context);;
@@ -4465,7 +4465,7 @@ search(string search_text)
     result_html = default_txt;
 
 
-    // check if Galaxia address is given based on its length
+    // check if Morelo address is given based on its length
     // if yes, then we can only show its public components
     if (search_str_length == 97)
     {
@@ -4489,7 +4489,7 @@ search(string search_text)
         return show_address_details(address_info, nettype_addr);
     }
 
-    // check if integrated Galaxia address is given based on its length
+    // check if integrated Morelo address is given based on its length
     // if yes, then show its public components search tx based on encrypted id
     if (search_str_length == 109)
     {
@@ -4529,7 +4529,7 @@ show_address_details(const address_parse_info& address_info, cryptonote::network
     string pub_spendkey_str = fmt::format("{:s}", address_info.address.m_spend_public_key);
 
     mstch::map context {
-            {"gxi_address"        , REMOVE_HASH_BRAKETS(address_str)},
+            {"mrl_address"        , REMOVE_HASH_BRAKETS(address_str)},
             {"public_viewkey"     , REMOVE_HASH_BRAKETS(pub_viewkey_str)},
             {"public_spendkey"    , REMOVE_HASH_BRAKETS(pub_spendkey_str)},
             {"is_integrated_addr" , false},
@@ -4556,7 +4556,7 @@ show_integrated_address_details(const address_parse_info& address_info,
     string enc_payment_id_str = fmt::format("{:s}", encrypted_payment_id);
 
     mstch::map context {
-            {"gxi_address"          , REMOVE_HASH_BRAKETS(address_str)},
+            {"mrl_address"          , REMOVE_HASH_BRAKETS(address_str)},
             {"public_viewkey"       , REMOVE_HASH_BRAKETS(pub_viewkey_str)},
             {"public_spendkey"      , REMOVE_HASH_BRAKETS(pub_spendkey_str)},
             {"encrypted_payment_id" , REMOVE_HASH_BRAKETS(enc_payment_id_str)},
@@ -5061,7 +5061,7 @@ json_detailedtransaction(string tx_hash_str)
     tx_context.erase("show_part_of_inputs");
     tx_context.erase("show_more_details_link");
     tx_context.erase("max_no_of_inputs_to_show");
-    tx_context.erase("inputs_gxi_sum_not_zero");
+    tx_context.erase("inputs_mrl_sum_not_zero");
     tx_context.erase("have_raw_tx");
     tx_context.erase("have_any_unknown_amount");
     tx_context.erase("has_error");
@@ -5303,7 +5303,7 @@ json_rawblock(string block_no_or_hash)
         return j_response;
     }
 
-    // get raw tx json as in Galaxia
+    // get raw tx json as in Morelo
 
     try
     {
@@ -5658,7 +5658,7 @@ json_outputs(string tx_hash_str,
     if (address_str.empty())
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Galaxia address not provided";
+        j_response["message"] = "Morelo address not provided";
         return j_response;
     }
 
@@ -5695,7 +5695,7 @@ json_outputs(string tx_hash_str,
     if (!xmreg::parse_str_address(address_str,  address_info, nettype))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant parse Galaxia address: " + address_str;
+        j_response["message"] = "Cant parse Morelo address: " + address_str;
         return j_response;
 
     }
@@ -5883,7 +5883,7 @@ json_outputsblocks(string _limit,
     if (address_str.empty())
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Galaxia address not provided";
+        j_response["message"] = "Morelo address not provided";
         return j_response;
     }
 
@@ -5900,7 +5900,7 @@ json_outputsblocks(string _limit,
     if (!xmreg::parse_str_address(address_str, address_info, nettype))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant parse Galaxia address: " + address_str;
+        j_response["message"] = "Cant parse Morelo address: " + address_str;
         return j_response;
 
     }
@@ -6046,10 +6046,10 @@ json_networkinfo()
     json j_info;
 
     // get basic network info
-    if (!get_galaxia_network_info(j_info))
+    if (!get_morelo_network_info(j_info))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant get Galaxia network info";
+        j_response["message"] = "Cant get Morelo network info";
         return j_response;
     }
 
@@ -6104,8 +6104,8 @@ json_emission()
                 = CurrentBlockchainStatus::get_emission();
 
         string emission_blk_no   = std::to_string(current_values.blk_no - 1);
-        string emission_coinbase = gxi_amount_to_str(current_values.coinbase, "{:0.9f}");
-        string emission_fee      = gxi_amount_to_str(current_values.fee, "{:0.9f}", false);
+        string emission_coinbase = mrl_amount_to_str(current_values.coinbase, "{:0.9f}");
+        string emission_fee      = mrl_amount_to_str(current_values.fee, "{:0.9f}", false);
 
         j_data = json {
                 {"blk_no"  , current_values.blk_no - 1},
@@ -6138,8 +6138,8 @@ json_version()
             {"last_git_commit_hash", string {GIT_COMMIT_HASH}},
             {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
             {"git_branch_name"     , string {GIT_BRANCH_NAME}},
-            {"galaxia_version_full"  , string {GALAXIA_VERSION_FULL}},
-            {"api"                 , GALAXIAEXPLORER_RPC_VERSION},
+            {"morelo_version_full"  , string {MORELO_VERSION_FULL}},
+            {"api"                 , MORELOEXPLORER_RPC_VERSION},
             {"blockchain_height"   , core_storage->get_current_blockchain_height()}
     };
 
@@ -6319,8 +6319,8 @@ get_tx_json(const transaction &tx, const tx_details &txd)
             {"tx_fee"      , txd.fee},
             {"mixin"       , txd.mixin_no},
             {"tx_size"     , txd.size},
-            {"gxi_outputs" , txd.gxi_outputs},
-            {"gxi_inputs"  , txd.gxi_inputs},
+            {"mrl_outputs" , txd.mrl_outputs},
+            {"mrl_inputs"  , txd.mrl_inputs},
             {"tx_version"  , static_cast<uint64_t>(txd.version)},
             {"rct_type"    , tx.rct_signatures.type},
             {"coinbase"    , is_coinbase(tx)},
@@ -6467,7 +6467,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
     double tx_size = static_cast<double>(txd.size) / 1024.0;
 
-    double payed_for_kB = GXI_AMOUNT(txd.fee) / tx_size;
+    double payed_for_kB = MRL_AMOUNT(txd.fee) / tx_size;
 
     // initalise page tempate map with basic info about blockchain
     mstch::map context {
@@ -6479,8 +6479,8 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
             {"blk_height"            , tx_blk_height_str},
             {"tx_blk_height"         , tx_blk_height},
             {"tx_size"               , fmt::format("{:0.4f}", tx_size)},
-            {"tx_fee"                , xmreg::gxi_amount_to_str(txd.fee, "{:0.9f}", false)},
-            {"tx_fee_nano"           , xmreg::gxi_amount_to_str(txd.fee*1e9, "{:0.4f}", false)},
+            {"tx_fee"                , xmreg::mrl_amount_to_str(txd.fee, "{:0.9f}", false)},
+            {"tx_fee_nano"           , xmreg::mrl_amount_to_str(txd.fee*1e9, "{:0.4f}", false)},
             {"payed_for_kB"          , fmt::format("{:0.9f}", payed_for_kB)},
             {"tx_version"            , static_cast<uint64_t>(txd.version)},
             {"blk_timestamp"         , blk_timestamp},
@@ -6528,7 +6528,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
     uint64_t input_idx {0};
 
-    uint64_t inputs_gxi_sum {0};
+    uint64_t inputs_mrl_sum {0};
 
     // ringct inputs can be mixture of known amounts (when old outputs)
     // are spent, and unknown umounts (makrked in explorer by '?') when
@@ -6604,7 +6604,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
         inputs.push_back(mstch::map {
                 {"in_key_img"   , pod_to_hex(in_key.k_image)},
-                {"amount"       , xmreg::gxi_amount_to_str(in_key.amount)},
+                {"amount"       , xmreg::mrl_amount_to_str(in_key.amount)},
                 {"input_idx"    , fmt::format("{:02d}", input_idx)},
                 {"mixins"       , mstch::array{}},
                 {"ring_sigs"    , mstch::array{}},
@@ -6618,7 +6618,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
         }
 
 
-        inputs_gxi_sum += in_key.amount;
+        inputs_mrl_sum += in_key.amount;
 
         if (in_key.amount == 0)
         {
@@ -6769,8 +6769,8 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
 
     context["have_any_unknown_amount"]  = have_any_unknown_amount;
-    context["inputs_gxi_sum_not_zero"]  = (inputs_gxi_sum > 0);
-    context["inputs_gxi_sum"]           = xmreg::gxi_amount_to_str(inputs_gxi_sum);
+    context["inputs_mrl_sum_not_zero"]  = (inputs_mrl_sum > 0);
+    context["inputs_mrl_sum"]           = xmreg::mrl_amount_to_str(inputs_mrl_sum);
     context["server_time"]              = server_time_str;
     context["enable_mixins_details"]    = detailed_view;
     context["enable_as_hex"]            = enable_as_hex;
@@ -6808,7 +6808,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
     mstch::array outputs;
 
-    uint64_t outputs_gxi_sum {0};
+    uint64_t outputs_mrl_sum {0};
 
     for (pair<txout_to_key, uint64_t> &outp: txd.output_pub_keys)
     {
@@ -6827,11 +6827,11 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
                     = std::to_string(out_amount_indices.at(output_idx));
         }
 
-        outputs_gxi_sum += outp.second;
+        outputs_mrl_sum += outp.second;
 
         outputs.push_back(mstch::map {
                 {"out_pub_key"           , pod_to_hex(outp.first.key)},
-                {"amount"                , xmreg::gxi_amount_to_str(outp.second)},
+                {"amount"                , xmreg::mrl_amount_to_str(outp.second)},
                 {"amount_idx"            , out_amount_index_str},
                 {"num_outputs"           , num_outputs_amount},
                 {"unformated_output_idx" , output_idx},
@@ -6840,7 +6840,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
     } //  for (pair<txout_to_key, uint64_t>& outp: txd.output_pub_keys)
 
-    context["outputs_gxi_sum"] = xmreg::gxi_amount_to_str(outputs_gxi_sum);
+    context["outputs_mrl_sum"] = xmreg::mrl_amount_to_str(outputs_mrl_sum);
 
     context.emplace("outputs", outputs);
 
@@ -6927,8 +6927,8 @@ get_tx_details(const transaction &tx,
     const array<uint64_t, 4> &sum_data = summary_of_in_out_rct(
             tx, txd.output_pub_keys, txd.input_key_imgs);
 
-    txd.gxi_outputs       = sum_data[0];
-    txd.gxi_inputs        = sum_data[1];
+    txd.mrl_outputs       = sum_data[0];
+    txd.mrl_inputs        = sum_data[1];
     txd.mixin_no          = sum_data[2];
     txd.num_nonrct_inputs = sum_data[3];
 
@@ -7133,7 +7133,7 @@ get_full_page(const string &middle)
 }
 
 bool
-get_galaxia_network_info(json &j_info)
+get_morelo_network_info(json &j_info)
 {
     MempoolStatus::network_info local_copy_network_info
         = MempoolStatus::current_network_info;
@@ -7228,10 +7228,10 @@ get_footer()
             {"last_git_commit_hash", string {GIT_COMMIT_HASH}},
             {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
             {"git_branch_name"     , string {GIT_BRANCH_NAME}},
-            {"galaxia_version_full"  , string {GALAXIA_VERSION_FULL}},
-            {"api"                 , std::to_string(GALAXIAEXPLORER_RPC_VERSION_MAJOR)
+            {"morelo_version_full"  , string {MORELO_VERSION_FULL}},
+            {"api"                 , std::to_string(MORELOEXPLORER_RPC_VERSION_MAJOR)
                                      + "."
-                                     + std::to_string(GALAXIAEXPLORER_RPC_VERSION_MINOR)},
+                                     + std::to_string(MORELOEXPLORER_RPC_VERSION_MINOR)},
     };
 
     string footer_html = mstch::render(xmreg::read(TMPL_FOOTER), footer_context);
@@ -7361,4 +7361,4 @@ public:
 }
 
 
-#endif //CROWXMR_PAGE_H
+#endif //CROWMRL_PAGE_H

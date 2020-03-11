@@ -1,6 +1,6 @@
-# Galaxia Onion Blockchain Explorer
+# Morelo Onion Blockchain Explorer
 
-Currently available Galaxia blockchain explorers have several limitations which are of
+Currently available Morelo blockchain explorers have several limitations which are of
 special importance to privacy-oriented users:
 
  - they use JavaScript,
@@ -8,13 +8,13 @@ special importance to privacy-oriented users:
  - track users activates through google analytics,
  - are closed sourced,
  - are not available as hidden services,
- - do not support Galaxia testnet nor stagenet networks,
+ - do not support Morelo testnet nor stagenet networks,
  - have limited JSON API.
 
 
 In this example, these limitations are addressed by development of
-an Galaxia Onion Blockchain Explorer. The example not only shows how to use
-Galaxia C++ libraries, but also demonstrates how to use:
+an Morelo Onion Blockchain Explorer. The example not only shows how to use
+Morelo C++ libraries, but also demonstrates how to use:
 
  - [crow](https://github.com/ipkn/crow) - C++ micro web framework
  - [mstch](https://github.com/no1msd/mstch) - C++ {{mustache}} templates
@@ -22,9 +22,9 @@ Galaxia C++ libraries, but also demonstrates how to use:
  - [fmt](https://github.com/fmtlib/fmt) - Small, safe and fast string formatting library
 
 
-## Galaxia Onion Blockchain Explorer features
+## Morelo Onion Blockchain Explorer features
 
-The key features of the Galaxia Onion Blockchain Explorer are:
+The key features of the Morelo Onion Blockchain Explorer are:
 
  - no cookies, no web analytics trackers, no images,
  - by default no JavaScript, but can be enabled for client side decoding and proving transactions,
@@ -33,12 +33,12 @@ The key features of the Galaxia Onion Blockchain Explorer are:
  - showing encrypted payments ID,
  - showing ring signatures,
  - showing transaction extra field,
- - showing public components of Galaxia addresses,
- - decoding which outputs and mixins belong to the given Galaxia address and viewkey,
- - can prove that you send Galaxia to someone,
+ - showing public components of Morelo addresses,
+ - decoding which outputs and mixins belong to the given Morelo address and viewkey,
+ - can prove that you send Morelo to someone,
  - detailed information about ring members, such as, their age, timescale and their ring sizes,
  - showing number of amount output indices,
- - support Galaxia testnet and stagnet networks,
+ - support Morelo testnet and stagnet networks,
  - tx checker and pusher for online pushing of transactions,
  - estimate possible spendings based on address and viewkey,
  - can provide total amount of all miner fees,
@@ -49,12 +49,12 @@ The key features of the Galaxia Onion Blockchain Explorer are:
 
 ## Compilation on Ubuntu 16.04/18.04
 
-##### Compile latest Galaxia development version
+##### Compile latest Morelo development version
 
-Download and compile recent Galaxia into your home folder:
+Download and compile recent Morelo into your home folder:
 
 ```bash
-# first install Galaxia dependecines
+# first install Morelo dependecines
 sudo apt update
 
 sudo apt install git build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev doxygen graphviz libpgm-dev libudev-dev libusb-1.0-0-dev libhidapi-dev
@@ -62,9 +62,9 @@ sudo apt install git build-essential cmake pkg-config libboost-all-dev libssl-de
 # go to home folder
 cd ~
 
-git clone --recursive https://github.com/ElSamaritan/galaxia
+git clone --recursive https://github.com/MORELO-PROJECT/morelo
 
-cd galaxia/
+cd morelo/
 
 
 USE_SINGLE_BUILDDIR=1 make
@@ -72,18 +72,18 @@ USE_SINGLE_BUILDDIR=1 make
 
 ##### Compile and run the explorer
 
-Once the Galaxia is compiles, the explorer can be downloaded and compiled
+Once the Morelo is compiles, the explorer can be downloaded and compiled
 as follows:
 
 ```bash
-# go to home folder if still in ~/galaxia
+# go to home folder if still in ~/morelo
 cd ~
 
 # download the source code
-git clone https://github.com/ElSamaritan/blockchain-explorer.git
+git clone https://github.com/MORELO-PROJECT/blockchain-explorer.git
 
 # enter the downloaded sourced code folder
-cd explorer-galaxia
+cd explorer-morelo
 
 # make a build folder and enter it
 mkdir build && cd build
@@ -91,8 +91,8 @@ mkdir build && cd build
 # create the makefile
 cmake ..
 
-# altearnatively can use: cmake -DGALAXIA_DIR=/path/to/galaxia_folder ..
-# if galaxia is not in ~/galaxia
+# altearnatively can use: cmake -DMORELO_DIR=/path/to/morelo_folder ..
+# if morelo is not in ~/morelo
 #
 # also can build with ASAN (sanitizers), for example
 # cmake -DSANITIZE_ADDRESS=On ..
@@ -104,22 +104,22 @@ make
 
 To run it:
 ```
-./gxiblocks
+./mrlblocks
 ```
 
-By default it will look for blockchain in its default location i.e., `~/.galaxia/lmdb`.
+By default it will look for blockchain in its default location i.e., `~/.morelo/lmdb`.
 You can use `-b` option if its in different location.
 
 For example:
 
 ```bash
-./gxiblocks -b /home/galaxia/non-defult-galaxia-location/lmdb/
+./mrlblocks -b /home/morelo/non-defult-morelo-location/lmdb/
 ```
 
 Example output:
 
 ```bash
-[galaxia@us blockchain-explorer]$ ./gxiblocks
+[morelo@us blockchain-explorer]$ ./mrlblocks
 2016-May-28 10:04:49.160280 Blockchain initialized. last block: 1056761, d0.h0.m12.s47 time ago, current difficulty: 1517857750
 (2016-05-28 02:04:49) [INFO    ] Crow/0.1 server is running, local port 8081
 ```
@@ -129,7 +129,7 @@ Go to your browser: http://127.0.0.1:8081
 ## The explorer's command line options
 
 ```
-gxiblocks, Galaxia Onion Blockchain Explorer:
+mrlblocks, Morelo Onion Blockchain Explorer:
   -h [ --help ] [=arg(=1)] (=0)         produce help message
   -t [ --testnet ] [=arg(=1)] (=0)      use testnet blockchain
   -s [ --stagenet ] [=arg(=1)] (=0)     use stagenet blockchain
@@ -172,45 +172,45 @@ gxiblocks, Galaxia Onion Blockchain Explorer:
   --mempool-refresh-time arg (=5)       time, in seconds, for each refresh of
                                         mempool state
   -b [ --bc-path ] arg                  path to lmdb folder of the blockchain,
-                                        e.g., ~/.galaxia/lmdb
+                                        e.g., ~/.morelo/lmdb
   --ssl-crt-file arg                    path to crt file for ssl (https)
                                         functionality
   --ssl-key-file arg                    path to key file for ssl (https)
                                         functionality
   -d [ --deamon-url ] arg (=http:://127.0.0.1:18081)
-                                        Galaxia deamon url
+                                        Morelo deamon url
 ```
 
 Example usage, defined as bash aliases.
 
 ```bash
 # for mainnet explorer
-alias gxiblocksmainnet='~/blockchain-explorer/build/gxiblocks    --port 8081 --testnet-url "http://139.162.32.245:8082" --enable-pusher --enable-emission-monitor'
+alias mrlblocksmainnet='~/blockchain-explorer/build/mrlblocks    --port 8081 --testnet-url "http://139.162.32.245:8082" --enable-pusher --enable-emission-monitor'
 
 # for testnet explorer
-alias gxiblockstestnet='~/blockchain-explorer/build/gxiblocks -t --port 8082 --mainnet-url "http://139.162.32.245:8081" --enable-pusher --enable-emission-monitor'
+alias mrlblockstestnet='~/blockchain-explorer/build/mrlblocks -t --port 8082 --mainnet-url "http://139.162.32.245:8081" --enable-pusher --enable-emission-monitor'
 ```
 
 These are aliases similar to those used for http://139.162.32.245:8081/ and http://139.162.32.245:8082/, respectively.
 
-## Enable Galaxia emission
+## Enable Morelo emission
 
-Obtaining current Galaxia emission amount is not straight forward. Thus, by default it is
+Obtaining current Morelo emission amount is not straight forward. Thus, by default it is
 disabled. To enable it use `--enable-emission-monitor` flag, e.g.,
 
 
 ```bash
-gxiblocks --enable-emission-monitor
+mrlblocks --enable-emission-monitor
 ```
 
 This flag will enable emission monitoring thread. When started, the thread
  will initially scan the entire blockchain, and calculate the cumulative emission based on each block.
 Since it is a separate thread, the explorer will work as usual during this time.
 Every 10000 blocks, the thread will save current emission in a file, by default,
- in `~/.galaxia/lmdb/emission_amount.txt`. For testnet or stagenet networks,
- it is `~/.galaxia/testnet/lmdb/emission_amount.txt` or `~/.galaxia/stagenet/lmdb/emission_amount.txt`. This file is used so that we don't
+ in `~/.morelo/lmdb/emission_amount.txt`. For testnet or stagenet networks,
+ it is `~/.morelo/testnet/lmdb/emission_amount.txt` or `~/.morelo/stagenet/lmdb/emission_amount.txt`. This file is used so that we don't
  need to rescan entire blockchain whenever the explorer is restarted. When the
- explorer restarts, the thread will first check if `~/.galaxia/lmdb/emission_amount.txt`
+ explorer restarts, the thread will first check if `~/.morelo/lmdb/emission_amount.txt`
  is present, read its values, and continue from there if possible. Subsequently, only the initial
  use of the tread is time consuming. Once the thread scans the entire blockchain, it updates
  the emission amount using new blocks as they come. Since the explorer writes this file, there can
@@ -224,10 +224,10 @@ Every 10000 blocks, the thread will save current emission in a file, by default,
  displayed on the front page, e.g., :
 
 ```
-Galaxia emission (fees) is 14485540.430 (52545.373) as of 1313448 block
+Morelo emission (fees) is 14485540.430 (52545.373) as of 1313448 block
 ```
 
-The values given, can be checked using Galaxia daemon's  `print_coinbase_tx_sum` command.
+The values given, can be checked using Morelo daemon's  `print_coinbase_tx_sum` command.
 For example, for the above example: `print_coinbase_tx_sum 0 1313449`.
 
 To disable the monitor, simply restart the explorer without `--enable-emission-monitor` flag.
@@ -238,7 +238,7 @@ By default, decoding and proving tx's outputs are done on the server side. To do
 (private view and tx keys are not send to the server) JavaScript-based decoding can be enabled:
 
 ```
-gxiblocks --enable-js
+mrlblocks --enable-js
 ```
 
 ## Enable SSL (https)
@@ -254,10 +254,10 @@ openssl req -new -key server.key -out server.csr
 openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
 ```
 
-Having the `crt` and `key` files, run `gxiblocks` in the following way:
+Having the `crt` and `key` files, run `mrlblocks` in the following way:
 
 ```bash
-./gxiblocks --ssl-crt-file=/tmp/server.crt --ssl-key-file=/tmp/server.key
+./mrlblocks --ssl-crt-file=/tmp/server.crt --ssl-key-file=/tmp/server.key
 ```
 
 Note: Because we generated our own certificate, modern browsers will complain
@@ -270,7 +270,7 @@ The explorer has JSON api. For the API, it uses conventions defined by [JSend](h
 By default the api is disabled. To enable it, use `--enable-json-api` flag, e.g.,
 
 ```
-./gxiblocks --enable-json-api
+./mrlblocks --enable-json-api
 ```
 
 #### api/transaction/<tx_hash>
@@ -325,8 +325,8 @@ Partial results shown:
     "tx_hash": "6093260dbe79fd6277694d14789dc8718f1bd54457df8bab338c2efa3bb0f03d",
     "tx_size": 13323,
     "tx_version": 2,
-    "gxi_inputs": 0,
-    "gxi_outputs": 0
+    "mrl_inputs": 0,
+    "mrl_outputs": 0
   },
   "status": "success"
 }
@@ -424,8 +424,8 @@ Partial results shown:
         "tx_hash": "3ff71b65bec34c9261e01a856e6a03594cf0472acf6b77db3f17ebd18eaa30bf",
         "tx_size": 95,
         "tx_version": 2,
-        "gxi_inputs": 0,
-        "gxi_outputs": 8025365394426
+        "mrl_inputs": 0,
+        "mrl_outputs": 8025365394426
       }
     ]
   },
@@ -463,8 +463,8 @@ Partial results shown:
         "tx_hash": "9f3374f8ac67febaab153eab297937a3d0d2c706601e496bf5028146da0c9aef",
         "tx_size": 13291,
         "tx_version": 2,
-        "gxi_inputs": 0,
-        "gxi_outputs": 0
+        "mrl_inputs": 0,
+        "mrl_outputs": 0
       }
     ],
     "txs_no": 7
@@ -516,8 +516,8 @@ Partial results shown:
         "tx_hash": "479ba432f5c88736b438dd4446a11a13046a752d469f7828151f5c5b86be4e9a",
         "tx_size": 95,
         "tx_version": 2,
-        "gxi_inputs": 0,
-        "gxi_outputs": 7992697599717
+        "mrl_inputs": 0,
+        "mrl_outputs": 7992697599717
       }
     ]
   },
@@ -536,7 +536,7 @@ For this, we use recipient's address and our tx private key as a viewkey value,
 Checking outputs:
 
 ```bash
-# we use here official Galaxia project's donation address as an example
+# we use here official Morelo project's donation address as an example
 curl  -w "\n" -X GET "http://127.0.0.1:8081/api/outputs?txhash=17049bc5f2d9fbca1ce8dae443bbbbed2fc02f1ee003ffdd0571996905faa831&address=44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A&viewkey=f359631075708155cc3d92a32b75a7d02a5dcf27756707b47a2b31b21c389501&txprove=0"
 ```
 
@@ -568,7 +568,7 @@ curl  -w "\n" -X GET "http://127.0.0.1:8081/api/outputs?txhash=17049bc5f2d9fbca1
 
 Proving transfer:
 
-We use recipient's address (i.e. not our address from which we sent gxi to recipient).
+We use recipient's address (i.e. not our address from which we sent mrl to recipient).
 For the viewkey, we use `tx_private_key` (although the GET variable is still called `viewkey`) that we obtained by sending this txs.
 
 ```bash
@@ -723,10 +723,10 @@ curl  -w "\n" -X GET "http://127.0.0.1:8081/api/version"
   "data": {
     "api": 65536,
     "blockchain_height": 1357031,
-    "git_branch_name": "update_to_current_galaxia",
+    "git_branch_name": "update_to_current_morelo",
     "last_git_commit_date": "2017-07-25",
     "last_git_commit_hash": "a549f25",
-    "galaxia_version_full": "0.10.3.1-ab594cfe"
+    "morelo_version_full": "0.10.3.1-ab594cfe"
   },
   "status": "success"
 }
@@ -743,7 +743,7 @@ var api_minor = response.data.api & 0xffff;
 
 #### api/rawblock/<block_number|block_hash>
 
-Return raw json block data, as represented in Galaxia.
+Return raw json block data, as represented in Morelo.
 
 ```bash
 curl  -w "\n" -X GET "http://139.162.32.245:8081/api/rawblock/1293257"
@@ -753,7 +753,7 @@ Example result not shown.
 
 #### api/rawtransaction/<tx_hash>
 
-Return raw json tx data, as represented in Galaxia.
+Return raw json tx data, as represented in Morelo.
 
 ```bash
 curl  -w "\n" -X GET "http://139.162.32.245:8081/api/rawtransaction/6093260dbe79fd6277694d14789dc8718f1bd54457df8bab338c2efa3bb0f03d"
