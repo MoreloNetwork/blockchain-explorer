@@ -62,7 +62,7 @@ sudo apt install git build-essential cmake pkg-config libboost-all-dev libssl-de
 # go to home folder
 cd ~
 
-git clone --recursive https://github.com/MORELO-PROJECT/morelo
+git clone --recursive https://github.com/morelo-network/morelo
 
 cd morelo/
 
@@ -80,7 +80,7 @@ as follows:
 cd ~
 
 # download the source code
-git clone https://github.com/MORELO-PROJECT/blockchain-explorer.git
+git clone https://github.com/morelo-network/blockchain-explorer.git
 
 # enter the downloaded sourced code folder
 cd explorer-morelo
