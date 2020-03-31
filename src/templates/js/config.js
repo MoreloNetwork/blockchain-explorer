@@ -7,20 +7,20 @@ var config = {
     coinSymbol: 'MRL',
     openAliasPrefix: "mrl",
     coinName: 'Morelo',
-    coinUriPrefix: 'morelo:',
-    addressPrefix: 0x786e, // gx...MainNET
-    integratedAddressPrefix: 0x1cf46e, // mrl...MainNET
-    subAddressPrefix: 0x77ee, // gxx...MainNET
-    addressPrefixTestnet: 0x186d, // gg...testnet
-    integratedAddressPrefixTestnet: 0x72ee, // gxa...testnet
-    subAddressPrefixTestnet: 0x1132ee, // gxb...testnet
-    addressPrefixStagenet: 0x36ee, // gt...stageNet
-    integratedAddressPrefixStagenet: 0x1102ee, // gtx...stageNet
-    subAddressPrefixStagenet: 0x41ee, // gts...stageNet
+    coinUriPrefix: 'mrllution',
+    addressPrefix: 0x6362, // ev...MainNET
+    integratedAddressPrefix: 0x60e2, // mrl...MainNET
+    subAddressPrefix: 0x5e62, // evc...MainNET
+    addressPrefixTestnet: 0x7de2, // ex...testnet
+    integratedAddressPrefixTestnet: 0x7c62, // ext...testnet
+    subAddressPrefixTestnet: 0x198762, // ett...testnet
+    addressPrefixStagenet: 0x361, // ee...stageNet
+    integratedAddressPrefixStagenet: 0x62e2, // evx...stageNet
+    subAddressPrefixStagenet: 0x5a262, // evv...stageNet
     feePerKB: new JSBigInt('20000'),//20^10 - for testnet its not used, as fee is dynamic.
     dustThreshold: new JSBigInt('10000'),//10^10 used for choosing outputs/change - we decompose all the way down if the receiver wants now regardless of threshold
     txChargeRatio: 0.5,
-    defaultMixin: 11, // minimum mixin for hardfork v5
+    defaultMixin: 11, // minimum mixin for hardfork v15
     txChargeAddress: '',
     idleTimeout: 30,
     idleWarningDuration: 20,

@@ -3,8 +3,8 @@
 //
 
 
-#ifndef CROWMRL_RPCCALLS_H
-#define CROWMRL_RPCCALLS_H
+#ifndef CROWXMR_RPCCALLS_H
+#define CROWXMR_RPCCALLS_H
 
 #include "morelo_headers.h"
 
@@ -81,7 +81,7 @@ class rpccalls
 
 public:
 
-    rpccalls(string _deamon_url = "http://127.0.0.1:42462", uint64_t _timeout = 200000);
+    rpccalls(string _deamon_url = "http://127.0.0.1:52922", uint64_t _timeout = 200000);
 
     bool
     connect_to_morelo_deamon();
@@ -155,14 +155,14 @@ public:
 
             if (!err.empty())
             {
-                cerr << "Error connecting to Morelo deamon due to "
+                cerr << "Error connecting to morelo deamon due to "
                      << err << endl;
                 return false;
             }
         }
         else
         {
-            cerr << "Error connecting to Morelo deamon at "
+            cerr << "Error connecting to morelo deamon at "
                  << deamon_url << endl;
             return false;
         }
@@ -192,4 +192,4 @@ public:
 
 
 
-#endif //CROWMRL_RPCCALLS_H
+#endif //CROWXMR_RPCCALLS_H

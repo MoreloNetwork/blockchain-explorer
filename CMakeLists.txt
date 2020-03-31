@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0)
 
 set(PROJECT_NAME
-        mrlblocks)
+        moreloblocks)
 
 
 project(${PROJECT_NAME})
@@ -20,11 +20,11 @@ endif()
 message(STATUS MORELO_DIR ": ${MORELO_DIR}")
 
 set(MORELO_SOURCE_DIR ${MORELO_DIR}
-        CACHE PATH "Path to the root directory for Morelo")
+        CACHE PATH "Path to the root directory for morelo")
 
 # set location of morelo build tree
-set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
-        CACHE PATH "Path to the build directory for Morelo")
+set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/Linux/master/release/
+        CACHE PATH "Path to the build directory for morelo")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
         CACHE PATH "The path to the cmake directory of the current project")
@@ -32,7 +32,7 @@ set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
 list(APPEND CMAKE_MODULE_PATH "${MY_CMAKE_DIR}")
 
 set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${MORELO_BUILD_DIR}"
-        CACHE PATH "Add Morelo directory for library searching")
+        CACHE PATH "Add morelo directory for library searching")
 
 include(MyUtils)
 
@@ -69,7 +69,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS})
 
 # include morelo
-include_directories(${MORELO_SOURCE_DIR}/build)
+include_directories(${MORELO_SOURCE_DIR}/build/Linux/master/release/)
 
 include_directories("ext/mstch/include")
 include_directories("ext/mstch/include/src")

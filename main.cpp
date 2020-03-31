@@ -100,7 +100,7 @@ main(int ac, const char* av[])
     bool show_cache_times             {*show_cache_times_opt};
 
 
-    // set Morelo log output level
+    // set morelolution log output level
     uint32_t log_level = 0;
     mlog_configure("", true);
 
@@ -173,10 +173,10 @@ main(int ac, const char* av[])
 
     string deamon_url {*deamon_url_opt};
 
-    if (testnet && deamon_url == "http://127.0.0.1:42462")
-        deamon_url = "http://127.0.0.1:29994";
-    if (stagenet && deamon_url == "http://127.0.0.1:42462")
-        deamon_url = "http://127.0.0.1:39994";
+    if (testnet && deamon_url == "http://127.0.0.1:38422")
+        deamon_url = "http://127.0.0.1:47422";
+    if (stagenet && deamon_url == "http://127.0.0.1:38422")
+        deamon_url = "http://127.0.0.1:46422";
 
     uint64_t mempool_info_timeout {5000};
 
@@ -196,12 +196,12 @@ main(int ac, const char* av[])
     {
         // This starts new thread, which aim is
         // to calculate, store and monitor
-        // current total Morelo emission amount.
+        // current total morelolution emission amount.
 
         // This thread stores the current emission
         // which it has caluclated in
         // <blockchain_path>/emission_amount.txt file,
-        // e.g., ~/.morelo/lmdb/emission_amount.txt.
+        // e.g., ~/.mrllution/lmdb/emission_amount.txt.
         // So instead of calcualting the emission
         // from scrach whenever the explorer is started,
         // the thread is initalized with the values
@@ -251,7 +251,7 @@ main(int ac, const char* av[])
 
     // create instance of page class which
     // contains logic for the website
-    xmreg::page mrlblocks(&mcore,
+    xmreg::page moreloblocks(&mcore,
                           core_storage,
                           deamon_url,
                           nettype,
@@ -286,61 +286,61 @@ main(int ac, const char* av[])
 
     CROW_ROUTE(app, "/")
     ([&](const crow::request& req) {
-      return crow::response(mrlblocks.index2());
+      return crow::response(moreloblocks.index2());
     });
 
     CROW_ROUTE(app, "/page/<uint>")
     ([&](size_t page_no) {
-        return mrlblocks.index2(page_no);
+        return moreloblocks.index2(page_no);
     });
 
     CROW_ROUTE(app, "/block/<uint>")
     ([&](const crow::request& req, size_t block_height) {
-        return crow::response(mrlblocks.show_block(block_height));
+        return crow::response(moreloblocks.show_block(block_height));
     });
 
     CROW_ROUTE(app, "/block/<string>")
     ([&](const crow::request& req, string block_hash) {
-        return crow::response(mrlblocks.show_block(remove_bad_chars(block_hash)));
+        return crow::response(moreloblocks.show_block(remove_bad_chars(block_hash)));
     });
 
     CROW_ROUTE(app, "/tx/<string>")
     ([&](string tx_hash) {
-        return crow::response(mrlblocks.show_tx(remove_bad_chars(tx_hash)));
+        return crow::response(moreloblocks.show_tx(remove_bad_chars(tx_hash)));
     });
 
     if (enable_as_hex)
     {
         CROW_ROUTE(app, "/txhex/<string>")
         ([&](string tx_hash) {
-            return crow::response(mrlblocks.show_tx_hex(remove_bad_chars(tx_hash)));
+            return crow::response(moreloblocks.show_tx_hex(remove_bad_chars(tx_hash)));
         });
 
         CROW_ROUTE(app, "/ringmembershex/<string>")
         ([&](string tx_hash) {
-            return crow::response(mrlblocks.show_ringmembers_hex(remove_bad_chars(tx_hash)));
+            return crow::response(moreloblocks.show_ringmembers_hex(remove_bad_chars(tx_hash)));
         });
 
         CROW_ROUTE(app, "/blockhex/<uint>")
         ([&](size_t block_height) {
-            return crow::response(mrlblocks.show_block_hex(block_height, false));
+            return crow::response(moreloblocks.show_block_hex(block_height, false));
         });
 
         CROW_ROUTE(app, "/blockhexcomplete/<uint>")
         ([&](size_t block_height) {
-            return crow::response(mrlblocks.show_block_hex(block_height, true));
+            return crow::response(moreloblocks.show_block_hex(block_height, true));
         });
 
         CROW_ROUTE(app, "/ringmemberstxhex/<string>")
         ([&](string tx_hash) {
-            return myxmr::jsonresponse {mrlblocks.show_ringmemberstx_jsonhex(remove_bad_chars(tx_hash))};
+            return myxmr::jsonresponse {moreloblocks.show_ringmemberstx_jsonhex(remove_bad_chars(tx_hash))};
         });
     }
 
     CROW_ROUTE(app, "/tx/<string>/<uint>")
     ([&](string tx_hash, uint16_t with_ring_signatures)
      {
-        return mrlblocks.show_tx(remove_bad_chars(tx_hash), with_ring_signatures);
+        return moreloblocks.show_tx(remove_bad_chars(tx_hash), with_ring_signatures);
     });
 
     CROW_ROUTE(app, "/myoutputs").methods("POST"_method)
@@ -350,15 +350,15 @@ main(int ac, const char* av[])
         map<std::string, std::string> post_body
                 = xmreg::parse_crow_post_data(req.body);
 
-        if (post_body.count("mrl_address") == 0
+        if (post_body.count("morelo_address") == 0
             || post_body.count("viewkey") == 0
             || post_body.count("tx_hash") == 0)
         {
-            return string("MRL address, viewkey or tx hash not provided");
+            return string("morelo address, viewkey or tx hash not provided");
         }
 
         string tx_hash     = remove_bad_chars(post_body["tx_hash"]);
-        string mrl_address = remove_bad_chars(post_body["mrl_address"]);
+        string morelo_address = remove_bad_chars(post_body["morelo_address"]);
         string viewkey     = remove_bad_chars(post_body["viewkey"]);
 
         // this will be only not empty when checking raw tx data
@@ -367,17 +367,17 @@ main(int ac, const char* av[])
 
         string domain      =  get_domain(req);
 
-        return mrlblocks.show_my_outputs(tx_hash, mrl_address, viewkey, raw_tx_data, domain);
+        return moreloblocks.show_my_outputs(tx_hash, morelo_address, viewkey, raw_tx_data, domain);
     });
 
     CROW_ROUTE(app, "/myoutputs/<string>/<string>/<string>")
     ([&](const crow::request& req, string tx_hash,
-        string mrl_address, string viewkey)
+        string morelo_address, string viewkey)
      {
 
         string domain = get_domain(req);
 
-        return mrlblocks.show_my_outputs(remove_bad_chars(tx_hash), remove_bad_chars(mrl_address), remove_bad_chars(viewkey), string {}, domain);
+        return moreloblocks.show_my_outputs(remove_bad_chars(tx_hash), remove_bad_chars(morelo_address), remove_bad_chars(viewkey), string {}, domain);
     });
 
     CROW_ROUTE(app, "/prove").methods("POST"_method)
@@ -386,17 +386,17 @@ main(int ac, const char* av[])
             map<std::string, std::string> post_body
                     = xmreg::parse_crow_post_data(req.body);
 
-            if (post_body.count("mrladdress") == 0
+            if (post_body.count("moreloaddress") == 0
                 || post_body.count("txprvkey") == 0
                 || post_body.count("txhash") == 0)
             {
-                return string("MRL address, tx private key or "
+                return string("morelo address, tx private key or "
                                       "tx hash not provided");
             }
 
             string tx_hash     = remove_bad_chars(post_body["txhash"]);
             string tx_prv_key  = remove_bad_chars(post_body["txprvkey"]);
-            string mrl_address = remove_bad_chars(post_body["mrladdress"]);
+            string morelo_address = remove_bad_chars(post_body["moreloaddress"]);
 
             // this will be only not empty when checking raw tx data
             // using tx pusher
@@ -404,24 +404,24 @@ main(int ac, const char* av[])
 
             string domain      = get_domain(req);
 
-            return mrlblocks.show_prove(tx_hash, mrl_address, tx_prv_key, raw_tx_data, domain);
+            return moreloblocks.show_prove(tx_hash, morelo_address, tx_prv_key, raw_tx_data, domain);
     });
 
 
     CROW_ROUTE(app, "/prove/<string>/<string>/<string>")
     ([&](const crow::request& req, string tx_hash,
-         string mrl_address, string tx_prv_key) {
+         string morelo_address, string tx_prv_key) {
 
         string domain = get_domain(req);
 
-        return mrlblocks.show_prove(remove_bad_chars(tx_hash), remove_bad_chars(mrl_address), remove_bad_chars(tx_prv_key), string {}, domain);
+        return moreloblocks.show_prove(remove_bad_chars(tx_hash), remove_bad_chars(morelo_address), remove_bad_chars(tx_prv_key), string {}, domain);
     });
 
     if (enable_pusher)
     {
         CROW_ROUTE(app, "/rawtx")
         ([&](const crow::request& req) {
-            return mrlblocks.show_rawtx();
+            return moreloblocks.show_rawtx();
         });
 
         CROW_ROUTE(app, "/checkandpush").methods("POST"_method)
@@ -439,9 +439,9 @@ main(int ac, const char* av[])
             string action      = remove_bad_chars(post_body["action"]);
 
             if (action == "check")
-                return mrlblocks.show_checkrawtx(raw_tx_data, action);
+                return moreloblocks.show_checkrawtx(raw_tx_data, action);
             else if (action == "push")
-                return mrlblocks.show_pushrawtx(raw_tx_data, action);
+                return moreloblocks.show_pushrawtx(raw_tx_data, action);
             return string("Provided action is neither check nor push");
 
         });
@@ -451,7 +451,7 @@ main(int ac, const char* av[])
     {
         CROW_ROUTE(app, "/rawkeyimgs")
         ([&](const crow::request& req) {
-            return mrlblocks.show_rawkeyimgs();
+            return moreloblocks.show_rawkeyimgs();
         });
 
         CROW_ROUTE(app, "/checkrawkeyimgs").methods("POST"_method)
@@ -473,7 +473,7 @@ main(int ac, const char* av[])
             string raw_data = remove_bad_chars(post_body["rawkeyimgsdata"]);
             string viewkey  = remove_bad_chars(post_body["viewkey"]);
 
-            return mrlblocks.show_checkrawkeyimgs(raw_data, viewkey);
+            return moreloblocks.show_checkrawkeyimgs(raw_data, viewkey);
         });
     }
 
@@ -482,7 +482,7 @@ main(int ac, const char* av[])
     {
         CROW_ROUTE(app, "/rawoutputkeys")
         ([&](const crow::request& req) {
-            return mrlblocks.show_rawoutputkeys();
+            return moreloblocks.show_rawoutputkeys();
         });
 
         CROW_ROUTE(app, "/checkrawoutputkeys").methods("POST"_method)
@@ -505,30 +505,30 @@ main(int ac, const char* av[])
             string raw_data = remove_bad_chars(post_body["rawoutputkeysdata"]);
             string viewkey  = remove_bad_chars(post_body["viewkey"]);
 
-            return mrlblocks.show_checkcheckrawoutput(raw_data, viewkey);
+            return moreloblocks.show_checkcheckrawoutput(raw_data, viewkey);
         });
     }
 
 
     CROW_ROUTE(app, "/search").methods("GET"_method)
     ([&](const crow::request& req) {
-        return mrlblocks.search(remove_bad_chars(string(req.url_params.get("value"))));
+        return moreloblocks.search(remove_bad_chars(string(req.url_params.get("value"))));
     });
 
     CROW_ROUTE(app, "/mempool")
     ([&](const crow::request& req) {
-        return mrlblocks.mempool(true);
+        return moreloblocks.mempool(true);
     });
 
     // alias to  "/mempool"
     CROW_ROUTE(app, "/txpool")
     ([&](const crow::request& req) {
-        return mrlblocks.mempool(true);
+        return moreloblocks.mempool(true);
     });
 
 //    CROW_ROUTE(app, "/altblocks")
 //    ([&](const crow::request& req) {
-//        return mrlblocks.altblocks();
+//        return moreloblocks.altblocks();
 //    });
 
     CROW_ROUTE(app, "/robots.txt")
@@ -538,8 +538,8 @@ main(int ac, const char* av[])
         return text;
     });
 
-    CROW_ROUTE(app, "/blockchain.js")([&]() { return mrlblocks.get_blockchain_js(); });
-    CROW_ROUTE(app, "/css/style.css")([&]() { return mrlblocks.get_css(); });
+    CROW_ROUTE(app, "/blockchain.js")([&]() { return moreloblocks.get_blockchain_js(); });
+    CROW_ROUTE(app, "/css/style.css")([&]() { return moreloblocks.get_css(); });
 
     if (enable_js)
     {
@@ -547,54 +547,54 @@ main(int ac, const char* av[])
 
         CROW_ROUTE(app, "/js/jquery.min.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("jquery.min.js");
+            return moreloblocks.get_js_file("jquery.min.js");
         });
 
         CROW_ROUTE(app, "/js/crc32.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("crc32.js");
+            return moreloblocks.get_js_file("crc32.js");
         });
 
         CROW_ROUTE(app, "/js/biginteger.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("biginteger.js");
+            return moreloblocks.get_js_file("biginteger.js");
         });
 
         CROW_ROUTE(app, "/js/crypto.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("crypto.js");
+            return moreloblocks.get_js_file("crypto.js");
         });
 
         CROW_ROUTE(app, "/js/config.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("config.js");
+            return moreloblocks.get_js_file("config.js");
         });
 
         CROW_ROUTE(app, "/js/nacl-fast-cn.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("nacl-fast-cn.js");
+            return moreloblocks.get_js_file("nacl-fast-cn.js");
         });
 
         CROW_ROUTE(app, "/js/base58.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("base58.js");
+            return moreloblocks.get_js_file("base58.js");
         });
 
         CROW_ROUTE(app, "/js/cn_util.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("cn_util.js");
+            return moreloblocks.get_js_file("cn_util.js");
         });
 
         CROW_ROUTE(app, "/js/sha3.js")
         ([&](const crow::request& req) {
-            return mrlblocks.get_js_file("sha3.js");
+            return moreloblocks.get_js_file("sha3.js");
         });
 
         CROW_ROUTE(app, "/js/all_in_one.js")
         ([&](const crow::request& req) {
             // /js/all_in_one.js file does not exist. it is generated on the fly
             // from the above real files.
-            return mrlblocks.get_js_file("all_in_one.js");
+            return moreloblocks.get_js_file("all_in_one.js");
         });
 
     } // if (enable_js)
@@ -606,13 +606,13 @@ main(int ac, const char* av[])
 
 	CROW_ROUTE(app, "/api")
         ([&](const crow::request& req) {
-            return crow::response(mrlblocks.api());
+            return crow::response(moreloblocks.api());
         });
 
         CROW_ROUTE(app, "/api/transaction/<string>")
         ([&](const crow::request &req, string tx_hash) {
 
-            myxmr::jsonresponse r{mrlblocks.json_transaction(remove_bad_chars(tx_hash))};
+            myxmr::jsonresponse r{moreloblocks.json_transaction(remove_bad_chars(tx_hash))};
 
             return r;
         });
@@ -620,7 +620,7 @@ main(int ac, const char* av[])
         CROW_ROUTE(app, "/api/rawtransaction/<string>")
         ([&](const crow::request &req, string tx_hash) {
 
-            myxmr::jsonresponse r{mrlblocks.json_rawtransaction(remove_bad_chars(tx_hash))};
+            myxmr::jsonresponse r{moreloblocks.json_rawtransaction(remove_bad_chars(tx_hash))};
 
             return r;
         });
@@ -628,7 +628,7 @@ main(int ac, const char* av[])
         CROW_ROUTE(app, "/api/block/<string>")
         ([&](const crow::request &req, string block_no_or_hash) {
 
-            myxmr::jsonresponse r{mrlblocks.json_block(remove_bad_chars(block_no_or_hash))};
+            myxmr::jsonresponse r{moreloblocks.json_block(remove_bad_chars(block_no_or_hash))};
 
             return r;
         });
@@ -636,7 +636,7 @@ main(int ac, const char* av[])
         CROW_ROUTE(app, "/api/rawblock/<string>")
         ([&](const crow::request &req, string block_no_or_hash) {
 
-            myxmr::jsonresponse r{mrlblocks.json_rawblock(remove_bad_chars(block_no_or_hash))};
+            myxmr::jsonresponse r{moreloblocks.json_rawblock(remove_bad_chars(block_no_or_hash))};
 
             return r;
         });
@@ -650,7 +650,7 @@ main(int ac, const char* av[])
             string limit = regex_search(req.raw_url, regex {"limit=\\d+"}) ?
                            req.url_params.get("limit") : "25";
 
-            myxmr::jsonresponse r{mrlblocks.json_transactions(
+            myxmr::jsonresponse r{moreloblocks.json_transactions(
                     remove_bad_chars(page), remove_bad_chars(limit))};
 
             return r;
@@ -668,7 +668,7 @@ main(int ac, const char* av[])
             string limit = regex_search(req.raw_url, regex {"limit=\\d+"}) ?
                            req.url_params.get("limit") : "100000000";
 
-            myxmr::jsonresponse r{mrlblocks.json_mempool(
+            myxmr::jsonresponse r{moreloblocks.json_mempool(
                     remove_bad_chars(page), remove_bad_chars(limit))};
 
             return r;
@@ -677,7 +677,7 @@ main(int ac, const char* av[])
         CROW_ROUTE(app, "/api/search/<string>")
         ([&](const crow::request &req, string search_value) {
 
-            myxmr::jsonresponse r{mrlblocks.json_search(remove_bad_chars(search_value))};
+            myxmr::jsonresponse r{moreloblocks.json_search(remove_bad_chars(search_value))};
 
             return r;
         });
@@ -685,7 +685,7 @@ main(int ac, const char* av[])
         CROW_ROUTE(app, "/api/networkinfo")
         ([&](const crow::request &req) {
 
-            myxmr::jsonresponse r{mrlblocks.json_networkinfo()};
+            myxmr::jsonresponse r{moreloblocks.json_networkinfo()};
 
             return r;
         });
@@ -693,7 +693,7 @@ main(int ac, const char* av[])
         CROW_ROUTE(app, "/api/emission")
         ([&](const crow::request &req) {
 
-            myxmr::jsonresponse r{mrlblocks.json_emission()};
+            myxmr::jsonresponse r{moreloblocks.json_emission()};
 
             return r;
         });
@@ -723,7 +723,7 @@ main(int ac, const char* av[])
                 cerr << "Cant parse tx_prove as bool. Using default value" << endl;
             }
 
-            myxmr::jsonresponse r{mrlblocks.json_outputs(
+            myxmr::jsonresponse r{moreloblocks.json_outputs(
                     remove_bad_chars(tx_hash),
                     remove_bad_chars(address),
                     remove_bad_chars(viewkey),
@@ -757,7 +757,7 @@ main(int ac, const char* av[])
                 cerr << "Cant parse tx_prove as bool. Using default value" << endl;
             }
 
-            myxmr::jsonresponse r{mrlblocks.json_outputsblocks(
+            myxmr::jsonresponse r{moreloblocks.json_outputsblocks(
                     remove_bad_chars(limit),
                     remove_bad_chars(address),
                     remove_bad_chars(viewkey),
@@ -769,7 +769,7 @@ main(int ac, const char* av[])
         CROW_ROUTE(app, "/api/version")
         ([&](const crow::request &req) {
 
-            myxmr::jsonresponse r{mrlblocks.json_version()};
+            myxmr::jsonresponse r{moreloblocks.json_version()};
 
             return r;
         });
@@ -782,7 +782,7 @@ main(int ac, const char* av[])
         ([&]() {
             uint64_t page_no {0};
             bool refresh_page {true};
-            return mrlblocks.index2(page_no, refresh_page);
+            return moreloblocks.index2(page_no, refresh_page);
         });
     }
 

@@ -92,7 +92,7 @@ parse_str_address(const string &address_str,
 
 
 /**
-* Return string representation of Morelo address
+* Return string representation of morelo address
 */
 string
 print_address(const address_parse_info &address_info, cryptonote::network_type nettype)
@@ -290,20 +290,20 @@ get_blockchain_path(const boost::optional<string> &bc_path,
 uint64_t
 sum_money_in_outputs(const transaction &tx)
 {
-    uint64_t sum_mrl {0};
+    uint64_t sum_morelo {0};
 
     for (const tx_out &txout: tx.vout)
     {
-        sum_mrl += txout.amount;
+        sum_morelo += txout.amount;
     }
 
-    return sum_mrl;
+    return sum_morelo;
 }
 
 pair<uint64_t, uint64_t>
 sum_money_in_outputs(const string &json_str)
 {
-    pair<uint64_t, uint64_t> sum_mrl {0,0};
+    pair<uint64_t, uint64_t> sum_morelo {0,0};
 
     json j;
 
@@ -314,31 +314,31 @@ sum_money_in_outputs(const string &json_str)
     catch (std::invalid_argument& e)
     {
         cerr << "sum_money_in_outputs: " << e.what() << endl;
-        return sum_mrl;
+        return sum_morelo;
     }
 
     for (json &vout: j["vout"])
     {
-        sum_mrl.first += vout["amount"].get<uint64_t>();
-        ++sum_mrl.second;
+        sum_morelo.first += vout["amount"].get<uint64_t>();
+        ++sum_morelo.second;
     }
 
 
-    return sum_mrl;
+    return sum_morelo;
 };
 
 pair<uint64_t, uint64_t>
 sum_money_in_outputs(const json &_json)
 {
-    pair<uint64_t, uint64_t> sum_mrl {0ULL,0ULL};
+    pair<uint64_t, uint64_t> sum_morelo {0ULL,0ULL};
 
     for (const json &vout: _json["vout"])
     {
-        sum_mrl.first += vout["amount"].get<uint64_t>();
-        ++sum_mrl.second;
+        sum_morelo.first += vout["amount"].get<uint64_t>();
+        ++sum_morelo.second;
     }
 
-    return sum_mrl;
+    return sum_morelo;
 };
 
 
@@ -349,8 +349,8 @@ summary_of_in_out_rct(
         vector<txin_to_key> &input_key_imgs)
 {
 
-    uint64_t mrl_outputs       {0};
-    uint64_t mrl_inputs        {0};
+    uint64_t morelo_outputs       {0};
+    uint64_t morelo_inputs        {0};
     uint64_t mixin_no          {0};
     uint64_t num_nonrct_inputs {0};
 
@@ -369,7 +369,7 @@ summary_of_in_out_rct(
 
         output_pub_keys.push_back(make_pair(txout_key, txout.amount));
 
-        mrl_outputs += txout.amount;
+        morelo_outputs += txout.amount;
     }
 
     size_t input_no = tx.vin.size();
@@ -385,7 +385,7 @@ summary_of_in_out_rct(
         // get tx input key
         const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
-        mrl_inputs += tx_in_to_key.amount;
+        morelo_inputs += tx_in_to_key.amount;
 
         if (tx_in_to_key.amount != 0)
         {
@@ -402,7 +402,7 @@ summary_of_in_out_rct(
     } //  for (size_t i = 0; i < input_no; ++i)
 
 
-    return {mrl_outputs, mrl_inputs, mixin_no, num_nonrct_inputs};
+    return {morelo_outputs, morelo_inputs, mixin_no, num_nonrct_inputs};
 };
 
 
@@ -410,8 +410,8 @@ summary_of_in_out_rct(
 array<uint64_t, 6>
 summary_of_in_out_rct(const json &_json)
 {
-    uint64_t mrl_outputs       {0};
-    uint64_t mrl_inputs        {0};
+    uint64_t morelo_outputs       {0};
+    uint64_t morelo_inputs        {0};
     uint64_t no_outputs        {0};
     uint64_t no_inputs         {0};
     uint64_t mixin_no          {0};
@@ -419,7 +419,7 @@ summary_of_in_out_rct(const json &_json)
 
     for (const json &vout: _json["vout"])
     {
-        mrl_outputs += vout["amount"].get<uint64_t>();
+        morelo_outputs += vout["amount"].get<uint64_t>();
     }
 
     no_outputs = _json["vout"].size();
@@ -428,7 +428,7 @@ summary_of_in_out_rct(const json &_json)
     {
         uint64_t amount = vin["key"]["amount"].get<uint64_t>();
 
-        mrl_inputs += amount;
+        morelo_inputs += amount;
 
         if (amount != 0)
             ++num_nonrct_inputs;
@@ -438,14 +438,14 @@ summary_of_in_out_rct(const json &_json)
 
     mixin_no = _json["vin"].at(0)["key"]["key_offsets"].size() - 1;
 
-    return {mrl_outputs, mrl_inputs, no_outputs, no_inputs, mixin_no, num_nonrct_inputs};
+    return {morelo_outputs, morelo_inputs, no_outputs, no_inputs, mixin_no, num_nonrct_inputs};
 };
 
 
 uint64_t
 sum_money_in_inputs(const transaction &tx)
 {
-    uint64_t sum_mrl {0};
+    uint64_t sum_morelo {0};
 
     size_t input_no = tx.vin.size();
 
@@ -460,16 +460,16 @@ sum_money_in_inputs(const transaction &tx)
         // get tx input key
         const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
-        sum_mrl += tx_in_to_key.amount;
+        sum_morelo += tx_in_to_key.amount;
     }
 
-    return sum_mrl;
+    return sum_morelo;
 }
 
 pair<uint64_t, uint64_t>
 sum_money_in_inputs(const string &json_str)
 {
-    pair<uint64_t, uint64_t> sum_mrl {0,0};
+    pair<uint64_t, uint64_t> sum_morelo {0,0};
 
     json j;
     try
@@ -479,31 +479,31 @@ sum_money_in_inputs(const string &json_str)
     catch (std::invalid_argument& e)
     {
         cerr << "sum_money_in_outputs: " << e.what() << endl;
-        return sum_mrl;
+        return sum_morelo;
     }
 
     for (json &vin: j["vin"])
     {
-        sum_mrl.first += vin["key"]["amount"].get<uint64_t>();
-        ++sum_mrl.second;
+        sum_morelo.first += vin["key"]["amount"].get<uint64_t>();
+        ++sum_morelo.second;
     }
 
-    return sum_mrl;
+    return sum_morelo;
 };
 
 
 pair<uint64_t, uint64_t>
 sum_money_in_inputs(const json &_json)
 {
-    pair<uint64_t, uint64_t> sum_mrl {0,0};
+    pair<uint64_t, uint64_t> sum_morelo {0,0};
 
     for (const json &vin: _json["vin"])
     {
-        sum_mrl.first += vin["key"]["amount"].get<uint64_t>();
-        ++sum_mrl.second;
+        sum_morelo.first += vin["key"]["amount"].get<uint64_t>();
+        ++sum_morelo.second;
     }
 
-    return sum_mrl;
+    return sum_morelo;
 };
 
 uint64_t
@@ -576,27 +576,27 @@ count_nonrct_inputs(const json &_json)
 array<uint64_t, 2>
 sum_money_in_tx(const transaction &tx)
 {
-    array<uint64_t, 2> sum_mrl;
+    array<uint64_t, 2> sum_morelo;
 
-    sum_mrl[0] = sum_money_in_inputs(tx);
-    sum_mrl[1] = sum_money_in_outputs(tx);
+    sum_morelo[0] = sum_money_in_inputs(tx);
+    sum_morelo[1] = sum_money_in_outputs(tx);
 
-    return sum_mrl;
+    return sum_morelo;
 };
 
 
 array<uint64_t, 2>
 sum_money_in_txs(const vector<transaction> &txs)
 {
-    array<uint64_t, 2> sum_mrl {0,0};
+    array<uint64_t, 2> sum_morelo {0,0};
 
     for (const transaction &tx: txs)
     {
-        sum_mrl[0] += sum_money_in_inputs(tx);
-        sum_mrl[1] += sum_money_in_outputs(tx);
+        sum_morelo[0] += sum_money_in_inputs(tx);
+        sum_morelo[1] += sum_money_in_outputs(tx);
     }
 
-    return sum_mrl;
+    return sum_morelo;
 };
 
 
@@ -1143,7 +1143,7 @@ is_output_ours(const size_t &output_index,
 
     // get the tx output public key
     // that normally would be generated for us,
-    // if someone had sent us some mrl.
+    // if someone had sent us some morelo.
     public_key pubkey;
 
     derive_public_key(derivation,

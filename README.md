@@ -1,6 +1,6 @@
-# Morelo Onion Blockchain Explorer
+# morelo Onion Blockchain Explorer
 
-Currently available Morelo blockchain explorers have several limitations which are of
+Currently available morelo blockchain explorers have several limitations which are of
 special importance to privacy-oriented users:
 
  - they use JavaScript,
@@ -8,13 +8,13 @@ special importance to privacy-oriented users:
  - track users activates through google analytics,
  - are closed sourced,
  - are not available as hidden services,
- - do not support Morelo testnet nor stagenet networks,
+ - do not support morelo testnet nor stagenet networks,
  - have limited JSON API.
 
 
 In this example, these limitations are addressed by development of
-an Morelo Onion Blockchain Explorer. The example not only shows how to use
-Morelo C++ libraries, but also demonstrates how to use:
+an morelo Onion Blockchain Explorer. The example not only shows how to use
+morelo C++ libraries, but also demonstrates how to use:
 
  - [crow](https://github.com/ipkn/crow) - C++ micro web framework
  - [mstch](https://github.com/no1msd/mstch) - C++ {{mustache}} templates
@@ -22,9 +22,9 @@ Morelo C++ libraries, but also demonstrates how to use:
  - [fmt](https://github.com/fmtlib/fmt) - Small, safe and fast string formatting library
 
 
-## Morelo Onion Blockchain Explorer features
+## morelo Onion Blockchain Explorer features
 
-The key features of the Morelo Onion Blockchain Explorer are:
+The key features of the morelo Onion Blockchain Explorer are:
 
  - no cookies, no web analytics trackers, no images,
  - by default no JavaScript, but can be enabled for client side decoding and proving transactions,
@@ -33,12 +33,12 @@ The key features of the Morelo Onion Blockchain Explorer are:
  - showing encrypted payments ID,
  - showing ring signatures,
  - showing transaction extra field,
- - showing public components of Morelo addresses,
- - decoding which outputs and mixins belong to the given Morelo address and viewkey,
- - can prove that you send Morelo to someone,
+ - showing public components of morelo addresses,
+ - decoding which outputs and mixins belong to the given morelo address and viewkey,
+ - can prove that you send morelo to someone,
  - detailed information about ring members, such as, their age, timescale and their ring sizes,
  - showing number of amount output indices,
- - support Morelo testnet and stagnet networks,
+ - support morelo testnet and stagnet networks,
  - tx checker and pusher for online pushing of transactions,
  - estimate possible spendings based on address and viewkey,
  - can provide total amount of all miner fees,
@@ -49,12 +49,12 @@ The key features of the Morelo Onion Blockchain Explorer are:
 
 ## Compilation on Ubuntu 16.04/18.04
 
-##### Compile latest Morelo development version
+##### Compile latest morelo development version
 
-Download and compile recent Morelo into your home folder:
+Download and compile recent morelo into your home folder:
 
 ```bash
-# first install Morelo dependecines
+# first install morelo dependecines
 sudo apt update
 
 sudo apt install git build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev doxygen graphviz libpgm-dev libudev-dev libusb-1.0-0-dev libhidapi-dev
@@ -72,7 +72,7 @@ USE_SINGLE_BUILDDIR=1 make
 
 ##### Compile and run the explorer
 
-Once the Morelo is compiles, the explorer can be downloaded and compiled
+Once the morelo is compiles, the explorer can be downloaded and compiled
 as follows:
 
 ```bash
@@ -80,7 +80,7 @@ as follows:
 cd ~
 
 # download the source code
-git clone https://github.com/morelo-network/blockchain-explorer.git
+git clone https://github.com/morelo-network/blockchain.git
 
 # enter the downloaded sourced code folder
 cd explorer-morelo
@@ -91,7 +91,7 @@ mkdir build && cd build
 # create the makefile
 cmake ..
 
-# altearnatively can use: cmake -DMORELO_DIR=/path/to/morelo_folder ..
+# altearnatively can use: cmake -Dmorelo_DIR=/path/to/morelo_folder ..
 # if morelo is not in ~/morelo
 #
 # also can build with ASAN (sanitizers), for example
@@ -129,7 +129,7 @@ Go to your browser: http://127.0.0.1:8081
 ## The explorer's command line options
 
 ```
-mrlblocks, Morelo Onion Blockchain Explorer:
+mrlblocks, morelo Onion Blockchain Explorer:
   -h [ --help ] [=arg(=1)] (=0)         produce help message
   -t [ --testnet ] [=arg(=1)] (=0)      use testnet blockchain
   -s [ --stagenet ] [=arg(=1)] (=0)     use stagenet blockchain
@@ -178,7 +178,7 @@ mrlblocks, Morelo Onion Blockchain Explorer:
   --ssl-key-file arg                    path to key file for ssl (https)
                                         functionality
   -d [ --deamon-url ] arg (=http:://127.0.0.1:18081)
-                                        Morelo deamon url
+                                        morelo deamon url
 ```
 
 Example usage, defined as bash aliases.
@@ -191,11 +191,11 @@ alias mrlblocksmainnet='~/blockchain-explorer/build/mrlblocks    --port 8081 --t
 alias mrlblockstestnet='~/blockchain-explorer/build/mrlblocks -t --port 8082 --mainnet-url "http://139.162.32.245:8081" --enable-pusher --enable-emission-monitor'
 ```
 
-These are aliases similar to those used for http://139.162.32.245:8081/ and http://139.162.32.245:8082/, respectively.
+These are aliases similar to those used for http://moreloglobal.hopto.org/ .
 
-## Enable Morelo emission
+## Enable morelo emission
 
-Obtaining current Morelo emission amount is not straight forward. Thus, by default it is
+Obtaining current morelo emission amount is not straight forward. Thus, by default it is
 disabled. To enable it use `--enable-emission-monitor` flag, e.g.,
 
 
@@ -224,10 +224,10 @@ Every 10000 blocks, the thread will save current emission in a file, by default,
  displayed on the front page, e.g., :
 
 ```
-Morelo emission (fees) is 14485540.430 (52545.373) as of 1313448 block
+morelo emission (fees) is 14485540.430 (52545.373) as of 1313448 block
 ```
 
-The values given, can be checked using Morelo daemon's  `print_coinbase_tx_sum` command.
+The values given, can be checked using morelo daemon's  `print_coinbase_tx_sum` command.
 For example, for the above example: `print_coinbase_tx_sum 0 1313449`.
 
 To disable the monitor, simply restart the explorer without `--enable-emission-monitor` flag.
@@ -536,7 +536,7 @@ For this, we use recipient's address and our tx private key as a viewkey value,
 Checking outputs:
 
 ```bash
-# we use here official Morelo project's donation address as an example
+# we use here morelo address as an example
 curl  -w "\n" -X GET "http://127.0.0.1:8081/api/outputs?txhash=17049bc5f2d9fbca1ce8dae443bbbbed2fc02f1ee003ffdd0571996905faa831&address=44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A&viewkey=f359631075708155cc3d92a32b75a7d02a5dcf27756707b47a2b31b21c389501&txprove=0"
 ```
 
@@ -743,7 +743,7 @@ var api_minor = response.data.api & 0xffff;
 
 #### api/rawblock/<block_number|block_hash>
 
-Return raw json block data, as represented in Morelo.
+Return raw json block data, as represented in morelo.
 
 ```bash
 curl  -w "\n" -X GET "http://139.162.32.245:8081/api/rawblock/1293257"
@@ -753,7 +753,7 @@ Example result not shown.
 
 #### api/rawtransaction/<tx_hash>
 
-Return raw json tx data, as represented in Morelo.
+Return raw json tx data, as represented in morelo.
 
 ```bash
 curl  -w "\n" -X GET "http://139.162.32.245:8081/api/rawtransaction/6093260dbe79fd6277694d14789dc8718f1bd54457df8bab338c2efa3bb0f03d"

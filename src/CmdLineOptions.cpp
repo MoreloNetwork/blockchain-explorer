@@ -18,7 +18,7 @@ namespace xmreg
         p.add("txhash", -1);
 
         options_description desc(
-                "mrlblocks, Onion Morelo Blockchain Explorer");
+                "moreloblocks, Onion Morelo Blockchain Explorer");
 
         desc.add_options()
                 ("help,h", value<bool>()->default_value(false)->implicit_value(true),
@@ -50,7 +50,7 @@ namespace xmreg
                 ("enable-autorefresh-option", value<bool>()->default_value(false)->implicit_value(true),
                  "enable users to have the index page on autorefresh")
                 ("enable-emission-monitor", value<bool>()->default_value(false)->implicit_value(true),
-                 "enable Morelo total emission monitoring thread")
+                 "enable morelo total emission monitoring thread")
                 ("port,p", value<string>()->default_value("8081"),
                  "default explorer port")
                 ("bindaddr,x", value<string>()->default_value("127.0.0.1"),
@@ -75,7 +75,7 @@ namespace xmreg
                  "path to crt file for ssl (https) functionality")
                 ("ssl-key-file", value<string>(),
                  "path to key file for ssl (https) functionality")
-                ("deamon-url,d", value<string>()->default_value("http://127.0.0.1:42462"),
+                ("deamon-url,d", value<string>()->default_value("http://127.0.0.1:38422"),
                  "Morelo deamon url");
 
 

@@ -2,8 +2,8 @@
 // Created by mwo on 5/11/15.
 //
 
-#ifndef MRLEG01_MICROCORE_H
-#define MRLEG01_MICROCORE_H
+#ifndef XMREG01_MICROCORE_H
+#define XMREG01_MICROCORE_H
 
 #include <iostream>
 
@@ -93,4 +93,4 @@ namespace xmreg
 
 
 
-#endif //MRLEG01_MICROCORE_H
+#endif //XMREG01_MICROCORE_H

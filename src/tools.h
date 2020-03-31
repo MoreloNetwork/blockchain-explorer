@@ -2,12 +2,12 @@
 // Created by mwo on 5/11/15.
 //
 
-#ifndef MRLEG01_TOOLS_H
-#define MRLEG01_TOOLS_H
+#ifndef XMREG01_TOOLS_H
+#define XMREG01_TOOLS_H
 
 #define PATH_SEPARARTOR '/'
 
-#define MRL_AMOUNT(value) \
+#define MORELO_AMOUNT(value) \
     static_cast<double>(value) / 1e9
 
 #define REMOVE_HASH_BRAKETS(a_hash) \
@@ -222,7 +222,7 @@ get_payment_id(const transaction &tx,
 
 
 inline double
-get_mrl(uint64_t core_amount)
+get_morelo(uint64_t core_amount)
 {
     return static_cast<double>(core_amount) / 1e9;
 }
@@ -270,7 +270,7 @@ decrypt(const std::string &ciphertext,
 public_key
 get_tx_pub_key_from_received_outs(const transaction &tx);
 
-static string mrl_amount_to_str(const uint64_t &mrl_amount,
+static string morelo_amount_to_str(const uint64_t &morelo_amount,
                   string _format="{:0.9f}",
                   bool zero_to_question_mark = true)
 {
@@ -278,13 +278,13 @@ static string mrl_amount_to_str(const uint64_t &mrl_amount,
 
     if (!zero_to_question_mark)
     {
-        amount_str = fmt::format(_format, MRL_AMOUNT(mrl_amount));
+        amount_str = fmt::format(_format, MORELO_AMOUNT(morelo_amount));
     }
     else
     {
-        if (mrl_amount > 0 && zero_to_question_mark == true)
+        if (morelo_amount > 0 && zero_to_question_mark == true)
         {
-            amount_str = fmt::format(_format, MRL_AMOUNT(mrl_amount));
+            amount_str = fmt::format(_format, MORELO_AMOUNT(morelo_amount));
         }
     }
 
@@ -372,4 +372,4 @@ tx_to_hex(transaction const& tx);
 
 }
 
-#endif //MRLEG01_TOOLS_H
+#endif //XMREG01_TOOLS_H

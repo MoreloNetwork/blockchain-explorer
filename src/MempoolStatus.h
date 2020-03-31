@@ -2,8 +2,8 @@
 // Created by mwo on 28/05/17.
 //
 
-#ifndef MRLBLOCKS_MEMPOOLSTATUS_H
-#define MRLBLOCKS_MEMPOOLSTATUS_H
+#ifndef MORELOBLOCKS_MEMPOOLSTATUS_H
+#define MORELOBLOCKS_MEMPOOLSTATUS_H
 
 
 #include "MicroCore.h"
@@ -41,8 +41,8 @@ struct MempoolStatus
         string fee_nano_str;
         string payed_for_kB_str;
         string payed_for_kB_nano_str;
-        string mrl_inputs_str;
-        string mrl_outputs_str;
+        string morelo_inputs_str;
+        string morelo_outputs_str;
         string timestamp_str;
         string txsize;
 
@@ -164,4 +164,4 @@ struct MempoolStatus
 };
 
 }
-#endif //MRLBLOCKS_MEMPOOLSTATUS_H
+#endif //MORELOBLOCKS_MEMPOOLSTATUS_H
