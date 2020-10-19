@@ -2,8 +2,8 @@
 # CMake helper for the majority of the cpp-ethereum modules.
 #
 # This module defines
-#     MORELO_XXX_LIBRARIES, the libraries needed to use ethereum.
-#     MORELO_FOUND, If false, do not try to use ethereum.
+#     ARQMA_XXX_LIBRARIES, the libraries needed to use ethereum.
+#     ARQMA_FOUND, If false, do not try to use ethereum.
 #
 # File addetped from cpp-ethereum
 #
@@ -28,9 +28,9 @@
 # (c) 2014-2016 cpp-ethereum contributors.
 #------------------------------------------------------------------------------
 
-set(LIBS common;blocks;cryptonote_basic;cryptonote_core;multisig;net;
-         cryptonote_protocol;daemonizer;mnemonics;epee;lmdb;device;
-         blockchain_db;ringct;wallet;cncrypto;easylogging;version;checkpoints;randomx)
+set(LIBS common;blocks;cryptonote_basic;cryptonote_core;multisig;net;morelo_mq;
+         cryptonote_protocol;daemonizer;mnemonics;epee;lmdb;device;randomx;
+         blockchain_db;ringct;wallet;cncrypto;easylogging;version;checkpoints)
 
 set(Morelo_INCLUDE_DIRS "${CPP_MORELO_DIR}")
 
@@ -44,7 +44,7 @@ foreach (l ${LIBS})
 	find_library(Morelo_${L}_LIBRARY
 		NAMES ${l}
 		PATHS ${CMAKE_LIBRARY_PATH}
-		PATH_SUFFIXES "/src/${l}" "/src/" "/external/db_drivers/lib${l}" "/lib" "/src/crypto" "/contrib/epee/src" "/external/easylogging++/" "/external/randomarq"
+		PATH_SUFFIXES "/src/${l}" "/src/" "/external/lib${l}" "/lib" "/external/randomarq/" "/src/crypto" "/contrib/epee/src" "/external/easylogging++/" "/external/${l}"
 		NO_DEFAULT_PATH
 	)
 
@@ -60,19 +60,25 @@ endforeach()
 if (EXISTS ${MORELO_BUILD_DIR}/src/ringct/libringct_basic.a)
 	message(STATUS FindMorelo " found libringct_basic.a")
 	add_library(ringct_basic STATIC IMPORTED)
-	set_property(TARGET ringct_basic
-			PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/src/ringct/libringct_basic.a)
+	set_property(TARGET ringct_basic PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/src/ringct/libringct_basic.a)
 endif()
 
+if(EXISTS ${MORELO_BUILD_DIR}/libzmq/lib/libzmq.a)
+	message(STATUS FindMorelo " found in-tree libzmq.a")
+	add_library(libzmq STATIC IMPORTED)
+	set_property(TARGET libzmq PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/libzmq/lib/libzmq.a)
+endif()
 
-message(STATUS ${MORELO_SOURCE_DIR}/build)
+message(STATUS ${MORELO_SOURCE_DIR}/build/release)
 
-# include morelo headers
+# include arqma headers
 include_directories(
-		${MORELO_SOURCE_DIR}/src
-		${MORELO_SOURCE_DIR}/external
-		${MORELO_SOURCE_DIR}/external/randomarq/src
-		${MORELO_SOURCE_DIR}/build/release
-		${MORELO_SOURCE_DIR}/external/easylogging++
-		${MORELO_SOURCE_DIR}/contrib/epee/include
-		${MORELO_SOURCE_DIR}/external/db_drivers/liblmdb)
+    ${MORELO_SOURCE_DIR}/src
+    ${MORELO_SOURCE_DIR}/src/crypto
+    ${MORELO_SOURCE_DIR}/external
+    ${MORELO_SOURCE_DIR}/external/randomarq/src
+    ${MORELO_SOURCE_DIR}/build/release
+    ${MORELO_SOURCE_DIR}/build/release/libzmq/include
+    ${MORELO_SOURCE_DIR}/external/easylogging++
+    ${MORELO_SOURCE_DIR}/contrib/epee/include
+    ${MORELO_SOURCE_DIR}/external/liblmdb)

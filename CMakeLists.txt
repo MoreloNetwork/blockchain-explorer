@@ -23,7 +23,7 @@ set(MORELO_SOURCE_DIR ${MORELO_DIR}
         CACHE PATH "Path to the root directory for morelo")
 
 # set location of morelo build tree
-set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/Linux/master/release/
+set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
         CACHE PATH "Path to the build directory for morelo")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
@@ -69,7 +69,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS})
 
 # include morelo
-include_directories(${MORELO_SOURCE_DIR}/build/Linux/master/release/)
+include_directories(${MORELO_SOURCE_DIR}/build/release)
 
 include_directories("ext/mstch/include")
 include_directories("ext/mstch/include/src")
