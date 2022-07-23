@@ -814,7 +814,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
 
                 bool is_tx_still_in_block_as_expected {true};
 
-                if (i + config::tx_settings::MORELO_TX_CONFIRMATIONS_REQUIRED > height)
+                if (i + config::tx_settings::ARQMA_TX_CONFIRMATIONS_REQUIRED > height)
                 {
                     const crypto::hash& tx_hash = txd_pair.first;
 
@@ -6138,7 +6138,7 @@ json_version()
             {"last_git_commit_hash", string {GIT_COMMIT_HASH}},
             {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
             {"git_branch_name"     , string {GIT_BRANCH_NAME}},
-            {"morelo_version_full"  , string {MORELO_VERSION_FULL}},
+            {"morelo_version_full"  , string {ARQMA_VERSION_FULL}},
             {"api"                 , MORELOEXPLORER_RPC_VERSION},
             {"blockchain_height"   , core_storage->get_current_blockchain_height()}
     };
