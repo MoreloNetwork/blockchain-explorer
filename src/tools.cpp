@@ -349,8 +349,8 @@ summary_of_in_out_rct(
         vector<txin_to_key> &input_key_imgs)
 {
 
-    uint64_t morelo_outputs       {0};
-    uint64_t morelo_inputs        {0};
+    uint64_t arq_outputs       {0};
+    uint64_t arq_inputs        {0};
     uint64_t mixin_no          {0};
     uint64_t num_nonrct_inputs {0};
 
@@ -369,7 +369,7 @@ summary_of_in_out_rct(
 
         output_pub_keys.push_back(make_pair(txout_key, txout.amount));
 
-        morelo_outputs += txout.amount;
+        arq_outputs += txout.amount;
     }
 
     size_t input_no = tx.vin.size();
@@ -385,7 +385,7 @@ summary_of_in_out_rct(
         // get tx input key
         const cryptonote::txin_to_key &tx_in_to_key = boost::get<cryptonote::txin_to_key>(tx.vin[i]);
 
-        morelo_inputs += tx_in_to_key.amount;
+        arq_inputs += tx_in_to_key.amount;
 
         if (tx_in_to_key.amount != 0)
         {
@@ -402,7 +402,7 @@ summary_of_in_out_rct(
     } //  for (size_t i = 0; i < input_no; ++i)
 
 
-    return {morelo_outputs, morelo_inputs, mixin_no, num_nonrct_inputs};
+    return {arq_outputs, arq_inputs, mixin_no, num_nonrct_inputs};
 };
 
 
@@ -410,8 +410,8 @@ summary_of_in_out_rct(
 array<uint64_t, 6>
 summary_of_in_out_rct(const json &_json)
 {
-    uint64_t morelo_outputs       {0};
-    uint64_t morelo_inputs        {0};
+    uint64_t arq_outputs       {0};
+    uint64_t arq_inputs        {0};
     uint64_t no_outputs        {0};
     uint64_t no_inputs         {0};
     uint64_t mixin_no          {0};
@@ -419,7 +419,7 @@ summary_of_in_out_rct(const json &_json)
 
     for (const json &vout: _json["vout"])
     {
-        morelo_outputs += vout["amount"].get<uint64_t>();
+        arq_outputs += vout["amount"].get<uint64_t>();
     }
 
     no_outputs = _json["vout"].size();
@@ -428,7 +428,7 @@ summary_of_in_out_rct(const json &_json)
     {
         uint64_t amount = vin["key"]["amount"].get<uint64_t>();
 
-        morelo_inputs += amount;
+        arq_inputs += amount;
 
         if (amount != 0)
             ++num_nonrct_inputs;
@@ -438,7 +438,7 @@ summary_of_in_out_rct(const json &_json)
 
     mixin_no = _json["vin"].at(0)["key"]["key_offsets"].size() - 1;
 
-    return {morelo_outputs, morelo_inputs, no_outputs, no_inputs, mixin_no, num_nonrct_inputs};
+    return {arq_outputs, arq_inputs, no_outputs, no_inputs, mixin_no, num_nonrct_inputs};
 };
 
 
