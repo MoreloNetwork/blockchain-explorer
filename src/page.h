@@ -69,11 +69,11 @@ extern __thread randomx_vm *rx_vm;
 #define TMPL_MY_RAWOUTPUTKEYS       TMPL_DIR "/rawoutputkeys.html"
 #define TMPL_MY_CHECKRAWOUTPUTKEYS  TMPL_DIR "/checkrawoutputkeys.html"
 
-#define ARQMAEXPLORER_RPC_VERSION_MAJOR 6
-#define ARQMAEXPLORER_RPC_VERSION_MINOR 2
-#define MAKE_ARQMAEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
-#define ARQMAEXPLORER_RPC_VERSION \
-    MAKE_ARQMAEXPLORER_RPC_VERSION(ARQMAEXPLORER_RPC_VERSION_MAJOR, ARQMAEXPLORER_RPC_VERSION_MINOR)
+#define MORELOEXPLORER_RPC_VERSION_MAJOR 6
+#define MORELOEXPLORER_RPC_VERSION_MINOR 2
+#define MAKE_MORELOEXPLORER_RPC_VERSION(major,minor) (((major)<<16)|(minor))
+#define MORELOEXPLORER_RPC_VERSION \
+    MAKE_MORELOEXPLORER_RPC_VERSION(MORELOEXPLORER_RPC_VERSION_MAJOR, MORELOEXPLORER_RPC_VERSION_MINOR)
 
 /**
  * visitor to produce json representations of
@@ -524,7 +524,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
     {
         json j_info;
 
-        get_arqma_network_info(j_info);
+        get_morelo_network_info(j_info);
 
         return j_info;
     });
@@ -1840,7 +1840,7 @@ show_my_outputs(string tx_hash_str,
 
     if (arq_address_str.empty())
     {
-        return string("Arqma address not provided!");
+        return string("Morelo address not provided!");
     }
 
     if (viewkey_str.empty())
@@ -1866,7 +1866,7 @@ show_my_outputs(string tx_hash_str,
     if (!xmreg::parse_str_address(arq_address_str, address_info, nettype))
     {
         cerr << "Cant parse string address: " << arq_address_str << endl;
-        return string("Cant parse arq address: " + arq_address_str);
+        return string("Cant parse mrl address: " + arq_address_str);
     }
 
     // parse string representing given private key
@@ -2036,7 +2036,7 @@ show_my_outputs(string tx_hash_str,
             {"stagenet"             , stagenet},
             {"tx_hash"              , tx_hash_str},
             {"tx_prefix_hash"       , pod_to_hex(txd.prefix_hash)},
-            {"arq_address"          , arq_address_str},
+            {"mrl_address"          , arq_address_str},
             {"viewkey"              , viewkey_str_partial},
             {"tx_pub_key"           , pod_to_hex(txd.pk)},
             {"blk_height"           , tx_blk_height_str},
@@ -2588,13 +2588,13 @@ show_my_outputs(string tx_hash_str,
     context.emplace("outputs", outputs);
 
     context["found_our_outputs"] = (sum_arq > 0);
-    context["sum_arq"]           = xmreg::arq_amount_to_str(sum_arq);
+    context["sum_mrl"]           = xmreg::arq_amount_to_str(sum_arq);
 
     context.emplace("inputs", inputs);
 
     context["show_inputs"]   = show_key_images;
     context["inputs_no"]     = static_cast<uint64_t>(inputs.size());
-    context["sum_mixin_arq"] = xmreg::arq_amount_to_str(sum_mixin_arq, "{:0.9f}", false);
+    context["sum_mixin_mrl"] = xmreg::arq_amount_to_str(sum_mixin_arq, "{:0.9f}", false);
 
 
     uint64_t possible_spending  {0};
@@ -3134,7 +3134,7 @@ show_checkrawtx(string raw_tx_data, string action)
                 real_ammounts.push_back(ptx.construction_data.change_dts.amount);
             };
 
-            tx_context["outputs_arq_sum"] = xmreg::arq_amount_to_str(outputs_arq_sum);
+            tx_context["outputs_mrl_sum"] = xmreg::arq_amount_to_str(outputs_arq_sum);
 
             tx_context.insert({"dest_infos", destination_addresses});
 
@@ -3224,7 +3224,7 @@ show_checkrawtx(string raw_tx_data, string action)
             tx_context["have_raw_tx"] = true;
 
             // provide total mount of inputs xmr
-            tx_context["inputs_arq_sum"] = xmreg::arq_amount_to_str(inputs_arq_sum);
+            tx_context["inputs_mrl_sum"] = xmreg::arq_amount_to_str(inputs_arq_sum);
 
             // get reference to inputs array created of the tx
             mstch::array &inputs = boost::get<mstch::array>(tx_context["inputs"]);
@@ -3643,8 +3643,8 @@ show_checkrawkeyimgs(string raw_data, string viewkey_str)
             xmreg::print_address(address_info, nettype))});
     context.insert({"viewkey"        , REMOVE_HASH_BRAKETS(
             fmt::format("{:s}", prv_view_key))});
-    context.insert({"has_total_arq"  , false});
-    context.insert({"total_arq"      , string{}});
+    context.insert({"has_total_mrl"  , false});
+    context.insert({"total_mrl"      , string{}});
     context.insert({"key_imgs"       , mstch::array{}});
 
 
@@ -3776,8 +3776,8 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
     context.insert({"address"        , REMOVE_HASH_BRAKETS(
             xmreg::print_address(address_info, nettype))});
     context.insert({"viewkey"        , pod_to_hex(prv_view_key)});
-    context.insert({"has_total_arq"  , false});
-    context.insert({"total_arq"      , string{}});
+    context.insert({"has_total_mrl"  , false});
+    context.insert({"total_mrl"      , string{}});
     context.insert({"output_keys"    , mstch::array{}});
 
     mstch::array &output_keys_ctx = boost::get<mstch::array>(context["output_keys"]);
@@ -3915,8 +3915,8 @@ show_checkcheckrawoutput(string raw_data, string viewkey_str)
 
     if (total_arq > 0)
     {
-        context["has_total_arq"] = true;
-        context["total_arq"] = xmreg::arq_amount_to_str(total_arq);
+        context["has_total_mrl"] = true;
+        context["total_mrl"] = xmreg::arq_amount_to_str(total_arq);
     }
 
     return mstch::render(full_page, context);;
@@ -3983,7 +3983,7 @@ search(string search_text)
     result_html = default_txt;
 
 
-    // check if Arqma address is given based on its length
+    // check if Morelo address is given based on its length
     // if yes, then we can only show its public components
     if (search_str_length == 97)
     {
@@ -4007,7 +4007,7 @@ search(string search_text)
         return show_address_details(address_info, nettype_addr);
     }
 
-    // check if integrated Arqma address is given based on its length
+    // check if integrated Morelo address is given based on its length
     // if yes, then show its public components search tx based on encrypted id
     if (search_str_length == 109)
     {
@@ -4047,7 +4047,7 @@ show_address_details(const address_parse_info& address_info, cryptonote::network
     string pub_spendkey_str = fmt::format("{:s}", address_info.address.m_spend_public_key);
 
     mstch::map context {
-            {"arq_address"        , REMOVE_HASH_BRAKETS(address_str)},
+            {"mrl_address"        , REMOVE_HASH_BRAKETS(address_str)},
             {"public_viewkey"     , REMOVE_HASH_BRAKETS(pub_viewkey_str)},
             {"public_spendkey"    , REMOVE_HASH_BRAKETS(pub_spendkey_str)},
             {"is_integrated_addr" , false},
@@ -4074,7 +4074,7 @@ show_integrated_address_details(const address_parse_info& address_info,
     string enc_payment_id_str = fmt::format("{:s}", encrypted_payment_id);
 
     mstch::map context {
-            {"arq_address"          , REMOVE_HASH_BRAKETS(address_str)},
+            {"mrl_address"          , REMOVE_HASH_BRAKETS(address_str)},
             {"public_viewkey"       , REMOVE_HASH_BRAKETS(pub_viewkey_str)},
             {"public_spendkey"      , REMOVE_HASH_BRAKETS(pub_spendkey_str)},
             {"encrypted_payment_id" , REMOVE_HASH_BRAKETS(enc_payment_id_str)},
@@ -4574,7 +4574,7 @@ json_detailedtransaction(string tx_hash_str)
     tx_context.erase("show_part_of_inputs");
     tx_context.erase("show_more_details_link");
     tx_context.erase("max_no_of_inputs_to_show");
-    tx_context.erase("inputs_arq_sum_not_zero");
+    tx_context.erase("inputs_mrl_sum_not_zero");
     tx_context.erase("have_raw_tx");
     tx_context.erase("have_any_unknown_amount");
     tx_context.erase("has_error");
@@ -4816,7 +4816,7 @@ json_rawblock(string block_no_or_hash)
         return j_response;
     }
 
-    // get raw tx json as in Arqma
+    // get raw tx json as in Morelo
 
     try
     {
@@ -5171,7 +5171,7 @@ json_outputs(string tx_hash_str,
     if (address_str.empty())
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Arqma address not provided";
+        j_response["message"] = "Morelo address not provided";
         return j_response;
     }
 
@@ -5208,7 +5208,7 @@ json_outputs(string tx_hash_str,
     if (!xmreg::parse_str_address(address_str,  address_info, nettype))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant parse Arqma address: " + address_str;
+        j_response["message"] = "Cant parse Morelo address: " + address_str;
         return j_response;
 
     }
@@ -5396,7 +5396,7 @@ json_outputsblocks(string _limit,
     if (address_str.empty())
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Arqma address not provided";
+        j_response["message"] = "Morelo address not provided";
         return j_response;
     }
 
@@ -5413,7 +5413,7 @@ json_outputsblocks(string _limit,
     if (!xmreg::parse_str_address(address_str, address_info, nettype))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant parse Arqma address: " + address_str;
+        j_response["message"] = "Cant parse Morelo address: " + address_str;
         return j_response;
 
     }
@@ -5559,10 +5559,10 @@ json_networkinfo()
     json j_info;
 
     // get basic network info
-    if (!get_arqma_network_info(j_info))
+    if (!get_morelo_network_info(j_info))
     {
         j_response["status"]  = "error";
-        j_response["message"] = "Cant get Arqma network info";
+        j_response["message"] = "Cant get Morelo network info";
         return j_response;
     }
 
@@ -5651,8 +5651,8 @@ json_version()
             {"last_git_commit_hash", string {GIT_COMMIT_HASH}},
             {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
             {"git_branch_name"     , string {GIT_BRANCH_NAME}},
-            {"arqma_version_full"  , string {ARQMA_VERSION_FULL}},
-            {"api"                 , ARQMAEXPLORER_RPC_VERSION},
+            {"morelo_version_full"  , string {MORELO_VERSION_FULL}},
+            {"api"                 , MORELOEXPLORER_RPC_VERSION},
             {"blockchain_height"   , core_storage->get_current_blockchain_height()}
     };
 
@@ -5832,8 +5832,8 @@ get_tx_json(const transaction &tx, const tx_details &txd)
             {"tx_fee"      , txd.fee},
             {"mixin"       , txd.mixin_no},
             {"tx_size"     , txd.size},
-            {"arq_outputs" , txd.arq_outputs},
-            {"arq_inputs"  , txd.arq_inputs},
+            {"mrl_outputs" , txd.arq_outputs},
+            {"mrl_inputs"  , txd.arq_inputs},
             {"tx_version"  , static_cast<uint64_t>(txd.version)},
             {"rct_type"    , tx.rct_signatures.type},
             {"coinbase"    , is_coinbase(tx)},
@@ -6281,8 +6281,8 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
 
     context["have_any_unknown_amount"]  = have_any_unknown_amount;
-    context["inputs_arq_sum_not_zero"]  = (inputs_arq_sum > 0);
-    context["inputs_arq_sum"]           = xmreg::arq_amount_to_str(inputs_arq_sum);
+    context["inputs_mrl_sum_not_zero"]  = (inputs_arq_sum > 0);
+    context["inputs_mrl_sum"]           = xmreg::arq_amount_to_str(inputs_arq_sum);
     context["server_time"]              = server_time_str;
     context["enable_mixins_details"]    = detailed_view;
     context["enable_as_hex"]            = enable_as_hex;
@@ -6352,7 +6352,7 @@ construct_tx_context(transaction tx, uint16_t with_ring_signatures = 0)
 
     } //  for (pair<txout_to_key, uint64_t>& outp: txd.output_pub_keys)
 
-    context["outputs_arq_sum"] = xmreg::arq_amount_to_str(outputs_arq_sum);
+    context["outputs_mrl_sum"] = xmreg::arq_amount_to_str(outputs_arq_sum);
 
     context.emplace("outputs", outputs);
 
@@ -6653,7 +6653,7 @@ get_full_page(const string &middle)
 }
 
 bool
-get_arqma_network_info(json &j_info)
+get_morelo_network_info(json &j_info)
 {
     MempoolStatus::network_info local_copy_network_info
         = MempoolStatus::current_network_info;
@@ -6748,10 +6748,10 @@ get_footer()
             {"last_git_commit_hash", string {GIT_COMMIT_HASH}},
             {"last_git_commit_date", string {GIT_COMMIT_DATETIME}},
             {"git_branch_name"     , string {GIT_BRANCH_NAME}},
-            {"arqma_version_full"  , string {ARQMA_VERSION_FULL}},
-            {"api"                 , std::to_string(ARQMAEXPLORER_RPC_VERSION_MAJOR)
+            {"morelo_version_full"  , string {MORELO_VERSION_FULL}},
+            {"api"                 , std::to_string(MORELOEXPLORER_RPC_VERSION_MAJOR)
                                      + "."
-                                     + std::to_string(ARQMAEXPLORER_RPC_VERSION_MINOR)},
+                                     + std::to_string(MORELOEXPLORER_RPC_VERSION_MINOR)},
     };
 
     string footer_html = mstch::render(xmreg::read(TMPL_FOOTER), footer_context);

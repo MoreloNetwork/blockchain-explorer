@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12.0)
 
 set(PROJECT_NAME
-        arqblocks)
+        moreloblocks)
 
 
 project(${PROJECT_NAME})
@@ -15,30 +15,30 @@ if (WIN32)
 endif()
 
 
-if (NOT ARQMA_DIR)
-    set(ARQMA_DIR ~/arqma)
+if (NOT MORELO_DIR)
+    set(MORELO_DIR ~/morelo)
 endif()
 
-message(STATUS ARQMA_DIR ": ${ARQMA_DIR}")
+message(STATUS MORELO_DIR ": ${MORELO_DIR}")
 
-set(ARQMA_SOURCE_DIR ${ARQMA_DIR}
-        CACHE PATH "Path to the root directory for Arqma")
+set(ARQMA_SOURCE_DIR ${MORELO_DIR}
+        CACHE PATH "Path to the root directory for Morelo")
 
-# set location of arqma build tree
-set(ARQMA_BUILD_DIR ${ARQMA_SOURCE_DIR}/build/Linux/release-v0.6.1/release
-        CACHE PATH "Path to the build directory for Arqma")
+# set location of morelo build tree
+set(ARQMA_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
+        CACHE PATH "Path to the build directory for Morelo")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
         CACHE PATH "The path to the cmake directory of the current project")
 
 list(APPEND CMAKE_MODULE_PATH "${MY_CMAKE_DIR}")
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${ARQMA_BUILD_DIR}"
-        CACHE PATH "Add Arqma directory for library searching")
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${MORELO_BUILD_DIR}"
+        CACHE PATH "Add Morelo directory for library searching")
 
 include(MyUtils)
 
-find_package(Arqma)
+find_package(Morelo)
 
 # find boost
 find_package(Boost COMPONENTS
