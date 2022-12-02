@@ -28,11 +28,11 @@
 # (c) 2014-2016 cpp-ethereum contributors.
 #------------------------------------------------------------------------------
 
-set(LIBS common;blocks;cryptonote_basic;cryptonote_core;multisig;net;morelo_mq;
+set(LIBS common;blocks;cryptonote_basic;cryptonote_core;multisig;net;arqma_mq;
          cryptonote_protocol;daemonizer;mnemonics;epee;lmdb;device;randomx;
          blockchain_db;ringct;wallet;cncrypto;easylogging;version;checkpoints)
 
-set(Morelo_INCLUDE_DIRS "${CPP_MORELO_DIR}")
+set(Arqma_INCLUDE_DIRS "${CPP_ARQMA_DIR}")
 
 # if the project is a subset of main cpp-ethereum project
 # use same pattern for variables as Boost uses
@@ -41,44 +41,44 @@ foreach (l ${LIBS})
 
 	string(TOUPPER ${l} L)
 
-	find_library(Morelo_${L}_LIBRARY
+	find_library(Arqma_${L}_LIBRARY
 		NAMES ${l}
 		PATHS ${CMAKE_LIBRARY_PATH}
 		PATH_SUFFIXES "/src/${l}" "/src/" "/external/lib${l}" "/lib" "/external/randomarq/" "/src/crypto" "/contrib/epee/src" "/external/easylogging++/" "/external/${l}"
 		NO_DEFAULT_PATH
 	)
 
-	set(Morelo_${L}_LIBRARIES ${Morelo_${L}_LIBRARY})
+	set(Arqma_${L}_LIBRARIES ${Arqma_${L}_LIBRARY})
 
-	message(STATUS FindMorelo " Morelo_${L}_LIBRARIES ${Morelo_${L}_LIBRARY}")
+	message(STATUS FindArqma " Arqma_${L}_LIBRARIES ${Arqma_${L}_LIBRARY}")
 
 	add_library(${l} STATIC IMPORTED)
-	set_property(TARGET ${l} PROPERTY IMPORTED_LOCATION ${Morelo_${L}_LIBRARIES})
+	set_property(TARGET ${l} PROPERTY IMPORTED_LOCATION ${Arqma_${L}_LIBRARIES})
 
 endforeach()
 
-if (EXISTS ${MORELO_BUILD_DIR}/src/ringct/libringct_basic.a)
-	message(STATUS FindMorelo " found libringct_basic.a")
+if (EXISTS ${ARQMA_BUILD_DIR}/src/ringct/libringct_basic.a)
+	message(STATUS FindArqma " found libringct_basic.a")
 	add_library(ringct_basic STATIC IMPORTED)
-	set_property(TARGET ringct_basic PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/src/ringct/libringct_basic.a)
+	set_property(TARGET ringct_basic PROPERTY IMPORTED_LOCATION ${ARQMA_BUILD_DIR}/src/ringct/libringct_basic.a)
 endif()
 
-if(EXISTS ${MORELO_BUILD_DIR}/libzmq/lib/libzmq.a)
-	message(STATUS FindMorelo " found in-tree libzmq.a")
+if(EXISTS ${ARQMA_BUILD_DIR}/libzmq/lib/libzmq.a)
+	message(STATUS FindArqma " found in-tree libzmq.a")
 	add_library(libzmq STATIC IMPORTED)
-	set_property(TARGET libzmq PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/libzmq/lib/libzmq.a)
+	set_property(TARGET libzmq PROPERTY IMPORTED_LOCATION ${ARQMA_BUILD_DIR}/libzmq/lib/libzmq.a)
 endif()
 
-message(STATUS ${MORELO_SOURCE_DIR}/build/release)
+message(STATUS ${ARQMA_SOURCE_DIR}/build/Linux/release-v0.6.1)
 
 # include arqma headers
 include_directories(
-    ${MORELO_SOURCE_DIR}/src
-    ${MORELO_SOURCE_DIR}/src/crypto
-    ${MORELO_SOURCE_DIR}/external
-    ${MORELO_SOURCE_DIR}/external/randomarq/src
-    ${MORELO_SOURCE_DIR}/build/release
-    ${MORELO_SOURCE_DIR}/build/release/libzmq/include
-    ${MORELO_SOURCE_DIR}/external/easylogging++
-    ${MORELO_SOURCE_DIR}/contrib/epee/include
-    ${MORELO_SOURCE_DIR}/external/liblmdb)
+    ${ARQMA_SOURCE_DIR}/src
+    ${ARQMA_SOURCE_DIR}/src/crypto
+    ${ARQMA_SOURCE_DIR}/external
+    ${ARQMA_SOURCE_DIR}/external/randomarq/src
+    ${ARQMA_SOURCE_DIR}/build/Linux/release-v0.6.1/release
+    ${ARQMA_SOURCE_DIR}/build/Linux/release-v0.6.1/release/libzmq/include
+    ${ARQMA_SOURCE_DIR}/external/easylogging++
+    ${ARQMA_SOURCE_DIR}/contrib/epee/include
+    ${ARQMA_SOURCE_DIR}/external/liblmdb)

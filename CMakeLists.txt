@@ -1,42 +1,44 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.12.0)
 
 set(PROJECT_NAME
-        moreloblocks)
+        arqblocks)
 
 
 project(${PROJECT_NAME})
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj -O3")
 endif()
 
 
-if (NOT MORELO_DIR)
-    set(MORELO_DIR ~/morelo)
+if (NOT ARQMA_DIR)
+    set(ARQMA_DIR ~/arqma)
 endif()
 
-message(STATUS MORELO_DIR ": ${MORELO_DIR}")
+message(STATUS ARQMA_DIR ": ${ARQMA_DIR}")
 
-set(MORELO_SOURCE_DIR ${MORELO_DIR}
-        CACHE PATH "Path to the root directory for morelo")
+set(ARQMA_SOURCE_DIR ${ARQMA_DIR}
+        CACHE PATH "Path to the root directory for Arqma")
 
-# set location of morelo build tree
-set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
-        CACHE PATH "Path to the build directory for morelo")
+# set location of arqma build tree
+set(ARQMA_BUILD_DIR ${ARQMA_SOURCE_DIR}/build/Linux/release-v0.6.1/release
+        CACHE PATH "Path to the build directory for Arqma")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
         CACHE PATH "The path to the cmake directory of the current project")
 
 list(APPEND CMAKE_MODULE_PATH "${MY_CMAKE_DIR}")
 
-set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${MORELO_BUILD_DIR}"
-        CACHE PATH "Add morelo directory for library searching")
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${ARQMA_BUILD_DIR}"
+        CACHE PATH "Add Arqma directory for library searching")
 
 include(MyUtils)
 
-find_package(Morelo)
+find_package(Arqma)
 
 # find boost
 find_package(Boost COMPONENTS
@@ -62,14 +64,14 @@ endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR WIN32)
     add_library(unbound STATIC IMPORTED)
-    set_property(TARGET unbound PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/external/unbound/libunbound.a)
+    set_property(TARGET unbound PROPERTY IMPORTED_LOCATION ${ARQMA_BUILD_DIR}/external/unbound/libunbound.a)
 endif()
 
 # include boost headers
 include_directories(${Boost_INCLUDE_DIRS})
 
-# include morelo
-include_directories(${MORELO_SOURCE_DIR}/build/release)
+# include arqma
+include_directories(${ARQMA_SOURCE_DIR}/build/Linux/release-v0.6.1/release)
 
 include_directories("ext/mstch/include")
 include_directories("ext/mstch/include/src")
@@ -97,13 +99,13 @@ create_git_version()
 configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates ${CMAKE_CURRENT_BINARY_DIR}/templates)
 configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates/css ${CMAKE_CURRENT_BINARY_DIR}/templates/css)
 configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates/partials ${CMAKE_CURRENT_BINARY_DIR}/templates/partials)
-configure_files(${CMAKE_CURRENT_SOURCE_DIR}/src/templates/js ${CMAKE_CURRENT_BINARY_DIR}/templates/js)
 
 set(LIBRARIES
         myxrm
         myext
         mstch
         wallet
+        arqma_mq
         blockchain_db
         cryptonote_core
         cryptonote_protocol
@@ -113,19 +115,19 @@ set(LIBRARIES
         multisig
         daemonizer
         cncrypto
-        randomx
         lmdb
         ringct
         ringct_basic
         device
         common
+        randomx
         mnemonics
         easylogging
         checkpoints
         version
         epee
         sodium
-        zmq
+        libzmq
         ${Boost_LIBRARIES}
         pthread
         unbound

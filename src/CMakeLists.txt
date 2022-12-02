@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.12.0)
 
 project(myxrm)
 
 set(SOURCE_HEADERS
   MicroCore.h
   tools.h
-  morelo_headers.h
+  arqma_headers.h
   CurrentBlockchainStatus.h)
 
 set(SOURCE_FILES
@@ -13,18 +13,15 @@ set(SOURCE_FILES
   tools.cpp
   CmdLineOptions.cpp
   page.h
-  rpccalls.cpp
+  rpccalls.cpp 
   rpccalls.h
   version.h.in
   CurrentBlockchainStatus.cpp
   MempoolStatus.cpp
   MempoolStatus.h)
 
-#add_subdirectory(crypto)
+add_subdirectory(randomarq_code)
 
-# make static library called libmyxrm
-# that we are going to link to
-# in the root CMakeLists.txt file
 add_library(myxrm STATIC ${SOURCE_FILES})
 
-#target_link_libraries(myxrm mycrypto)
+target_link_libraries(myxrm randomarq_crypto)
