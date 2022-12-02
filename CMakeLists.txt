@@ -21,11 +21,11 @@ endif()
 
 message(STATUS MORELO_DIR ": ${MORELO_DIR}")
 
-set(ARQMA_SOURCE_DIR ${MORELO_DIR}
+set(MORELO_SOURCE_DIR ${MORELO_DIR}
         CACHE PATH "Path to the root directory for Morelo")
 
 # set location of morelo build tree
-set(ARQMA_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
+set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
         CACHE PATH "Path to the build directory for Morelo")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
@@ -64,14 +64,14 @@ endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR WIN32)
     add_library(unbound STATIC IMPORTED)
-    set_property(TARGET unbound PROPERTY IMPORTED_LOCATION ${ARQMA_BUILD_DIR}/external/unbound/libunbound.a)
+    set_property(TARGET unbound PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/external/unbound/libunbound.a)
 endif()
 
 # include boost headers
 include_directories(${Boost_INCLUDE_DIRS})
 
-# include arqma
-include_directories(${ARQMA_SOURCE_DIR}/build/Linux/release-v0.6.1/release)
+# include morelo
+include_directories(${MORELO_SOURCE_DIR}/build/Linux/release-v0.6.1/release)
 
 include_directories("ext/mstch/include")
 include_directories("ext/mstch/include/src")
