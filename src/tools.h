@@ -7,7 +7,7 @@
 
 #define PATH_SEPARARTOR '/'
 
-#define MORELO_AMOUNT(value) \
+#define ARQ_AMOUNT(value) \
     static_cast<double>(value) / 1e9
 
 #define REMOVE_HASH_BRAKETS(a_hash) \
@@ -270,7 +270,7 @@ decrypt(const std::string &ciphertext,
 public_key
 get_tx_pub_key_from_received_outs(const transaction &tx);
 
-static string morelo_amount_to_str(const uint64_t &morelo_amount,
+static string arq_amount_to_str(const uint64_t &arq_amount,
                   string _format="{:0.9f}",
                   bool zero_to_question_mark = true)
 {
@@ -278,13 +278,13 @@ static string morelo_amount_to_str(const uint64_t &morelo_amount,
 
     if (!zero_to_question_mark)
     {
-        amount_str = fmt::format(_format, MORELO_AMOUNT(morelo_amount));
+        amount_str = fmt::format(_format, ARQ_AMOUNT(arq_amount));
     }
     else
     {
-        if (morelo_amount > 0 && zero_to_question_mark == true)
+        if (arq_amount > 0 && zero_to_question_mark == true)
         {
-            amount_str = fmt::format(_format, MORELO_AMOUNT(morelo_amount));
+            amount_str = fmt::format(_format, ARQ_AMOUNT(arq_amount));
         }
     }
 
