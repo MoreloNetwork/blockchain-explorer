@@ -241,17 +241,17 @@ get_default_lmdb_folder(cryptonote::network_type nettype)
 {
     // default path to morelo folder
     // on linux this is /home/<username>/.morelo
-    string default_morelo_dir = tools::get_default_data_dir();
+    string default_arq_dir = tools::get_default_data_dir();
 
     if (nettype == cryptonote::network_type::TESTNET)
-        default_morelo_dir += "/testnet";
+        default_arq_dir += "/testnet";
     if (nettype == cryptonote::network_type::STAGENET)
-        default_morelo_dir += "/stagenet";
+        default_arq_dir += "/stagenet";
 
 
     // the default folder of the lmdb blockchain database
     // is therefore as follows
-    return default_morelo_dir + string("/lmdb");
+    return default_arq_dir + string("/lmdb");
 }
 
 

@@ -84,7 +84,7 @@ public:
     rpccalls(string _deamon_url = "http://127.0.0.1:52922", uint64_t _timeout = 200000);
 
     bool
-    connect_to_morelo_deamon();
+    connect_to_arq_deamon();
 
     uint64_t
     get_current_height();

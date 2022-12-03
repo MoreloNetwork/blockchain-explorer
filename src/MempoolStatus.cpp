@@ -191,7 +191,7 @@ MempoolStatus::read_mempool()
         last_tx.payed_for_kB_str      = fmt::format("{:0.4f}", payed_for_kB);
         last_tx.payed_for_kB_nano_str = fmt::format("{:04.0f}", payed_for_kB*1.0e6);
         last_tx.arq_inputs_str        = xmreg::arq_amount_to_str(last_tx.sum_inputs , "{:0.3f}");
-        last_tx.morelo_outputs_str       = xmreg::arq_amount_to_str(last_tx.sum_outputs, "{:0.3f}");
+        last_tx.arq_outputs_str       = xmreg::arq_amount_to_str(last_tx.sum_outputs, "{:0.3f}");
         last_tx.timestamp_str         = xmreg::timestamp_to_str_gm(_tx_info.receive_time);
 
         last_tx.txsize                = fmt::format("{:0.2f}", tx_size);

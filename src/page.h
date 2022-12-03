@@ -524,7 +524,7 @@ index2(uint64_t page_no = 0, bool refresh_page = false)
     {
         json j_info;
 
-        get_morelo_network_info(j_info);
+        get_arq_network_info(j_info);
 
         return j_info;
     });
@@ -5559,7 +5559,7 @@ json_networkinfo()
     json j_info;
 
     // get basic network info
-    if (!get_morelo_network_info(j_info))
+    if (!get_arq_network_info(j_info))
     {
         j_response["status"]  = "error";
         j_response["message"] = "Cant get Morelo network info";
@@ -6653,7 +6653,7 @@ get_full_page(const string &middle)
 }
 
 bool
-get_morelo_network_info(json &j_info)
+get_arq_network_info(json &j_info)
 {
     MempoolStatus::network_info local_copy_network_info
         = MempoolStatus::current_network_info;
