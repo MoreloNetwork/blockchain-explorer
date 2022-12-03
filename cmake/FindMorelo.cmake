@@ -69,7 +69,7 @@ if(EXISTS ${MORELO_BUILD_DIR}/libzmq/lib/libzmq.a)
 	set_property(TARGET libzmq PROPERTY IMPORTED_LOCATION ${MORELO_BUILD_DIR}/libzmq/lib/libzmq.a)
 endif()
 
-message(STATUS ${MORELO_SOURCE_DIR}/build/Linux/release-v0.6.1)
+message(STATUS ${MORELO_SOURCE_DIR}/build/release)
 
 # include morelo headers
 include_directories(
@@ -77,8 +77,8 @@ include_directories(
     ${MORELO_SOURCE_DIR}/src/crypto
     ${MORELO_SOURCE_DIR}/external
     ${MORELO_SOURCE_DIR}/external/randomarq/src
-    ${MORELO_SOURCE_DIR}/build/Linux/release-v0.6.1/release
-    ${MORELO_SOURCE_DIR}/build/Linux/release-v0.6.1/release/libzmq/include
+    ${MORELO_SOURCE_DIR}/build/release
+    ${MORELO_SOURCE_DIR}/build/release/libzmq/include
     ${MORELO_SOURCE_DIR}/external/easylogging++
     ${MORELO_SOURCE_DIR}/contrib/epee/include
     ${MORELO_SOURCE_DIR}/external/liblmdb)
