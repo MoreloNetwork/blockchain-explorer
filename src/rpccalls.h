@@ -129,7 +129,7 @@ public:
         {
             std::lock_guard<std::mutex> guard(m_daemon_rpc_mutex);
 
-            if (!connect_to_morelo_deamon())
+            if (!connect_to_arq_deamon())
             {
                 cerr << "get_alt_blocks: not connected to deamon" << endl;
                 return false;
