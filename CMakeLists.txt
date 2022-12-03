@@ -71,7 +71,7 @@ endif()
 include_directories(${Boost_INCLUDE_DIRS})
 
 # include morelo
-include_directories(${MORELO_SOURCE_DIR}/build/Linux/release-v0.6.1/release)
+include_directories(${MORELO_SOURCE_DIR}/build/release)
 
 include_directories("ext/mstch/include")
 include_directories("ext/mstch/include/src")
