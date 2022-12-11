@@ -14,7 +14,10 @@ if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj -O3")
 endif()
 
-set(MORELO_DIR ~/morelo)
+
+if (NOT MORELO_DIR)
+    set(MORELO_DIR ~/morelo)
+endif()
 
 message(STATUS MORELO_DIR ": ${MORELO_DIR}")
 
@@ -22,7 +25,7 @@ set(MORELO_SOURCE_DIR ${MORELO_DIR}
         CACHE PATH "Path to the root directory for Morelo")
 
 # set location of morelo build tree
-set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/release
+set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
         CACHE PATH "Path to the build directory for Morelo")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
@@ -37,16 +40,25 @@ include(MyUtils)
 
 find_package(Morelo)
 
-cmake_policy(SET CMP0093 NEW)
-
-find_package(Boost 1.62.0 QUIET REQUIRED COMPONENTS system filesystem thread date_time chrono regex serialization program_options)
+# find boost
+find_package(Boost COMPONENTS
+        system
+        filesystem
+        thread
+        date_time
+        chrono
+        regex
+        serialization
+        program_options
+        date_time
+        REQUIRED)
 
 #info https://github.com/arsenm/sanitizers-cmake
 find_package(Sanitizers)
 
 if(APPLE)
-    include_directories(/opt/homebrew/opt/openssl@1.1/include)
-    link_directories(/opt/homebrew/opt/openssl@1.1/lib)
+    include_directories(/usr/local/opt/openssl/include)
+    link_directories(/usr/local/opt/openssl/lib)
 endif()
 
 
@@ -56,7 +68,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR WIN32)
 endif()
 
 # include boost headers
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
 
 # include morelo
 include_directories(${MORELO_SOURCE_DIR}/build/release)
