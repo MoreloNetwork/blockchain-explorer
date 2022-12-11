@@ -22,7 +22,7 @@ set(MORELO_SOURCE_DIR ${MORELO_DIR}
         CACHE PATH "Path to the root directory for Morelo")
 
 # set location of morelo build tree
-set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/release
+set(MORELO_BUILD_DIR ${MORELO_SOURCE_DIR}/build/release
         CACHE PATH "Path to the build directory for Morelo")
 
 set(MY_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake"
