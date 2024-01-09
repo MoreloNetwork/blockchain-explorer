@@ -1,41 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="keywords" content="morelo, coin, currency, altcoin, mining, bitcoin">
+    <meta name="description" content="Morelo Network Blockchain Explorer">
+    <meta name="author" content="Ryo-Currency, Monero, Arqma Developers, Morelo Network Project">
     <meta charset="UTF-8">
-    <link rel="shortcut icon" href="about:blank">
-    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-    {{#refresh}}
-        <meta http-equiv="refresh" content="10">
-    {{/refresh}}
-    <title>Onion Morelo Blockchain Explorer</title>
-    <!--<link rel="stylesheet" type="text/css" href="/css/style.css">-->
-    <style type="text/css">
-        {{#css_styles}}{{/css_styles}}
-    </style>
-				<!-- bootstrap CSS-->
-				<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-
-				<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-				<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-				<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-				<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-				
+    <meta name="viewport" content="width=device-width, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Morelo Network">
+    <meta name="application-name" content="Morelo Network">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="theme-color" content="#ffffff">
+    {{#refresh}}<meta http-equiv="refresh" content="10">{{/refresh}}
+    <link href="" rel="icon" type="image/x-icon" />
+    <link rel="manifest" href="/site.manifest">
+    <title>MORELO Blockchain Explorer</title>
+    <style type="text/css">{{#css_styles}}{{/css_styles}}</style>
 </head>
 <body>
-<div>
- 
-    <div class="center">
-        <h1 class="center"><a href="/">Onion Morelo Blockchain Explorer</a></h1>
-        <h4 style="font-size: 15px; margin: 0px">(no javascript - no cookies - no web analytics trackers - no images - open sourced)</h4>
-    </div>
+  <div class="container">
+    <header>
 
+		<div class="logo">
+			<a href="/">
+			</a>
 
-    <div class="center">
-        <form action="/search" method="get" style="width:100%; margin-top:15px" class="style-1">
-            <input type="text" name="value" size="120"
-                   placeholder="block height, block hash, transaction hash">
-            <input type="submit" value="Search">
+		</div>
+
+      <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
+	<ul class="pure-menu-list">
+	  <li class="pure-menu-item"><a href="/" class="pure-menu-link">Main page</a></li>
+	  <li class="pure-menu-item"><a href="/txpool" class="pure-menu-link">Transaction pool</a></li>
+          {{#enable_pusher}}<li class="pure-menu-item"><a href="/rawtx" class="pure-menu-link">Transaction pusher</a></li>{{/enable_pusher}}
+	  {{#enable_key_image_checker}}<li class="pure-menu-item"><a href="/rawkeyimgs" class="pure-menu-link">Key images checker</a></li>{{/enable_key_image_checker}}
+	  {{#enable_output_key_checker}}<li class="pure-menu-item"><a href="/rawoutputkeys" class="pure-menu-link">Output keys checker</a></li>{{/enable_output_key_checker}}
+	  <li class="pure-menu-item"><a href="/api" class="pure-menu-link">API</a></li>
+	</ul>
+      </div>
+
+      <div class="search">
+        <form action="/search" method="get" class="pure-form">
+            <input type="text" name="value" placeholder="block height, block hash, transaction hash, public address">
+            <input type="submit" value="Search" class="pure-button pure-button-active">
         </form>
-    </div>
+      </div>
 
-</div>
+    </header>
