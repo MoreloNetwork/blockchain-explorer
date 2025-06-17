@@ -1,4 +1,4 @@
-Copyright (c) 2020, Morelo Developer Team
+Copyright (c) 2020-2023, Morelo Network
 Copyright (c) 2019, ArQmA
 Copyright (c) 2017-2018, Ryo
 Copyright (c) 2017, moneroexamples

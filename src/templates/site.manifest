@@ -1,17 +1,12 @@
 {
   "lang": "en",
-  "name": "Arqma Network",
-  "short_name": "Arqma",
+  "name": "Morelo Network",
+  "short_name": "Morelo",
   "icons":
   [
     {
-      "src": "https://github.com/arqma/arqma-logo/raw/master/ico%20sizes/ms-icon-310x310.png",
-      "sizes": "310x310",
-      "type": "image/png"
-    },
-    {
-      "src": "https://github.com/arqma/arqma-logo/raw/master/ico%20sizes/ms-icon-144x144.png",
-      "sizes": "144x144",
+      "src": "https://raw.githubusercontent.com/MoreloNetwork/MoreloNetwork.github.io/refs/heads/master/images/logo.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ],
